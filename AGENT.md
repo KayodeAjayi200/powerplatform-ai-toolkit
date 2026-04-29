@@ -264,6 +264,36 @@ Tell the user:
 Save the environment ID and app ID — you will need them in Phase 4A.
 
 ---
+
+## Phase 2G — Set up GitHub source control for the solution
+
+Now that the Power Platform resources exist (Phase 2F), connect the solution to GitHub
+so that all changes are version-controlled and can be deployed automatically.
+
+Read and execute `setup/github-integration.md` fully.
+
+The file will guide you through:
+1. Creating a private GitHub repo for the solution (check if one already exists first)
+2. Creating a Power Platform service principal for headless GitHub Actions authentication
+3. Storing the service principal credentials as GitHub secrets
+4. Writing two GitHub Actions workflows into the repo:
+   - **Export workflow** — manually triggered; exports the solution from dev and opens a PR
+   - **Deploy workflow** — auto-triggered on merge to main; packs and deploys to test
+5. Making the initial commit with workflows and placeholder folders
+
+**Before creating a new repo, always check:**
+```powershell
+gh repo list --limit 100 | Select-String $solutionRepoName
+```
+If a repo already exists for this solution, clone it instead of creating a new one.
+
+Tell the user when done:
+> "Your solution is now connected to GitHub. Whenever you want to save your changes to source
+> control, go to the Actions tab in your repo and run 'Export solution from dev'.
+> Merging that PR to main will automatically deploy to your test environment."
+
+---
+
 ## Phase 3 — Design
 
 ### 3A — Collect design references
@@ -362,6 +392,7 @@ After all screens are built and verified, give the user:
 | Datasource decision guide + commands | `setup/datasource-mcps.md` |
 | External API and custom connector setup | `setup/apis.md` |
 | Provision environment, solution, canvas app | `setup/provision.md` |
+| GitHub source control + Actions workflows | `setup/github-integration.md` |
 | End-to-end new app workflow (detailed) | `workflows/new-app.md` |
 | Per-MCP-server reference | `mcp-tools/` |
 | Canvas App formulas and controls | `skills/canvas-app.md` |

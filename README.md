@@ -49,8 +49,12 @@ powerplatform-ai-toolkit/
 │   └── copilot-instructions.md   <- Auto-loaded by GitHub Copilot
 ├── setup/
 │   ├── prerequisites.md           <- Check-first install for Node, PAC CLI, .NET, git, gh
+│   ├── cli-auth.md                <- Sign-in scripts for pac, gh, git, m365, az
 │   ├── mcp-config.md              <- Full MCP config with merge-safe write script
-│   └── datasource-mcps.md         <- Dataverse vs SharePoint vs SQL — decision guide + commands
+│   ├── datasource-mcps.md         <- Dataverse vs SharePoint vs SQL — decision guide + commands
+│   ├── apis.md                    <- External API + custom connector setup guide
+│   ├── provision.md               <- Create environment, solution, and canvas app via CLI/API
+│   └── github-integration.md      <- GitHub repo + service principal + Actions workflows
 ├── workflows/
 │   └── new-app.md                 <- Detailed end-to-end new app build workflow
 ├── mcp-tools/                     <- Per-server reference docs
