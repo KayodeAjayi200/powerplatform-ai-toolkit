@@ -1,0 +1,89 @@
+# Canvas App Authoring MCP
+
+**Server keys:** `powerapps-canvas` (stable), `canvas-authoring` (prerelease)  
+**What it does:** Connects your AI agent directly to a live canvas app open in Power Apps Studio. The agent can read the app's YAML, generate controls, edit properties, and push changes back — all without you manually copying and pasting YAML.
+
+---
+
+## When to use
+
+- Generating a new canvas app screen from a description
+- Editing an existing canvas app (adding controls, fixing layout, updating formulas)
+- Fixing accessibility errors in a canvas app
+- Syncing local YAML edits back into a live app
+
+---
+
+## What you need
+
+Both IDs come from the Power Apps Studio URL when the app is open:
+
+```
+https://make.powerapps.com/e/<ENVIRONMENT_ID>/canvas/?action=edit&app-id=<APP_ID>
+```
+
+| Credential | Where in the URL |
+|---|---|
+| **App ID** | After `app-id=` |
+| **Environment ID** | After `/e/` |
+
+---
+
+## Install
+
+```powershell
+# Install the stable Canvas Authoring MCP tool (run once per machine)
+dotnet tool install -g CanvasAuthoringMcpServer
+
+# Install dnx for the prerelease path (run once per machine)
+dotnet tool install -g dnx
+```
+
+---
+
+## Config blocks
+
+Use **both** blocks — they expose the same app via two different startup methods.  
+Some hosts work better with one than the other.
+
+### Primary (stable — uses installed global tool)
+
+```json
+"powerapps-canvas": {
+  "command": "CanvasAuthoringMcpServer",
+  "args": [],
+  "env": {
+    "CANVAS_APP_ID":           "PASTE_APP_ID_HERE",
+    "CANVAS_ENVIRONMENT_ID":   "PASTE_ENVIRONMENT_ID_HERE",
+    "CANVAS_CLUSTER_CATEGORY": "prod"
+  }
+}
+```
+
+### Secondary (prerelease — uses dnx)
+
+```json
+"canvas-authoring": {
+  "type": "stdio",
+  "command": "dnx",
+  "args": [
+    "Microsoft.PowerApps.CanvasAuthoring.McpServer",
+    "--yes", "--prerelease",
+    "--source", "https://api.nuget.org/v3/index.json"
+  ],
+  "env": {
+    "CANVAS_APP_ID":           "PASTE_APP_ID_HERE",
+    "CANVAS_ENVIRONMENT_ID":   "PASTE_ENVIRONMENT_ID_HERE",
+    "CANVAS_CLUSTER_CATEGORY": "prod"
+  }
+}
+```
+
+---
+
+## Notes
+
+- The app **must be open in Power Apps Studio** in a browser for the MCP connection to work
+- App ID and Environment ID change for every different app — update `mcp-config.json` when switching apps
+- Use the skill file [`skills/canvas-authoring-mcp.md`](../skills/canvas-authoring-mcp.md) before running any canvas editing task — it has the full workflow
+- `CANVAS_CLUSTER_CATEGORY` should be `"prod"` for production environments; use `"gcc"` for GCC environments
