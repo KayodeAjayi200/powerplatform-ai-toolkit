@@ -10,11 +10,154 @@ metadata:
   abstract: Step-by-step guide for AI agents to connect the Canvas Authoring MCP server to the correct Power Apps canvas app. Covers extracting App ID and Environment ID from the Studio URL, reading and updating mcp-config.json, restarting the MCP server, verifying co-authoring is active, and resolving HTTP 404 connection errors across both powerapps-canvas and canvas-authoring MCP entries.
 ---
 
-# AGENT SKILL: Canvas Authoring MCP — Connecting to the Right App
+# AGENT SKILL: Canvas Authoring MCP — Building Canvas Apps with AI
 
 > **Reference for AI agents working with the Canvas Authoring MCP server.**
-> Read this skill whenever a user asks you to edit, fix, or build controls in a Canvas App
+> Read this skill whenever a user asks you to create, edit, fix, or build controls in a Canvas App
 > via the Canvas Authoring MCP, or whenever you get a 404 / connection error from the MCP.
+>
+> Official guide: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/create-canvas-external-tools
+
+---
+
+## Plugin install (GitHub Copilot CLI and Claude Code)
+
+Before anything else, install the Power Platform Skills plugin. This gives you the slash commands and loads all the canvas app knowledge the AI needs.
+
+**Step 1 — Add the marketplace plugin:**
+```
+/plugin marketplace add microsoft/power-platform-skills
+```
+
+**Step 2 — Install the canvas apps plugin:**
+```
+/plugin install canvas-apps@power-platform-skills
+```
+
+The plugin repository contains full control documentation, design guidance, and workflow instructions:
+https://aka.ms/canvas-authoring-mcp
+
+---
+
+## Slash commands
+
+Once the plugin is installed, these commands are available:
+
+| Command | What it does |
+|---|---|
+| `/generate-canvas-app` | Create a new canvas app from a natural language description |
+| `/edit-canvas-app` | Make changes to an existing canvas app using natural language |
+| `/configure-canvas-mcp` | Register the Canvas Authoring MCP server — paste the Studio URL and it extracts all IDs automatically |
+
+**Always run `/configure-canvas-mcp` before building or editing.** It sets up the MCP connection in one step — no manual ID copying.
+
+---
+
+## Prerequisites — what must be true before building
+
+1. **.NET SDK 10.0 or later** — run `dotnet --version` to check. Must show `10.x`.
+   Install: https://dotnet.microsoft.com/download/dotnet/10.0
+
+2. **A canvas app already exists** in a Power Platform environment. If not, create one first:
+   - Power Apps (make.powerapps.com) → Create → Blank app → Save → name it → copy the edit URL
+
+3. **The app is open in Power Apps Studio** in a browser tab
+
+4. **Coauthoring is enabled** — Studio → Settings → Updates → Coauthoring → turn on.
+   If coauthoring is off, every MCP call fails silently or returns 404.
+
+---
+
+## How the agent creates a canvas app — end to end
+
+### What happens under the hood
+
+1. You describe what you want in natural language
+2. The AI uses the MCP server to discover available controls, connectors, and data sources
+3. It asks clarifying questions about requirements
+4. It generates `.pa.yaml` files defining screens, controls, and Power Fx formulas
+5. It validates the YAML using `powerapps-canvas-compile_canvas` and fixes any errors
+6. Changes sync into Power Apps Studio via the live coauthoring session
+
+---
+
+## Creating a new canvas app — step by step
+
+### Before starting
+
+- Make sure a blank canvas app exists and is open in Studio with coauthoring ON
+- Run `/configure-canvas-mcp` and paste the Studio URL
+
+### Step 1 — Describe what you want to build
+
+Be as specific as possible. The more detail you give, the less the AI has to guess.
+
+**Good description examples:**
+- "Create a canvas app for tracking inventory with a searchable list and a detail view showing quantity, location, and last updated date"
+- "Build an employee onboarding app with a multi-step form — personal details, equipment request, and manager sign-off steps"
+- "Make a sales dashboard showing pipeline value, win rate, and top deals — use cards and a bar chart"
+- "Create a field inspection app where engineers log issues with a photo, severity rating, and location"
+
+You can also attach screenshots, wireframes, or brand colours to guide the visual style.
+
+### Step 2 — Answer clarifying questions
+
+The AI will ask about:
+- Which Dataverse tables or connectors to use as data sources
+- Specific UI components or layout preferences
+- Business logic (approvals, filters, calculations)
+
+Be specific — this shapes the formulas and data connections.
+
+### Step 3 — Review and validate
+
+The AI generates `.pa.yaml` files for each screen and validates them.
+It fixes validation errors automatically. Changes sync into your Studio session.
+
+### Step 4 — Test and iterate
+
+Open the app in Studio. Preview it. Describe any changes you want:
+- "Add a filter to show only items with quantity below 10"
+- "Change the home screen to a card grid instead of a list"
+- "Add a confirmation screen before submitting"
+
+Keep iterating until it meets your requirements.
+
+---
+
+## Editing an existing canvas app — step by step
+
+### Step 1 — Sync the current app state
+
+Ask the AI to start editing your app. It pulls the current YAML from Studio:
+> "I want to edit my expense tracking app"
+
+The AI runs `powerapps-canvas-sync_canvas` to pull all screens and controls into local `.pa.yaml` files.
+
+### Step 2 — Describe your changes
+
+Examples:
+- "Add a filter to show only pending expenses"
+- "Change the home screen layout to a card-based grid"
+- "Add a new screen for viewing expense history with a bar chart"
+- "Update the form to include a dropdown for expense categories"
+- "Fix the gallery — it should show the Submitted By column, not the ID"
+
+### Step 3 — Review, validate, and test
+
+Same as creating — the AI validates, fixes errors, syncs changes. Test in Studio, iterate.
+
+---
+
+## Best practices for AI-generated canvas apps
+
+- **Start simple** — get a basic working version first, then add complexity screen by screen
+- **Test frequently** — preview in Studio after each significant change before asking for more
+- **Be specific** — detailed requirements give better initial output with fewer corrections
+- **Bold design choices** — describe the visual style you want; don't accept generic layouts
+- **Validate generated code** — always check formulas compile and data sources are connected correctly
+- **Use existing patterns** — reference similar apps or UI patterns when describing requirements
+- **You are responsible** — AI makes a best effort but you must review for your org's standards and compliance
 
 ---
 
