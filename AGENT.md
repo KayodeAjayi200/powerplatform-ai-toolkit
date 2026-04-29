@@ -1,4 +1,4 @@
-﻿# Power Platform AI Toolkit — Agent Bootstrap
+# Power Platform AI Toolkit — Agent Bootstrap
 
 > **You are an AI coding agent.**
 > A user has pointed you at this repository to set up their environment for Power Apps / Power Platform development.
@@ -72,11 +72,26 @@ Read `setup/cli-auth.md` and run the sign-in checks **for every installed tool**
 
 Do not skip authentication — a tool that is not signed in is useless.
 
+**Before signing in to anything**, tell the user:
+> "You may have more than one Microsoft account — for example a work account, a personal account,
+> or access to different organisations. You may also have more than one GitHub account.
+> I'll check what's already set up and ask you to confirm before we proceed."
+
+For each tool, follow the check-first pattern in `setup/cli-auth.md`:
+1. Check if a profile or session already exists
+2. Show it to the user in plain language
+3. Ask: "Is this the right account for this project?" before proceeding
+4. Only sign in or switch if needed
+
 | Tool | What it authenticates to |
 |---|---|
 | `pac auth create` | Power Platform (Dataverse, environments, solutions) |
 | `gh auth login` | GitHub (repos, PRs) |
 | `git config` | Attach a name and email to commits |
+
+> **Tip:** `pac`, `m365`, and `az` all use Microsoft accounts and often share the same tenant.
+> Once you confirm the Microsoft account for Power Platform, check whether it applies for
+> Microsoft 365 and Azure too — avoid asking for the same information twice.
 
 After authenticating pac, list the available environments and ask the user which one to use:
 
@@ -330,6 +345,40 @@ Tell the user when done:
 
 ---
 
+## Phase 2H — Set up Azure DevOps project tracking (optional)
+
+**Ask the user:**
+> "Would you like to track your project in Azure DevOps? It lets you manage your backlog and
+> plan your work using Epics, Features, and User Stories — and your AI agent can create and
+> update items automatically as it builds.
+>
+> This is optional — if you already track work somewhere else, or don't need project tracking
+> right now, we can skip it."
+
+If the user says **yes**:
+
+Read and execute `setup/devops.md` fully.
+
+The file will guide you through:
+1. Installing the Azure DevOps CLI extension (if not already installed)
+2. Asking the user for their ADO organisation URL and project name
+3. Creating the project if it does not exist (ask which process: Agile, Scrum, or CMMI)
+4. Creating Epics, Features, and User Stories based on what the user described in their app brief — derive real, relevant items from the app description, not generic placeholders
+5. Creating four shared tracking queries (active work, not-started stories, my items, full hierarchy)
+
+**Before creating any work items**, show the user the Epics you plan to create and ask:
+> "Here is how I plan to organise your backlog: [list Epics]. Does that look right, or would you like to adjust anything?"
+
+Wait for confirmation before creating anything.
+
+Tell the user when done:
+> "Your Azure DevOps project is set up. You can view your backlog here:
+> [adoOrg]/[adoProject]/_backlogs/backlog"
+
+If the user says **no**: continue to the next step.
+
+---
+
 ## Phase 3 — Design
 
 ### 3A — Collect design references
@@ -375,7 +424,7 @@ in `mcp-config.json` with them now (use the update script in `setup/mcp-config.m
 Then **ask the user to open the edit link** you gave them earlier:
 
 > "Time to start building. Please open your canvas app in Power Apps Studio using this link:
-> [the edit link from Phase 2F]
+> [the edit link from the provisioning step]
 >
 > Once it is fully loaded and you can see the blank canvas, let me know and I will start building."
 
@@ -430,6 +479,7 @@ After all screens are built and verified, give the user:
 | External API and custom connector setup | `setup/apis.md` |
 | Provision environment, solution, canvas app | `setup/provision.md` |
 | GitHub source control + Actions workflows | `setup/github-integration.md` |
+| Azure DevOps project + work item hierarchy | `setup/devops.md` |
 | End-to-end new app workflow (detailed) | `workflows/new-app.md` |
 | Per-MCP-server reference | `mcp-tools/` |
 | Canvas App formulas and controls | `skills/canvas-app.md` |
