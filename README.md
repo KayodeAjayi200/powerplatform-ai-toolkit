@@ -1,70 +1,85 @@
-# Power Platform AI Toolkit
+﻿# Power Platform AI Toolkit
 
-A standalone reference for **MCP tools** and **agent skills** used in Power Platform AI development.
+A self-contained setup and skills repository for AI-assisted Power Apps development.
 
-This repo is not tied to any specific project or dashboard. Drop it into any AI coding agent (GitHub Copilot, Cursor, Claude, etc.) and immediately unlock Power Platform–aware AI assistance.
-
----
-
-## What's in here
-
-| Folder | What it is |
-|---|---|
-| [`mcp-tools/`](./mcp-tools/) | One file per MCP server — what it does, what credentials it needs, and how to configure it |
-| [`skills/`](./skills/) | Agent skill reference files — deep domain knowledge for Power Apps, delegation, accessibility, and more |
+Point your AI coding agent at this repo and tell it to set up your Power Apps environment — it reads the instructions here, installs everything it needs, configures MCP servers, asks what you want to build, and then builds it.
 
 ---
 
-## How to use this
+## For AI agents — start here
 
-### Add to GitHub Copilot CLI (recommended)
+> **Read [`AGENT.md`](./AGENT.md) and follow the instructions there.**
+>
+> `AGENT.md` contains the complete bootstrap sequence:
+> - Check and install prerequisites (without overwriting working installs)
+> - Configure MCP servers
+> - Ask what the user wants to build
+> - Plan and create data sources
+> - Get design references
+> - Build the app using Canvas Authoring MCP
 
-Add the skills folder to your `~/.copilot/mcp-config.json` filesystem paths so Copilot can read the skill files:
+---
 
-```powershell
-# After cloning this repo to e.g. C:\Repositories\powerplatform-ai-toolkit
-# Open mcp-config.json and add the path to the filesystem MCP args array
-$mcpConfig = Join-Path $env:USERPROFILE ".copilot\mcp-config.json"
-$mcp = Get-Content $mcpConfig -Raw | ConvertFrom-Json
-$mcp.mcpServers.filesystem.args += "C:\Repositories\powerplatform-ai-toolkit"
-$mcp | ConvertTo-Json -Depth 10 | Set-Content $mcpConfig -Encoding UTF8
+## Quick start — what to say to your agent
+
+Copy and paste this into your AI coding agent (GitHub Copilot, Cursor, Claude, etc.):
+
+```
+Set up my Power Apps development environment.
+Toolkit repo: https://github.com/KayodeAjayi200/powerplatform-ai-toolkit
+Read AGENT.md from that repo and follow the setup instructions automatically.
 ```
 
-### Reference in your agent instructions
-
-In your project's `.github/copilot-instructions.md` or equivalent, tell your agent:
+If you have already cloned the repo locally:
 
 ```
-Read the skill files in C:\Repositories\powerplatform-ai-toolkit\skills\ before working on Power Apps or Power Platform tasks.
+Set up my Power Apps development environment.
+Read AGENT.md from: C:\Repositories\powerplatform-ai-toolkit
+Follow the setup instructions automatically.
 ```
 
 ---
 
-## MCP tools at a glance
+## What is in this repo
 
-| Server key | What it does | Needs |
+```
+powerplatform-ai-toolkit/
+├── AGENT.md                       <- Agent bootstrap: read this to auto-setup + build
+├── .github/
+│   └── copilot-instructions.md   <- Auto-loaded by GitHub Copilot
+├── setup/
+│   ├── prerequisites.md           <- Check-first install for Node, PAC CLI, .NET, git, gh
+│   ├── mcp-config.md              <- Full MCP config with merge-safe write script
+│   └── datasource-mcps.md         <- Dataverse vs SharePoint vs SQL — decision guide + commands
+├── workflows/
+│   └── new-app.md                 <- Detailed end-to-end new app build workflow
+├── mcp-tools/                     <- Per-server reference docs
+└── skills/                        <- Deep domain knowledge for canvas app development
+```
+
+---
+
+## MCP servers at a glance
+
+| Server | What it does | Needs |
 |---|---|---|
+| `powerapps-canvas` / `canvas-authoring` | Edit live canvas apps | App ID, Environment ID |
 | `dataverse` | Read/write Dataverse tables | Connection URL, Tenant ID |
-| `powerapps-canvas` | Edit live canvas apps | App ID, Environment ID |
-| `canvas-authoring` | Same as above (prerelease path) | App ID, Environment ID |
 | `copilot-studio` | Manage Copilot Studio agents | Agent MCP URL, Tenant ID |
-| `github` | Read repos, issues, PRs | GitHub PAT |
-| `azure-devops` | Pipelines, work items, ADO repos | ADO org URL + PAT |
-| `filesystem` | Read/write local files | One or more local folder paths |
+| `github` | Repos, issues, PRs | GitHub PAT |
+| `azure-devops` | Pipelines, work items | ADO org URL + PAT |
+| `filesystem` | Local file access | One or more folder paths |
 | `memory` | Persistent knowledge graph | None |
-| `sequential-thinking` | Structured multi-step reasoning | None |
+| `sequential-thinking` | Structured reasoning | None |
 | `playwright` | Browser automation | None |
 
-See [`mcp-tools/`](./mcp-tools/) for full setup details on each.
-
 ---
 
-## Agent skills at a glance
+## Official documentation
 
-| Skill file | When to use it |
-|---|---|
-| [`skills/canvas-app.md`](./skills/canvas-app.md) | Canvas App controls, Power Fx formulas, galleries, forms, collections |
-| [`skills/canvas-design.md`](./skills/canvas-design.md) | UI/UX design — containers, Fluent UI, responsive layouts, galleries |
-| [`skills/canvas-accessibility.md`](./skills/canvas-accessibility.md) | WCAG 2.1 AA compliance, screen reader support, keyboard navigation |
-| [`skills/canvas-authoring-mcp.md`](./skills/canvas-authoring-mcp.md) | How to connect and push edits to a live canvas app via MCP |
-| [`skills/delegation.md`](./skills/delegation.md) | Fixing delegation warnings, filtering large data sources correctly |
+- Power Platform CLI: https://learn.microsoft.com/en-us/power-platform/developer/cli/introduction
+- Canvas App Authoring MCP: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/canvas-app-mcp-server
+- Dataverse: https://learn.microsoft.com/en-us/power-apps/maker/data-platform/
+- Power Apps Canvas: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/
+- Sharing apps: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/share-app
+- MCP protocol: https://modelcontextprotocol.io/introduction
