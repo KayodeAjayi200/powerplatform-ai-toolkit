@@ -8,6 +8,59 @@ The agent collects the credentials listed below from the user, then writes or up
 
 ---
 
+## Two ways to set up the Canvas Authoring MCP
+
+### Option A — GitHub Copilot CLI plugin install (easiest)
+
+If you are using **GitHub Copilot CLI**, install the Power Platform Skills plugin directly:
+
+```
+/plugin marketplace add microsoft/power-platform-skills
+/plugin install canvas-apps@power-platform-skills
+```
+
+After installing, either run `/configure-canvas-mcp` when your app is open in Studio, or just describe what
+you want to build — the tool will detect that the MCP server needs configuring and walk you through it.
+
+The plugin repository contains full control documentation, design guidance, and workflow instructions:
+**https://aka.ms/canvas-authoring-mcp**
+
+### Option B — Manual MCP config (all other tools)
+
+For Claude Code, Cursor, and other tools that use an `mcp-config.json` file, use the scripts below.
+
+---
+
+## ⚠️ Coauthoring must be enabled before the Canvas MCP will work
+
+Before the Canvas Authoring MCP can connect to your app, **coauthoring must be turned on** in Power Apps Studio:
+
+1. Open your canvas app in Power Apps Studio
+2. Go to **Settings → Updates**
+3. Turn on **Coauthoring**
+4. Keep the Studio tab open — the MCP server connects to the live session
+
+If coauthoring is off, the MCP server will not be able to sync changes into the app.
+
+---
+
+## Quick way to set Canvas App ID and Environment ID
+
+Once your app is open in Studio with coauthoring enabled, the easiest way to configure the Canvas MCP is:
+
+**GitHub Copilot CLI:** Run `/configure-canvas-mcp` and paste the Studio URL when prompted.
+The tool extracts your environment ID, app ID, and cluster information automatically — no manual ID copying needed.
+
+**Other tools (Claude Code, Cursor, etc.):** Copy the Studio URL and pull out the IDs manually:
+```
+https://make.powerapps.com/e/<ENVIRONMENT_ID>/canvas/?action=edit&app-id=<APP_ID>
+```
+Then use the update script at the bottom of this file.
+
+Official docs: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/create-canvas-external-tools
+
+---
+
 ## Credentials to collect from the user
 
 Ask the user for each of these before writing the config. Items marked *(optional)* can be skipped and added later.
@@ -76,6 +129,7 @@ function Set-McpServer($config, $key, $value) {
 
 # ── Canvas App Authoring MCP (primary — stable global tool) ──────────────────
 # Official docs: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/canvas-app-mcp-server
+# Plugin repo: https://aka.ms/canvas-authoring-mcp
 Set-McpServer $mcp "powerapps-canvas" ([PSCustomObject]@{
     command = "CanvasAuthoringMcpServer"
     args    = @()
@@ -218,3 +272,32 @@ foreach ($key in @("powerapps-canvas", "canvas-authoring")) {
 $mcp | ConvertTo-Json -Depth 10 | Set-Content $mcpPath -Encoding UTF8
 Write-Host "Canvas MCP updated for app: $newAppId"
 ```
+
+**GitHub Copilot CLI shortcut:** Instead of running the script above, just run `/configure-canvas-mcp` with your app open in Studio and paste the Studio URL. It handles the update automatically.
+
+---
+
+## Troubleshooting
+
+### Changes are not showing up in Power Apps Studio
+
+1. Make sure **coauthoring is enabled**: Studio → Settings → Updates → Coauthoring (must be on)
+2. Ask the AI tool to list available controls — if it gets a response, the MCP connection is working
+3. Run `/configure-canvas-mcp` again with a fresh Studio URL to re-establish the session
+
+### The Canvas MCP server is not responding
+
+1. Check that .NET 10.0+ is installed: run `dotnet --version` — it must show `10.x` or higher
+2. Check that `CanvasAuthoringMcpServer` is installed: run `dotnet tool list -g`
+3. Make sure the Studio tab is still open and coauthoring is on — the server connects to the live session
+4. Run `/configure-canvas-mcp` again to re-register the connection
+
+### App was broken by recent changes — how to roll back
+
+Tell the AI tool: "The recent changes broke the app. Please revert to the last working version."
+
+The agent will:
+1. Sync the current state from the coauthoring session
+2. Identify which changes were made
+3. Restore the previous working code
+4. Validate and re-sync the stable version
