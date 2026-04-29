@@ -58,7 +58,7 @@ Rules:
 |---|---|
 | **Node.js** | Runtime for MCP servers (GitHub, filesystem, Playwright, etc.) |
 | **Power Platform CLI (`pac`)** | Manage environments, export solutions, create Dataverse tables |
-| **.NET SDK 8+** | Required for Canvas MCP, Dataverse MCP, and Copilot Studio MCP |
+| **.NET SDK 10.0+** | Required for Canvas MCP, Dataverse MCP, and Copilot Studio MCP |
 | **GitHub CLI (`gh`)** | Create and manage solution repos from the command line |
 | **Git** | Track solution file changes and push to GitHub |
 
@@ -146,6 +146,18 @@ if ($installed -notmatch [regex]::Escape("microsoft.agents.copilot")) {
 
 Official Canvas MCP reference: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/canvas-app-mcp-server
 Official Dataverse MCP reference: https://learn.microsoft.com/en-us/power-apps/developer/data-platform/dataverse-mcp
+External tools / coauthoring guide: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/create-canvas-external-tools
+
+**GitHub Copilot CLI users — plugin install alternative:**
+If you are using GitHub Copilot CLI, you can install the Canvas MCP as a plugin instead of (or in addition to) the dotnet global tool:
+
+```
+/plugin marketplace add microsoft/power-platform-skills
+/plugin install canvas-apps@power-platform-skills
+```
+
+Full control docs, design guidance, and workflow instructions are in the plugin repo:
+https://aka.ms/canvas-authoring-mcp
 
 ---
 
@@ -418,28 +430,43 @@ Present the screen plan and confirm with the user before building.
 
 Read `skills/canvas-authoring-mcp.md` now if you have not already.
 
+> **⚠️ Coauthoring must be enabled before the Canvas MCP will work.**
+> Once the app is open in Studio, go to **Settings → Updates** and turn on **Coauthoring**.
+> If it is off, the MCP server cannot sync changes into the app. Ask the user to confirm it is on.
+
 You already have the environment ID and app ID from the provisioning step. Update the canvas MCP entries
 in `mcp-config.json` with them now (use the update script in `setup/mcp-config.md`).
+
+**Quick way (GitHub Copilot CLI):** Run `/configure-canvas-mcp` once the app is open in Studio
+and paste the Studio URL when prompted — it extracts the environment ID, app ID, and cluster info automatically.
+
+**Other tools:** Use the update script in `setup/mcp-config.md`, or extract the IDs from the Studio URL manually:
+```
+https://make.powerapps.com/e/<ENVIRONMENT_ID>/canvas/?action=edit&app-id=<APP_ID>
+```
 
 Then **ask the user to open the edit link** you gave them earlier:
 
 > "Time to start building. Please open your canvas app in Power Apps Studio using this link:
 > [the edit link from the provisioning step]
 >
-> Once it is fully loaded and you can see the blank canvas, let me know and I will start building."
+> Once it is fully loaded and coauthoring is enabled (Settings → Updates → Coauthoring), let me know
+> and I will start building."
 
-Wait for the user to confirm the app is open before proceeding.
-
-The Studio URL confirms the IDs in this format:
-```
-https://make.powerapps.com/e/<ENVIRONMENT_ID>/canvas/?action=edit&app-id=<APP_ID>
-```
+Wait for the user to confirm the app is open and coauthoring is on before proceeding.
 
 Official reference: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/canvas-app-mcp-server
+Coauthoring + external tools: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/create-canvas-external-tools
 
 ---
 
 ### 4B — Build screen by screen
+
+**Slash commands (GitHub Copilot CLI):**
+- `/generate-canvas-app` — generate a complete new app from a description; describe screens, data, and style
+- `/edit-canvas-app` — make targeted edits to an existing app; describe what to change
+
+**For all tools — iterative build workflow:**
 
 Use the Canvas Authoring MCP tools to:
 
@@ -449,6 +476,12 @@ Use the Canvas Authoring MCP tools to:
 4. Write Power Fx formulas — follow `skills/canvas-app.md` for correct formula patterns
 5. Apply the design — follow `skills/canvas-design.md` container rules at every level
 6. Check accessibility — follow `skills/canvas-accessibility.md`; set `AccessibleLabel` on every interactive control
+
+**Best practices:**
+- Start simple — build a basic working version first, then add complexity
+- Test frequently — sync and check each screen in Studio before moving to the next
+- Be specific — the more detail you provide about behaviour and data, the better the output
+- Validate generated code — always check formulas compile and data sources are connected correctly
 
 Compile and verify each screen before moving to the next. Fix any errors before continuing.
 
