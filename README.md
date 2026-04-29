@@ -52,6 +52,7 @@ powerplatform-ai-toolkit/
 │   ├── cli-auth.md                <- Sign-in scripts for pac, gh, git, m365, az
 │   ├── mcp-config.md              <- Full MCP config with merge-safe write script
 │   ├── datasource-mcps.md         <- Dataverse vs SharePoint vs SQL — decision guide + commands
+│   ├── sharepoint.md              <- Sites, lists, columns, permissions, app reg for automation
 │   ├── apis.md                    <- External API + custom connector setup guide
 │   ├── provision.md               <- Create environment, solution, and canvas app via CLI/API
 │   └── github-integration.md      <- GitHub repo + service principal + Actions workflows

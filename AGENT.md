@@ -10,6 +10,21 @@
 
 ---
 
+## How to talk to the user
+
+Follow these rules every time you write a message the user will see:
+
+- **Never use phase labels or step numbers** when speaking to the user. They won't know what "Phase 2F" or "Step 1B" means. Use natural descriptions instead.
+  - ❌ "We are now in Phase 2F."  →  ✅ "I'm creating your Power Platform environment now."
+  - ❌ "You will need this in Phase 4A."  →  ✅ "Hold on to this — you'll need it when we start building."
+  - ❌ "As identified in Phase 2A..."  →  ✅ "Based on what you told me earlier..."
+- **Explain why before asking.** If you need something from the user, briefly say why you need it before asking for it.
+- **Narrate as you work.** Tell the user what you are doing in plain English as each major step starts (e.g. "I'm setting up your development tools now — this might take a minute.").
+- **Summarise what you just did** after any group of automated steps, so the user stays in the loop.
+- **Use plain language.** Assume the user is not a developer. Explain technical concepts in one sentence before using them.
+
+---
+
 ## Phase 1 — Environment setup
 
 ### 1A — Load your domain knowledge
@@ -143,7 +158,8 @@ Tell the user: "Restart your AI coding tool (e.g. VS Code) after this step for t
 ### 2A — Ask what they want to build
 
 **Ask the user:**
-> "What Power Apps app would you like to build? Describe it as you would explain it to a colleague — what problem does it solve, who will use it, and what data does it need?"
+> "What Power Apps app would you like to build? Describe it as you would explain it to a
+> colleague — what problem does it solve, who will use it, and what data does it need?"
 
 From their answer, extract:
 - The **purpose** of the app
@@ -151,6 +167,7 @@ From their answer, extract:
 - The **data** the app needs to track, display, or update
 - Any **workflows** or side effects (approvals, notifications, status changes, emails)
 - Any **external systems** the app needs to talk to (existing databases, third-party services, company APIs)
+- Whether they already have a **SharePoint site** they work from, or use **SharePoint** for anything
 
 ---
 
@@ -172,6 +189,21 @@ Does this look right? Anything to add or change?
 ```
 
 Wait for the user to confirm before proceeding.
+
+**If the plan includes SharePoint lists**, ask these follow-up questions before moving on
+(read the explanations from `setup/sharepoint.md` if you need more context to explain this):
+
+> "For the SharePoint data, I need a few more details:
+>
+> 1. **Site** — SharePoint lists live inside a SharePoint site (think of it as a workspace on
+>    your company intranet). Do you already have a SharePoint site you want to use, or should I
+>    create a new one? If new, what should it be called?
+>
+> 2. **Lists** — Based on your description, I'm planning these lists: [your list names]. Does
+>    that look right, and are there any you already have that I should connect to instead?
+>
+> 3. **Access** — Who should be able to see and edit these lists? (e.g. everyone in the company,
+>    just your team, or specific people)"
 
 ---
 
@@ -209,9 +241,13 @@ Do not install tools that are not needed. Only install what the confirmed data s
 ### 2E — Create the data sources
 
 Based on the confirmed data plan, create the tables, lists, or databases.
-Follow the commands in `setup/datasource-mcps.md` for the relevant data source type.
 
-Tell the user each thing you create as you go.
+- For **Dataverse** tables: follow the commands in `setup/datasource-mcps.md`
+- For **SharePoint sites and lists**: read and follow `setup/sharepoint.md` — it covers creating the site (if needed), creating lists, and adding the right column types. It also includes questions to ask the user before creating anything.
+- For **Azure SQL**: follow the commands in `setup/datasource-mcps.md`
+
+Tell the user each thing you create as you go. Use plain language:
+> "I've created the 'Tasks' list in your SharePoint site with these columns: Title, Status, Priority, Assigned To, Due Date."
 
 After creation:
 - Confirm all data sources exist and are accessible
@@ -258,16 +294,16 @@ Write-Host "Your canvas app is ready: $editLink"
 Tell the user:
 > "Your environment, solution, and blank canvas app are all set up.
 > Here is your edit link: [link]
-> You do not need to open it yet — I will ask you to open it in Phase 4 when we are ready to build.
+> You do not need to open it yet — I will ask you to open it when we are ready to start building.
 > For now, keep it handy."
 
-Save the environment ID and app ID — you will need them in Phase 4A.
+Save the environment ID and app ID — you will need them when connecting the Canvas Authoring MCP.
 
 ---
 
 ## Phase 2G — Set up GitHub source control for the solution
 
-Now that the Power Platform resources exist (Phase 2F), connect the solution to GitHub
+Now that the Power Platform resources exist, connect the solution to GitHub
 so that all changes are version-controlled and can be deployed automatically.
 
 Read and execute `setup/github-integration.md` fully.
@@ -333,10 +369,10 @@ Present the screen plan and confirm with the user before building.
 
 Read `skills/canvas-authoring-mcp.md` now if you have not already.
 
-You already have the environment ID and app ID from Phase 2F. Update the canvas MCP entries
+You already have the environment ID and app ID from the provisioning step. Update the canvas MCP entries
 in `mcp-config.json` with them now (use the update script in `setup/mcp-config.md`).
 
-Then **ask the user to open the edit link** you gave them in Phase 2F:
+Then **ask the user to open the edit link** you gave them earlier:
 
 > "Time to start building. Please open your canvas app in Power Apps Studio using this link:
 > [the edit link from Phase 2F]
@@ -378,7 +414,7 @@ After all screens are built and verified, give the user:
 3. **How to preview** — press F5 in Power Apps Studio
 4. **How to publish** — File → Save → Publish
 5. **How to share** — https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/share-app
-6. **Suggested next steps** — if workflows (approvals, notifications) were identified in Phase 2A but not yet built, suggest setting those up in Power Automate
+6. **Suggested next steps** — if workflows (approvals, notifications) were identified when the user described what they wanted to build, suggest setting those up in Power Automate
 
 ---
 
@@ -390,6 +426,7 @@ After all screens are built and verified, give the user:
 | CLI sign-in for every tool | `setup/cli-auth.md` |
 | MCP server configuration | `setup/mcp-config.md` |
 | Datasource decision guide + commands | `setup/datasource-mcps.md` |
+| SharePoint sites, lists, and columns | `setup/sharepoint.md` |
 | External API and custom connector setup | `setup/apis.md` |
 | Provision environment, solution, canvas app | `setup/provision.md` |
 | GitHub source control + Actions workflows | `setup/github-integration.md` |

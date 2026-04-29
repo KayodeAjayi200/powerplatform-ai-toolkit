@@ -1,6 +1,6 @@
 # Datasource → MCP Mapping
 
-This file is read by the AI agent during Phase 2B–2C of setup.
+This file is read by the AI agent when planning and creating data sources.
 
 Use this to match the user's data needs to the right datasource type, MCP server, and creation commands.
 
@@ -66,9 +66,10 @@ In the Canvas Authoring MCP, or in Power Apps Studio:
 
 ---
 
-## SharePoint Lists
+## SharePoint Lists and Sites
 
-**MCP server:** None dedicated — use m365 CLI to create lists; Power Apps connects via the SharePoint connector  
+**MCP server:** None dedicated — use m365 CLI to create sites and lists; Power Apps connects via the SharePoint connector
+**Full SharePoint setup guide:** `setup/sharepoint.md` — covers site creation, list creation, column types, permissions, and app registration for automation
 **Official docs:** https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/connections/connection-sharepoint-online
 
 ### When to use
