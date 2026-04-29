@@ -1,4 +1,4 @@
-﻿# Prerequisites — Check-First Install
+# Prerequisites — Check-First Install
 
 This file is read by the AI agent during Phase 1B of setup.
 
@@ -15,7 +15,7 @@ These tools are needed for every Power Apps project, regardless of what you are 
 |---|---|---|
 | **Node.js (LTS)** | Required for all `npx`-based MCP servers | https://nodejs.org/en/download |
 | **Power Platform CLI (`pac`)** | Deploy solutions, manage environments, create Dataverse tables | https://learn.microsoft.com/en-us/power-platform/developer/cli/introduction |
-| **.NET SDK 8+** | Required for .NET-based MCP tools (Canvas, Dataverse, Copilot Studio MCPs) | https://learn.microsoft.com/en-us/dotnet/core/install/windows |
+| **.NET SDK 10.0+** | Required for Canvas Authoring MCP, Dataverse MCP, and Copilot Studio MCP — version 10.0 or later is required | https://dotnet.microsoft.com/download/dotnet/10.0 |
 | **GitHub CLI (`gh`)** | Create repos, manage PRs, push code from the command line | https://cli.github.com |
 | **Git** | Version control for solution files | https://git-scm.com/downloads |
 
@@ -40,17 +40,18 @@ if (Get-Command pac -ErrorAction SilentlyContinue) {
     Write-Host "pac CLI installed"
 }
 
-# ── .NET SDK 8+ ───────────────────────────────────────────────────────────────
-# .NET is required for the Canvas Authoring MCP, Dataverse MCP, and Copilot Studio MCP
+# ── .NET SDK 10.0+ ────────────────────────────────────────────────────────────
+# .NET 10.0 or later is REQUIRED for the Canvas Authoring MCP, Dataverse MCP, and Copilot Studio MCP
+# If you have an older version (e.g. .NET 8), you need to install .NET 10 alongside it
 $dotnetSdks = dotnet --list-sdks 2>&1
-$hasNet8 = $dotnetSdks | Where-Object { $_ -match "^[89]\." -or $_ -match "^[1-9][0-9]\." }
-if ($hasNet8) {
-    Write-Host ".NET SDK 8+ already installed — skipping"
+$hasNet10 = $dotnetSdks | Where-Object { $_ -match "^[1-9][0-9]\." }
+if ($hasNet10) {
+    Write-Host ".NET SDK 10+ already installed — skipping"
     $dotnetSdks | ForEach-Object { Write-Host "  $_" }
 } else {
-    Write-Host "Installing .NET SDK 8 via winget..."
-    winget install Microsoft.DotNet.SDK.8 --silent --accept-package-agreements --accept-source-agreements
-    Write-Host ".NET SDK 8 installed"
+    Write-Host "Installing .NET SDK 10 via winget..."
+    winget install Microsoft.DotNet.SDK.10 --silent --accept-package-agreements --accept-source-agreements
+    Write-Host ".NET SDK 10 installed"
 }
 
 # ── GitHub CLI (gh) ──────────────────────────────────────────────────────────
