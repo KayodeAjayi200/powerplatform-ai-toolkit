@@ -86,31 +86,83 @@ If a suitable solution already exists, note its unique name — you will need it
 
 If no solution exists (or the user wants a new one for this project):
 
-```powershell
-# Get an access token to call the Dataverse Web API
-# az CLI is needed for this step — install it from setup/prerequisites.md if not present
-$orgUrl = "https://YOURORG.crm.dynamics.com"   # from pac env who output above
+Before creating the solution, **ask the user which publisher to use**. Never auto-pick a publisher without confirmation.
 
+Ask the user:
+> "Before I create the solution, which publisher should we use?
+> 1) an existing custom publisher,
+> 2) create a new custom publisher, or
+> 3) the environment default publisher."
+
+Then follow the matching path below.
+
+### Step 2A — List existing publishers (for option 1 or 3)
+
+```powershell
+# Get an access token to call Dataverse Web API
+$orgUrl = "https://YOURORG.crm.dynamics.com"   # from pac env who output
 $token = (az account get-access-token `
     --resource "$orgUrl" `
     --query accessToken `
     --output tsv)
 
-if (-not $token) {
-    Write-Host "Could not get a token. Make sure you are signed in to Azure CLI (az login) and the correct subscription is selected."
-    exit
-}
-
-# Find the default publisher in this environment (every environment has one)
+# List publishers so the user can choose explicitly
 $publisherResponse = Invoke-RestMethod `
-    -Uri "$orgUrl/api/data/v9.2/publishers?`$select=publisherid,uniquename,customizationprefix&`$filter=isreadonly eq false" `
+    -Uri "$orgUrl/api/data/v9.2/publishers?`$select=publisherid,friendlyname,uniquename,customizationprefix,isreadonly&`$orderby=friendlyname asc" `
     -Headers @{ Authorization = "Bearer $token"; Accept = "application/json" }
 
-# Use the first non-system publisher
-$publisher     = $publisherResponse.value | Select-Object -First 1
-$publisherId   = $publisher.publisherid
-$publisherPrefix = $publisher.customizationprefix
-Write-Host "Using publisher: $($publisher.uniquename) (prefix: $publisherPrefix)"
+$publisherResponse.value |
+    Select-Object friendlyname, uniquename, customizationprefix, isreadonly |
+    Format-Table -AutoSize
+```
+
+If the user chooses an existing publisher, capture that publisher ID and continue.
+
+### Step 2B — Create a custom publisher (option 2)
+
+```powershell
+# Ask user for:
+# - publisher friendly name (e.g. "Contoso Custom Publisher")
+# - publisher unique name (e.g. "contoso_custom_publisher")
+# - customization prefix (2-8 chars, letters/numbers, e.g. "cts")
+
+$publisherFriendlyName = "Contoso Custom Publisher"
+$publisherUniqueName   = "contoso_custom_publisher"
+$publisherPrefix       = "cts"
+
+$publisherBody = @{
+    friendlyname        = $publisherFriendlyName
+    uniquename          = $publisherUniqueName
+    customizationprefix = $publisherPrefix
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+    -Uri "$orgUrl/api/data/v9.2/publishers" `
+    -Method POST `
+    -Headers @{
+        Authorization  = "Bearer $token"
+        "Content-Type" = "application/json"
+        Prefer         = "return=representation"
+    } `
+    -Body $publisherBody
+
+# Re-query to get publisherid for binding
+$publisher = (Invoke-RestMethod `
+    -Uri "$orgUrl/api/data/v9.2/publishers?`$select=publisherid,uniquename,customizationprefix&`$filter=uniquename eq '$publisherUniqueName'" `
+    -Headers @{ Authorization = "Bearer $token"; Accept = "application/json" }).value | Select-Object -First 1
+
+$publisherId = $publisher.publisherid
+Write-Host "Created publisher: $($publisher.uniquename) (prefix: $($publisher.customizationprefix))"
+```
+
+### Step 2C — Create the solution with the selected publisher
+
+```powershell
+# $publisherId must come from the user's explicit choice in Step 2A/2B
+if (-not $publisherId) {
+    Write-Host "No publisher selected. Ask the user which publisher to use before creating the solution."
+    exit
+}
 
 # Create the solution
 $solutionName    = "myprojectsolution"   # ask the user — lowercase, no spaces
@@ -135,6 +187,10 @@ Invoke-RestMethod `
 
 Write-Host "Solution '$solutionDisplay' created"
 ```
+
+Recommended naming guidance:
+- Solution unique name should align with publisher prefix conventions.
+- If using a custom publisher prefix like `cts`, prefer solution names such as `cts_myproject`.
 
 Official reference: https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/reference/solution
 

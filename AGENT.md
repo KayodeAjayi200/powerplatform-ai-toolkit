@@ -303,6 +303,12 @@ Note the environment ID and org URL — you will need both in the next steps.
 Run `pac solution list`. If a solution already exists for this project, use it.
 If not, create one via the Dataverse Web API (see `setup/provision.md` Step 2).
 
+Before creating a new solution, ask which publisher to use:
+- existing custom publisher,
+- create a new custom publisher, or
+- default environment publisher.
+Do not auto-select the default publisher without user confirmation.
+
 Note the solution unique name — you will need it when adding the app.
 
 **3. Canvas app**
