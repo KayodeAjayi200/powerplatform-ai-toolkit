@@ -48,10 +48,12 @@ Some hosts work better with one than the other.
 
 ### Primary (stable — uses installed global tool)
 
+On Windows agentic desktop apps, prefer launching the installed tool through its absolute `.cmd` path. This avoids the common case where PowerShell can find `CanvasAuthoringMcpServer` but the desktop app cannot because it inherited a different PATH.
+
 ```json
 "powerapps-canvas": {
-  "command": "CanvasAuthoringMcpServer",
-  "args": [],
+  "command": "cmd.exe",
+  "args": ["/c", "C:\\Users\\<USER>\\.dotnet\\tools\\CanvasAuthoringMcpServer.cmd"],
   "env": {
     "CANVAS_APP_ID":           "PASTE_APP_ID_HERE",
     "CANVAS_ENVIRONMENT_ID":   "PASTE_ENVIRONMENT_ID_HERE",
@@ -95,13 +97,15 @@ Some hosts work better with one than the other.
 If canvas MCP returns 404 or nothing syncs, do this exactly:
 
 1. Copy the current Studio URL and extract `Environment ID` (`/e/<id>/`) and `App ID` (after `apps%2F`).
-   - Recommended: run `.\setup\scripts\update-canvas-mcp-from-url.ps1 -StudioUrl "<PASTE_STUDIO_URL>"` from this repo root.
+   - Recommended: run `.\setup\scripts\update-canvas-mcp-from-url.ps1 -StudioUrl "<PASTE_STUDIO_URL>" -ProjectPath "<TARGET_PROJECT_PATH>"` from this repo root.
 2. Update both server entries (`powerapps-canvas` and `canvas-authoring`) to the same IDs.
 3. Restart MCP servers or restart your coding tool.
 4. Confirm Studio coauthoring is ON and the app tab is open.
-5. Run `powerapps-canvas-sync_canvas` to pull latest YAML.
-6. After edits, run `powerapps-canvas-compile_canvas` to push changes.
+5. Run `list_controls` as the connection gate.
+6. Run `powerapps-canvas-sync_canvas` to pull latest YAML.
+7. After edits, run `powerapps-canvas-compile_canvas` to push changes.
 
 Important behavior:
 - `sync_canvas` = pull only (overwrites local files).
 - `compile_canvas` = validate and push to Studio.
+- In Codex, config belongs in `~/.codex/config.toml` or trusted `.codex/config.toml`, not `~/.copilot/mcp-config.json`.

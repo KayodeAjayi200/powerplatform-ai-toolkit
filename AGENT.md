@@ -186,10 +186,13 @@ For canvas app switching or 404 recovery, prefer the repo helper script so both 
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\setup\scripts\update-canvas-mcp-from-url.ps1 `
-  -StudioUrl "https://make.powerapps.com/e/<ENV_ID>/canvas/?action=edit&app-id=%2Fproviders%2FMicrosoft.PowerApps%2Fapps%2F<APP_ID>"
+  -StudioUrl "https://make.powerapps.com/e/<ENV_ID>/canvas/?action=edit&app-id=%2Fproviders%2FMicrosoft.PowerApps%2Fapps%2F<APP_ID>" `
+  -ProjectPath "<TARGET_PROJECT_PATH>"
 ```
 
 Then reload/restart both MCP servers (`powerapps-canvas` and `canvas-authoring`) before attempting `sync_canvas`.
+
+The helper must write more than `~/.copilot/mcp-config.json`. Codex uses `~/.codex/config.toml` and trusted project `.codex/config.toml`; VS Code/Copilot uses `.vscode/mcp.json`; Claude/Cursor/Windsurf use `mcpServers`; Zed uses `context_servers`. On Windows, prefer `cmd.exe /c <absolute CanvasAuthoringMcpServer.cmd>` so desktop agents do not depend on PATH inheritance.
 
 ---
 
@@ -484,9 +487,10 @@ When a Studio URL is available, do this automatically before asking the user for
 1. For the toolkit's default Copilot-style setup, run the URL-based updater:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\setup\scripts\update-canvas-mcp-from-url.ps1 `
-  -StudioUrl "<STUDIO_URL>"
+  -StudioUrl "<STUDIO_URL>" `
+  -ProjectPath "<TARGET_PROJECT_PATH>"
 ```
-2. For Codex, VS Code/Copilot, Claude Code, Cursor, Windsurf, or Zed, also write the same App ID and Environment ID to the active client's real MCP config file using `setup/agentic-mcp-clients.md`.
+2. Confirm the helper wrote the active client's real MCP config file using `setup/agentic-mcp-clients.md`. Codex needs TOML under `[mcp_servers.<name>]`; JSON-only updates will not make tools appear in Codex.
 3. Restart/reload both MCP servers (`powerapps-canvas` and `canvas-authoring`) where both are configured.
 4. Run `list_controls` as the connection gate.
 

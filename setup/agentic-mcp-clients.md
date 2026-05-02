@@ -14,7 +14,7 @@ For every MCP setup task:
 2. Write MCP config only to that client's supported file and schema.
 3. Preserve existing servers and merge changes; do not replace the whole config.
 4. Keep secrets out of committed project files; use user-level config, input prompts, or environment variables.
-5. Prefer full executable paths on Windows for stdio servers when PATH is unreliable.
+5. Prefer full executable paths on Windows for stdio servers when PATH is unreliable. Packaged desktop apps often do not inherit the same PATH as PowerShell.
 6. Restart or reload MCP servers after config changes.
 7. Verify with the client's server list/status command before using tools.
 8. For Power Apps Canvas MCP, update both `powerapps-canvas` and `canvas-authoring`, then require `list_controls` to pass before `sync_canvas` or `compile_canvas`.
@@ -25,7 +25,7 @@ For every MCP setup task:
 
 | Client | User/global config | Project config | Schema root | Verify/reload |
 |---|---|---|---|---|
-| Codex | `~/.codex/config.toml` | `.codex/config.toml` in trusted projects | `[mcp_servers.<name>]` | `codex mcp --help`, `/mcp` in TUI |
+| Codex | `~/.codex/config.toml` | `.codex/config.toml` in trusted projects | `[mcp_servers.<name>]` | `codex mcp --help`, `/mcp` in TUI, tool discovery/list_controls |
 | VS Code / GitHub Copilot | User profile `mcp.json` | `.vscode/mcp.json` | `"servers"` plus optional `"inputs"` | Command Palette: `MCP: List Servers`, restart server |
 | Claude Code | `~/.claude.json` | `.mcp.json` | `"mcpServers"` | `claude mcp list`, `claude mcp get <name>`, `/mcp` |
 | Cursor | `~/.cursor/mcp.json` | `.cursor/mcp.json` | `"mcpServers"` | `cursor-agent mcp list`, `cursor-agent mcp list-tools <id>` |
@@ -48,14 +48,25 @@ For direct config, use TOML:
 
 ```toml
 [mcp_servers.powerapps-canvas]
-command = "CanvasAuthoringMcpServer"
-args = []
+command = "cmd.exe"
+args = ["/c", "C:\\Users\\<USER>\\.dotnet\\tools\\CanvasAuthoringMcpServer.cmd"]
+startup_timeout_sec = 30
+tool_timeout_sec = 120
 
 [mcp_servers.powerapps-canvas.env]
 CANVAS_APP_ID = "<APP_ID>"
 CANVAS_ENVIRONMENT_ID = "<ENV_ID>"
 CANVAS_CLUSTER_CATEGORY = "prod"
 ```
+
+Lessons from Codex desktop:
+
+- Codex reads MCP servers from `~/.codex/config.toml` and, for trusted workspaces, `.codex/config.toml`.
+- `~/.copilot/mcp-config.json` does not make servers appear in Codex.
+- Use nested `[mcp_servers.<name>.env]` tables. Inline env tables are valid TOML, but nested tables match the documented examples and avoid UI/parser edge cases.
+- On Windows, use `cmd.exe` plus the absolute `.cmd` path for `CanvasAuthoringMcpServer` when possible. A terminal may resolve `CanvasAuthoringMcpServer`, while Codex desktop cannot because it did not inherit the same PATH.
+- If the MCP settings UI does not show the server after editing global config, also write a project-scoped `.codex/config.toml` in the trusted workspace and restart Codex.
+- Discovery is not enough; verify the actual Canvas session with `list_controls`.
 
 Verification:
 

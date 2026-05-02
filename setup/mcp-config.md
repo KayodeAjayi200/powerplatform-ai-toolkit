@@ -6,6 +6,8 @@ The agent collects the credentials listed below from the user, then writes or up
 
 **Important:** Before writing MCP config, read `setup/agentic-mcp-clients.md` and detect the active coding client. This file gives the default Copilot-style JSON setup used by this toolkit, but other clients use different config locations and schema roots. If the config file already exists, the agent must read it first and merge changes — never wipe it.
 
+**Codex-specific trap:** Codex does not read `~/.copilot/mcp-config.json`. It reads `~/.codex/config.toml` and trusted project `.codex/config.toml` files. If the server does not appear in Codex, run the URL updater script below; it writes both Codex TOML locations and uses an absolute Windows `.cmd` path for `CanvasAuthoringMcpServer` when available.
+
 ---
 
 ## Two ways to set up the Canvas Authoring MCP
@@ -55,7 +57,7 @@ The tool extracts your environment ID, app ID, and cluster information automatic
 ```
 https://make.powerapps.com/e/<ENVIRONMENT_ID>/canvas/?action=edit&app-id=<APP_ID>
 ```
-Then use the update script at the bottom of this file.
+Then use the update script at the bottom of this file. The script updates common agentic coding tool config formats: Codex, VS Code/Copilot, Claude Code, Cursor, Windsurf, Zed, and the Copilot-style `~/.copilot/mcp-config.json`.
 
 Official docs: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/create-canvas-external-tools
 
@@ -275,14 +277,23 @@ Write-Host "Canvas MCP updated for app: $newAppId"
 
 ### Faster and safer option: update from Studio URL (recommended)
 
-Use the helper script in this repo to parse the URL and update both MCP entries atomically:
+Use the helper script in this repo to parse the URL and update both MCP entries atomically across the active user's common MCP config files:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\setup\scripts\update-canvas-mcp-from-url.ps1 `
   -StudioUrl "https://make.powerapps.com/e/<ENV_ID>/canvas/?action=edit&app-id=%2Fproviders%2FMicrosoft.PowerApps%2Fapps%2F<APP_ID>"
 ```
 
-This avoids copy/paste mistakes and guarantees both `powerapps-canvas` and `canvas-authoring` stay aligned.
+This avoids copy/paste mistakes and guarantees both `powerapps-canvas` and `canvas-authoring` stay aligned. By default it updates:
+
+- User-level Copilot JSON: `~/.copilot/mcp-config.json`
+- User-level Codex TOML: `~/.codex/config.toml`
+- Project-level Codex TOML: `.codex/config.toml`
+- Project-level VS Code/Copilot JSON: `.vscode/mcp.json`
+- Project-level Claude/Cursor/Zed MCP config files
+- Existing Cursor/Windsurf/Claude user configs when their config folders/files already exist
+
+Use `-ProjectPath "<PATH>"` when the target project is not the current directory. Use `-SkipUserConfigs` or `-SkipProjectConfigs` when you intentionally want only one scope.
 
 **GitHub Copilot CLI shortcut:** Instead of running the script above, just run `/configure-canvas-mcp` with your app open in Studio and paste the Studio URL. It handles the update automatically.
 
@@ -301,6 +312,10 @@ powershell -ExecutionPolicy Bypass -File .\setup\scripts\update-canvas-mcp-from-
   -StudioUrl "<STUDIO_URL>"
 ```
 3. If the active client is not using `~/.copilot/mcp-config.json`, write the same App ID and Environment ID into that client's correct config file and schema.
+   - Codex: `~/.codex/config.toml` and trusted `.codex/config.toml`
+   - VS Code/Copilot: `.vscode/mcp.json` under `"servers"`
+   - Claude/Cursor/Windsurf: `"mcpServers"`
+   - Zed: `"context_servers"`
 4. Restart/reload both MCP servers (`powerapps-canvas`, `canvas-authoring`) where both are configured.
 5. Run `list_controls` as a hard validation gate.
 6. If `list_controls` fails, run one automated recovery cycle:
@@ -338,6 +353,7 @@ Common confusion to avoid:
 - `sync_canvas` pulls only; it does not push edits.
 - `compile_canvas` is what pushes to Studio.
 - If one canvas MCP entry is updated and the other is stale, you may get inconsistent failures.
+- If Codex still does not show the server, check that the config uses `[mcp_servers.<name>.env]` nested env tables and that `powerapps-canvas` uses `cmd.exe` with the absolute `CanvasAuthoringMcpServer.cmd` path on Windows.
 
 ### Changes are not showing up in Power Apps Studio
 

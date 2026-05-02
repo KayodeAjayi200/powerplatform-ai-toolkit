@@ -1,13 +1,13 @@
 ---
 name: canvas-authoring-mcp
-description: Canvas Authoring MCP connection guide — how to point the MCP at the right Power Apps canvas app, extract App ID and Environment ID from the Studio URL, update mcp-config.json, restart the MCP server, and resolve 404 connection errors. Use this skill before any Canvas Authoring MCP tool call.
+description: Canvas Authoring MCP connection guide — how to point the MCP at the right Power Apps canvas app, extract App ID and Environment ID from the Studio URL, update the active agent client's MCP config, restart the MCP server, and resolve 404 connection errors. Use this skill before any Canvas Authoring MCP tool call.
 license: MIT
 metadata:
   author: KayodeAjayi200
   version: "1.0.0"
   organization: Veldarr
   date: April 2026
-  abstract: Step-by-step guide for AI agents to connect the Canvas Authoring MCP server to the correct Power Apps canvas app. Covers extracting App ID and Environment ID from the Studio URL, reading and updating mcp-config.json, restarting the MCP server, verifying co-authoring is active, and resolving HTTP 404 connection errors across both powerapps-canvas and canvas-authoring MCP entries.
+  abstract: Step-by-step guide for AI agents to connect the Canvas Authoring MCP server to the correct Power Apps canvas app. Covers extracting App ID and Environment ID from the Studio URL, reading and updating the active client's MCP config, restarting the MCP server, verifying co-authoring is active, and resolving HTTP 404 connection errors across both powerapps-canvas and canvas-authoring MCP entries.
 ---
 
 # AGENT SKILL: Canvas Authoring MCP — Building Canvas Apps with AI
@@ -17,6 +17,29 @@ metadata:
 > via the Canvas Authoring MCP, or whenever you get a 404 / connection error from the MCP.
 >
 > Official guide: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/create-canvas-external-tools
+
+---
+
+## Active-client rule
+
+Do not assume every agentic coding tool reads `~/.copilot/mcp-config.json`.
+
+- Codex reads `~/.codex/config.toml` and trusted project `.codex/config.toml`.
+- VS Code/Copilot reads `mcp.json` with a `servers` root.
+- Claude Code, Cursor, and Windsurf use `mcpServers`.
+- Zed uses `context_servers`.
+
+Before touching Canvas MCP, run the repo helper when available:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\update-canvas-mcp-from-url.ps1 `
+  -StudioUrl "<STUDIO_URL>" `
+  -ProjectPath "<TARGET_PROJECT_PATH>"
+```
+
+This writes both `powerapps-canvas` and `canvas-authoring` to the common client config formats. On Windows it uses `cmd.exe /c <absolute CanvasAuthoringMcpServer.cmd>` for the stable server so Codex desktop and other packaged apps do not depend on PATH inheritance.
+
+After config updates, restart/reload MCP servers and validate with `list_controls` before `sync_canvas`.
 
 ---
 

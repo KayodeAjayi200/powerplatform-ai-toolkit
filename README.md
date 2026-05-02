@@ -104,7 +104,10 @@ If Canvas MCP starts failing after switching apps, run:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\setup\scripts\update-canvas-mcp-from-url.ps1 `
-  -StudioUrl "https://make.powerapps.com/e/<ENV_ID>/canvas/?action=edit&app-id=%2Fproviders%2FMicrosoft.PowerApps%2Fapps%2F<APP_ID>"
+  -StudioUrl "https://make.powerapps.com/e/<ENV_ID>/canvas/?action=edit&app-id=%2Fproviders%2FMicrosoft.PowerApps%2Fapps%2F<APP_ID>" `
+  -ProjectPath "C:\Path\To\Your\App\Repo"
 ```
 
-Then reload the `powerapps-canvas` and `canvas-authoring` MCP servers, and keep the app open in Studio with Coauthoring ON.
+Then reload the `powerapps-canvas` and `canvas-authoring` MCP servers, keep the app open in Studio with Coauthoring ON, and validate with `list_controls` before syncing or compiling.
+
+The helper updates the common client config formats, including Codex `~/.codex/config.toml` and project `.codex/config.toml`. On Windows it uses the absolute `CanvasAuthoringMcpServer.cmd` path so desktop agents do not depend on PATH inheritance.
