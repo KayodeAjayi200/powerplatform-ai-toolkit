@@ -273,6 +273,17 @@ $mcp | ConvertTo-Json -Depth 10 | Set-Content $mcpPath -Encoding UTF8
 Write-Host "Canvas MCP updated for app: $newAppId"
 ```
 
+### Faster and safer option: update from Studio URL (recommended)
+
+Use the helper script in this repo to parse the URL and update both MCP entries atomically:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\update-canvas-mcp-from-url.ps1 `
+  -StudioUrl "https://make.powerapps.com/e/<ENV_ID>/canvas/?action=edit&app-id=%2Fproviders%2FMicrosoft.PowerApps%2Fapps%2F<APP_ID>"
+```
+
+This avoids copy/paste mistakes and guarantees both `powerapps-canvas` and `canvas-authoring` stay aligned.
+
 **GitHub Copilot CLI shortcut:** Instead of running the script above, just run `/configure-canvas-mcp` with your app open in Studio and paste the Studio URL. It handles the update automatically.
 
 ---

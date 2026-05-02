@@ -93,3 +93,16 @@ powerplatform-ai-toolkit/
 - Power Apps Canvas: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/
 - Sharing apps: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/share-app
 - MCP protocol: https://modelcontextprotocol.io/introduction
+
+---
+
+## Canvas MCP quick recovery
+
+If Canvas MCP starts failing after switching apps, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\update-canvas-mcp-from-url.ps1 `
+  -StudioUrl "https://make.powerapps.com/e/<ENV_ID>/canvas/?action=edit&app-id=%2Fproviders%2FMicrosoft.PowerApps%2Fapps%2F<APP_ID>"
+```
+
+Then reload the `powerapps-canvas` and `canvas-authoring` MCP servers, and keep the app open in Studio with Coauthoring ON.
