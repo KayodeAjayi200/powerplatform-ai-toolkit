@@ -87,3 +87,20 @@ Some hosts work better with one than the other.
 - App ID and Environment ID change for every different app — update `mcp-config.json` when switching apps
 - Use the skill file [`skills/canvas-authoring-mcp.md`](../skills/canvas-authoring-mcp.md) before running any canvas editing task — it has the full workflow
 - `CANVAS_CLUSTER_CATEGORY` should be `"prod"` for production environments; use `"gcc"` for GCC environments
+
+---
+
+## Quick 404 fix sequence
+
+If canvas MCP returns 404 or nothing syncs, do this exactly:
+
+1. Copy the current Studio URL and extract `Environment ID` (`/e/<id>/`) and `App ID` (after `apps%2F`).
+2. Update both server entries (`powerapps-canvas` and `canvas-authoring`) to the same IDs.
+3. Restart MCP servers or restart your coding tool.
+4. Confirm Studio coauthoring is ON and the app tab is open.
+5. Run `powerapps-canvas-sync_canvas` to pull latest YAML.
+6. After edits, run `powerapps-canvas-compile_canvas` to push changes.
+
+Important behavior:
+- `sync_canvas` = pull only (overwrites local files).
+- `compile_canvas` = validate and push to Studio.

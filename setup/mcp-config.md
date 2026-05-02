@@ -279,6 +279,31 @@ Write-Host "Canvas MCP updated for app: $newAppId"
 
 ## Troubleshooting
 
+### Fast recovery checklist (the exact flow that fixed your MCP issues)
+
+When Canvas MCP is failing, run this sequence in order:
+
+1. Copy the full Studio edit URL for the app you want to edit:
+   `https://make.powerapps.com/e/<ENV_ID>/canvas/?action=edit&app-id=%2Fproviders%2FMicrosoft.PowerApps%2Fapps%2F<APP_ID>`
+2. Extract IDs from that URL:
+   - Environment ID = value after `/e/`
+   - App ID = final GUID after `apps%2F` (or `apps/`)
+3. Update **both** MCP entries in `~/.copilot/mcp-config.json`:
+   - `mcpServers.powerapps-canvas.env.CANVAS_APP_ID / CANVAS_ENVIRONMENT_ID`
+   - `mcpServers.canvas-authoring.env.CANVAS_APP_ID / CANVAS_ENVIRONMENT_ID`
+4. Restart MCP servers (or restart your coding tool) so config is reloaded.
+5. Confirm Power Apps Studio has coauthoring enabled and the app tab is still open.
+6. Pull current app state:
+   - `powerapps-canvas-sync_canvas` (this is pull-only and overwrites local YAML)
+7. Edit YAML locally.
+8. Push changes back:
+   - `powerapps-canvas-compile_canvas` (Validation PASSED = committed to Studio)
+
+Common confusion to avoid:
+- `sync_canvas` pulls only; it does not push edits.
+- `compile_canvas` is what pushes to Studio.
+- If one canvas MCP entry is updated and the other is stale, you may get inconsistent failures.
+
 ### Changes are not showing up in Power Apps Studio
 
 1. Make sure **coauthoring is enabled**: Studio → Settings → Updates → Coauthoring (must be on)
