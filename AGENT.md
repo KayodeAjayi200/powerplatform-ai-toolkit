@@ -178,6 +178,15 @@ $toolkitPath = "C:\Repositories\powerplatform-ai-toolkit"  # confirm with user
 
 Tell the user: "Restart your AI coding tool (e.g. VS Code) after this step for the MCP config to take effect."
 
+For canvas app switching or 404 recovery, prefer the repo helper script so both canvas MCP entries stay in sync:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\update-canvas-mcp-from-url.ps1 `
+  -StudioUrl "https://make.powerapps.com/e/<ENV_ID>/canvas/?action=edit&app-id=%2Fproviders%2FMicrosoft.PowerApps%2Fapps%2F<APP_ID>"
+```
+
+Then reload/restart both MCP servers (`powerapps-canvas` and `canvas-authoring`) before attempting `sync_canvas`.
+
 ---
 
 ## Phase 2 — Understand what to build

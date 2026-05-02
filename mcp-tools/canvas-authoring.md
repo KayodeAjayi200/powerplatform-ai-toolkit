@@ -95,6 +95,7 @@ Some hosts work better with one than the other.
 If canvas MCP returns 404 or nothing syncs, do this exactly:
 
 1. Copy the current Studio URL and extract `Environment ID` (`/e/<id>/`) and `App ID` (after `apps%2F`).
+   - Recommended: run `.\setup\scripts\update-canvas-mcp-from-url.ps1 -StudioUrl "<PASTE_STUDIO_URL>"` from this repo root.
 2. Update both server entries (`powerapps-canvas` and `canvas-authoring`) to the same IDs.
 3. Restart MCP servers or restart your coding tool.
 4. Confirm Studio coauthoring is ON and the app tab is open.
