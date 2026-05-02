@@ -4,7 +4,7 @@ This file is read by the AI agent during Phase 1D of setup.
 
 The agent collects the credentials listed below from the user, then writes or updates `~/.copilot/mcp-config.json`.
 
-**Important:** If the config file already exists, the agent must read it first and merge changes — never wipe it.
+**Important:** Before writing MCP config, read `setup/agentic-mcp-clients.md` and detect the active coding client. This file gives the default Copilot-style JSON setup used by this toolkit, but other clients use different config locations and schema roots. If the config file already exists, the agent must read it first and merge changes — never wipe it.
 
 ---
 
@@ -289,6 +289,30 @@ This avoids copy/paste mistakes and guarantees both `powerapps-canvas` and `canv
 ---
 
 ## Troubleshooting
+
+### Agent policy (required behavior)
+
+For any canvas edit/build task, agents must run this sequence proactively:
+
+1. Detect the active coding client and load its MCP rules from `setup/agentic-mcp-clients.md`.
+2. If a Studio URL is provided and this toolkit's PowerShell helper is available, run:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\update-canvas-mcp-from-url.ps1 `
+  -StudioUrl "<STUDIO_URL>"
+```
+3. If the active client is not using `~/.copilot/mcp-config.json`, write the same App ID and Environment ID into that client's correct config file and schema.
+4. Restart/reload both MCP servers (`powerapps-canvas`, `canvas-authoring`) where both are configured.
+5. Run `list_controls` as a hard validation gate.
+6. If `list_controls` fails, run one automated recovery cycle:
+   - re-run the URL script,
+   - re-check the active client's actual config file,
+   - restart the relevant MCP servers,
+   - ask user to refresh Studio and confirm coauthoring ON,
+   - wait 20-30 seconds,
+   - retry `list_controls`.
+7. Do not continue to `sync_canvas` or `compile_canvas` until `list_controls` succeeds.
+
+Never assume all clients use `mcpServers`. Codex uses TOML under `[mcp_servers.<name>]`; VS Code uses `"servers"`; Zed uses `"context_servers"`.
 
 ### Fast recovery checklist (the exact flow that fixed your MCP issues)
 

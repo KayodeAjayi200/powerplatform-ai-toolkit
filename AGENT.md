@@ -38,6 +38,7 @@ Before doing anything else, read these files from this repository so you have fu
 | `skills/canvas-accessibility.md` | WCAG 2.1 AA rules every canvas app must meet |
 | `skills/canvas-authoring-mcp.md` | How to connect and edit a live canvas app via MCP |
 | `skills/delegation.md` | How to filter large data sources without hitting delegation limits |
+| `setup/agentic-mcp-clients.md` | How Codex, VS Code/Copilot, Claude Code, Cursor, Windsurf, and Zed each configure MCP differently |
 
 Reading these now means you will not need to look anything up mid-build.
 
@@ -163,11 +164,11 @@ https://aka.ms/canvas-authoring-mcp
 
 ### 1E — Configure MCP servers
 
-Read `setup/mcp-config.md`.
+Read `setup/agentic-mcp-clients.md` and `setup/mcp-config.md`.
 
-Collect the required credentials from the user, then write or update `~/.copilot/mcp-config.json`.
+Collect the required credentials from the user, then write or update the active client's MCP config. For this toolkit's default Copilot-style setup, that is `~/.copilot/mcp-config.json`.
 
-**Key rule:** If the config file already exists, read it first and merge — only add or update keys, never overwrite the whole file.
+**Key rule:** Detect the active coding client before writing MCP config. Codex, VS Code/Copilot, Claude Code, Cursor, Windsurf, and Zed use different config locations and schemas. If the config file already exists, read it first and merge — only add or update keys, never overwrite the whole file.
 
 Also add this toolkit's local path to the filesystem MCP so your skill files stay accessible:
 
@@ -472,6 +473,28 @@ Wait for the user to confirm the app is open and coauthoring is on before procee
 
 Official reference: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/canvas-app-mcp-server
 Coauthoring + external tools: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/create-canvas-external-tools
+
+### 4A.1 — Mandatory proactive recovery gate (do this before any canvas build)
+
+When a Studio URL is available, do this automatically before asking the user for manual retries:
+
+1. For the toolkit's default Copilot-style setup, run the URL-based updater:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\update-canvas-mcp-from-url.ps1 `
+  -StudioUrl "<STUDIO_URL>"
+```
+2. For Codex, VS Code/Copilot, Claude Code, Cursor, Windsurf, or Zed, also write the same App ID and Environment ID to the active client's real MCP config file using `setup/agentic-mcp-clients.md`.
+3. Restart/reload both MCP servers (`powerapps-canvas` and `canvas-authoring`) where both are configured.
+4. Run `list_controls` as the connection gate.
+
+If `list_controls` fails (for example HTTP 404), run this exact automated recovery loop before asking the user to do anything:
+- Re-run the URL-based updater.
+- Re-check the active client's actual MCP config file.
+- Restart/reload the relevant MCP servers again.
+- Ask the user to refresh Studio once and confirm coauthoring is still ON.
+- Wait 20-30 seconds and retry `list_controls`.
+
+Do not proceed to `sync_canvas`, editing, or `compile_canvas` until `list_controls` succeeds.
 
 ---
 
