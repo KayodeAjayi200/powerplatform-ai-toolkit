@@ -39,6 +39,7 @@ Before doing anything else, read these files from this repository so you have fu
 | `skills/canvas-authoring-mcp.md` | How to connect and edit a live canvas app via MCP |
 | `skills/delegation.md` | How to filter large data sources without hitting delegation limits |
 | `setup/agentic-mcp-clients.md` | How Codex, VS Code/Copilot, Claude Code, Cursor, Windsurf, and Zed each configure MCP differently |
+| `setup/agent-skills-clients.md` | How Codex, GitHub Copilot, Claude Code, Windsurf, Cursor, and Zed each load skills or skill-equivalent rules |
 
 Reading these now means you will not need to look anything up mid-build.
 
@@ -164,11 +165,13 @@ https://aka.ms/canvas-authoring-mcp
 
 ### 1E — Configure MCP servers
 
-Read `setup/agentic-mcp-clients.md` and `setup/mcp-config.md`.
+Read `setup/agentic-mcp-clients.md`, `setup/agent-skills-clients.md`, and `setup/mcp-config.md`.
 
 Collect the required credentials from the user, then write or update the active client's MCP config. For this toolkit's default Copilot-style setup, that is `~/.copilot/mcp-config.json`.
 
 **Key rule:** Detect the active coding client before writing MCP config. Codex, VS Code/Copilot, Claude Code, Cursor, Windsurf, and Zed use different config locations and schemas. If the config file already exists, read it first and merge — only add or update keys, never overwrite the whole file.
+
+When installing or creating agent skills, detect the active client before writing files. Codex, GitHub Copilot, Claude Code, and Windsurf support `SKILL.md` bundles directly; Cursor and Zed primarily use rules or `AGENTS.md`. Use `setup/agent-skills-clients.md` for exact locations and verification steps.
 
 Also add this toolkit's local path to the filesystem MCP so your skill files stay accessible:
 
