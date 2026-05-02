@@ -54,6 +54,8 @@ powerplatform-ai-toolkit/
 ├── setup/
 │   ├── prerequisites.md           <- Check-first install for Node, PAC CLI, .NET, git, gh
 │   ├── cli-auth.md                <- Sign-in scripts with account selection for each tool
+│   ├── agentic-mcp-clients.md     <- MCP setup differences for Codex, Copilot, Claude, Cursor, Windsurf, Zed
+│   ├── agent-skills-clients.md    <- Skills/rules setup differences for Codex, Copilot, Claude, Cursor, Windsurf, Zed
 │   ├── mcp-config.md              <- Full MCP config with merge-safe write script
 │   ├── datasource-mcps.md         <- Dataverse vs SharePoint vs SQL — decision guide + commands
 │   ├── sharepoint.md              <- Sites, lists, columns, permissions, app reg for automation
