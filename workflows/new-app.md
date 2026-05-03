@@ -84,7 +84,8 @@ Design the screen architecture before opening Power Apps Studio.
 - Header: horizontal container with a deliberate fixed height only when it is app chrome
 - Body: vertical container with `FlexibleHeight = true` and `FillPortions = 1`
 - Navigation: left vertical panel (tablet) or bottom horizontal bar (phone)
-- Main/side columns: use `FlexibleWidth = true`, `FillPortions`, and `MinimumWidth` instead of `Width = Parent.Width * ...`
+- Main/side columns: use `FlexibleWidth = true`, `FillPortions`, and `AlignInContainer.Stretch` instead of `Width = Parent.Width * ...`
+- Minimum sizes: add `MinimumWidth` or `MinimumHeight` only when real content clips below a known threshold, and use the smallest viable value
 - Avoid fixed `Width`, `Height`, `X`, and `Y` for layout. Use them only for small fixed UI atoms such as icons, avatars, separators, and row heights.
 
 ---
