@@ -283,7 +283,7 @@ powerapps-canvas-compile_canvas directoryPath: "<sync-dir>"
 
 Use this order when building or editing:
 
-1. Run `sync_canvas`.
+1. Run `sync_canvas` before every edit request so local YAML matches the current Studio app.
 2. Copy a known-valid screen/container/control shape from the synced YAML.
 3. Modify names, formulas, and children carefully.
 4. Add only properties supported by that control type.
@@ -292,3 +292,5 @@ Use this order when building or editing:
 7. Fix only the reported errors, then compile again.
 
 Do not generate a large screen from scratch without first anchoring the structure in a synced valid example. The schema is strict enough that small structural mistakes can block the whole compile.
+
+Do not reuse stale local YAML across turns. A user may have adjusted layout, formulas, data cards, or components directly in Studio. Pull first, preserve those manual changes, then add the new requested change.
