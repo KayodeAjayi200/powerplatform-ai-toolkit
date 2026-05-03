@@ -145,6 +145,17 @@ Before finishing each screen, apply the rules from `skills/canvas-accessibility.
 - Form fields have a visible label associated with them
 - Error messages are surfaced via accessible text, not just colour
 
+### Charts and SVG visuals
+
+Before adding dashboard charts, KPI visuals, icons, badges, sparklines, or custom SVG graphics, read `skills/canvas-image-visuals.md`.
+
+Use:
+- QuickChart.io URLs in Image controls for polished bar, line, doughnut, ranking, and sparkline charts
+- Inline SVG data URIs for icons, badges, progress rings, dividers, and lightweight custom visuals
+- `EncodeUrl(...)` for every inline SVG and every QuickChart chart config
+- `ImagePosition.Fit`, `AlignInContainer.Stretch`, and container layout for chart Image controls
+- `AccessibleLabel` plus nearby visible summary text for meaningful charts
+
 ### Delegation (check before writing filters)
 
 Before writing any `Filter()` or `Search()` formula, check `skills/delegation.md`:

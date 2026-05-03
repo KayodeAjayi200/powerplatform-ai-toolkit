@@ -35,6 +35,7 @@ Before doing anything else, read these files from this repository so you have fu
 |---|---|
 | `skills/canvas-app.md` | Power Fx formulas, galleries, forms, collections, navigation |
 | `skills/canvas-design.md` | Container-based layout, Fluent UI, responsive design — the rules you must follow when building |
+| `skills/canvas-image-visuals.md` | QuickChart.io charts, Image control chart URLs, SVG fetching/sanitizing, and encoded SVG data URI formulas |
 | `skills/canvas-yaml.md` | Valid `.pa.yaml` schema, screen/control structure, formula value rules, and compile preflight checks |
 | `skills/canvas-accessibility.md` | WCAG 2.1 AA rules every canvas app must meet |
 | `skills/canvas-authoring-mcp.md` | How to connect and edit a live canvas app via MCP |
@@ -524,7 +525,8 @@ Use the Canvas Authoring MCP tools to:
 3. Connect data sources using the MCP data tools or the Add Data panel
 4. Write Power Fx formulas — follow `skills/canvas-app.md` for correct formula patterns
 5. Apply the design — follow `skills/canvas-design.md` container rules at every level, using flexible container properties before formulas or fixed sizes
-6. Check accessibility — follow `skills/canvas-accessibility.md`; set `AccessibleLabel` on every interactive control
+6. Build charts/SVG/image visuals with `skills/canvas-image-visuals.md` when the screen needs dashboard charts, KPI visuals, icons, badges, sparklines, or custom SVG assets
+7. Check accessibility — follow `skills/canvas-accessibility.md`; set `AccessibleLabel` on every interactive control and every meaningful Image visual
 
 Before compiling, run the validity preflight from `skills/canvas-yaml.md`: top-level keys are valid, every control has `Control`, `Children` are arrays of single-key control objects, property formulas start with `=`, schema keywords like `Control` and `Variant` are not formulas, data source names match `list_data_sources`, and component instances include `ComponentName`.
 

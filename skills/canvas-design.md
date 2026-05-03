@@ -1565,6 +1565,8 @@ ToggleButton.OnSelect = Set(varDarkMode, !varDarkMode)
 
 > SVG code can be used as the image source of a Power Apps **Image** control. Combine this with variables and layered real buttons to create smooth animations without any custom connectors.
 
+For detailed QuickChart.io chart patterns, SVG fetching/sanitizing rules, and Power Apps Image control formulas, use `skills/canvas-image-visuals.md`.
+
 ### Pattern: animated tab bar / toggle
 
 ```

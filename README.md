@@ -66,7 +66,7 @@ powerplatform-ai-toolkit/
 ├── workflows/
 │   └── new-app.md                 <- Detailed end-to-end new app build workflow
 ├── mcp-tools/                     <- Per-server reference docs
-└── skills/                        <- Deep domain knowledge for canvas app development, including valid Canvas YAML guidance
+└── skills/                        <- Deep domain knowledge for canvas app development, including valid Canvas YAML, QuickChart, and SVG Image control guidance
 ```
 
 ---
@@ -92,6 +92,8 @@ powerplatform-ai-toolkit/
 - Power Platform CLI: https://learn.microsoft.com/en-us/power-platform/developer/cli/introduction
 - Canvas App Authoring MCP: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/canvas-app-mcp-server
 - Power Apps Canvas YAML source code: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/power-apps-yaml
+- QuickChart chart image API: https://quickchart.io/documentation/
+- Power Fx EncodeUrl: https://learn.microsoft.com/en-us/power-platform/power-fx/reference/function-encode-decode
 - Dataverse: https://learn.microsoft.com/en-us/power-apps/maker/data-platform/
 - Power Apps Canvas: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/
 - Sharing apps: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/share-app
