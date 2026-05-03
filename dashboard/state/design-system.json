@@ -1,0 +1,19 @@
+{
+  "theme": {
+    "brandPrimary": "#2563EB",
+    "brandAccent": "#0F766E",
+    "background": "#F8FAFC",
+    "surface": "#FFFFFF",
+    "textPrimary": "#111827",
+    "textSecondary": "#6B7280",
+    "success": "#16A34A",
+    "warning": "#F59E0B",
+    "danger": "#DC2626"
+  },
+  "layout": {
+    "navigation": "left",
+    "containerPolicy": "FlexibleWidth/FlexibleHeight/FillPortions first; fixed sizes only for small UI atoms.",
+    "imageVisualPolicy": "Use QuickChart for charts and inline SVG data URIs for icons/badges/micro-visuals."
+  },
+  "components": []
+}

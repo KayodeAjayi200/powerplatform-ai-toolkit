@@ -19,6 +19,7 @@ Point your AI coding agent at this repo and tell it to set up your Power Apps en
 > - Provision a Power Platform environment, solution, and blank canvas app
 > - Set up GitHub source control with export/deploy workflows
 > - Optionally set up Azure DevOps project tracking with Epics, Features, and User Stories
+> - Start a local project dashboard for schema/design/backlog/change-request visibility
 > - Get design references
 > - Build the app using Canvas Authoring MCP
 
@@ -56,6 +57,7 @@ powerplatform-ai-toolkit/
 │   ├── cli-auth.md                <- Sign-in scripts with account selection for each tool
 │   ├── agentic-mcp-clients.md     <- MCP setup differences for Codex, Copilot, Claude, Cursor, Windsurf, Zed
 │   ├── agent-skills-clients.md    <- Skills/rules setup differences for Codex, Copilot, Claude, Cursor, Windsurf, Zed
+│   ├── project-dashboard.md       <- Local dashboard server + JSON state workflow
 │   ├── mcp-config.md              <- Full MCP config with merge-safe write script
 │   ├── datasource-mcps.md         <- Dataverse vs SharePoint vs SQL — decision guide + commands
 │   ├── sharepoint.md              <- Sites, lists, columns, permissions, app reg for automation
@@ -63,6 +65,10 @@ powerplatform-ai-toolkit/
 │   ├── provision.md               <- Create environment, solution, and canvas app via CLI/API
 │   ├── github-integration.md      <- GitHub repo + service principal + Actions workflows
 │   └── devops.md                  <- Azure DevOps project, work item hierarchy, tracking queries
+├── dashboard/
+│   ├── server.js                  <- Localhost-only Node server for project state
+│   ├── public/                    <- Interactive dashboard UI
+│   └── state/                     <- Agent-readable JSON state files
 ├── workflows/
 │   └── new-app.md                 <- Detailed end-to-end new app build workflow
 ├── mcp-tools/                     <- Per-server reference docs
@@ -84,6 +90,20 @@ powerplatform-ai-toolkit/
 | `memory` | Persistent knowledge graph | None |
 | `sequential-thinking` | Structured reasoning | None |
 | `playwright` | Browser automation | None |
+
+---
+
+## Local project dashboard
+
+For larger apps, agents should run:
+
+```powershell
+node .\dashboard\server.js
+```
+
+Then open [http://127.0.0.1:4817](http://127.0.0.1:4817).
+
+The dashboard gives the user a visual overview of the app, data model ERD, screen plan, design system, DevOps plan, change requests, and audit history. It persists to `dashboard/state/*.json`, so the agent can read browser edits before applying Canvas MCP changes.
 
 ---
 

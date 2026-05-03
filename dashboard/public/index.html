@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Power Platform Project Dashboard</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="mark">PP</span>
+        <div>
+          <strong>Project Dashboard</strong>
+          <small>Agent-connected workspace</small>
+        </div>
+      </div>
+      <nav>
+        <button class="nav-item active" data-view="overview">Overview</button>
+        <button class="nav-item" data-view="model">Data Model</button>
+        <button class="nav-item" data-view="screens">Screens</button>
+        <button class="nav-item" data-view="design">Design</button>
+        <button class="nav-item" data-view="devops">DevOps</button>
+        <button class="nav-item" data-view="changes">Changes</button>
+        <button class="nav-item" data-view="raw">Raw State</button>
+      </nav>
+      <div class="server-status">
+        <span id="saveStatus">Loading...</span>
+      </div>
+    </aside>
+
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1 id="projectTitle">Power Platform Project</h1>
+          <p id="projectSubtitle">Local dashboard state</p>
+        </div>
+        <div class="actions">
+          <button id="refreshBtn">Refresh</button>
+          <button id="saveAllBtn" class="primary">Save All</button>
+        </div>
+      </header>
+
+      <section id="overview" class="view active">
+        <div class="cards" id="overviewCards"></div>
+        <div class="grid two">
+          <section class="panel">
+            <h2>Project Configuration</h2>
+            <div class="form-grid" id="projectForm"></div>
+          </section>
+          <section class="panel">
+            <h2>Recent Activity</h2>
+            <div id="auditList" class="timeline"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="model" class="view">
+        <div class="split">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Interactive ERD</h2>
+              <button id="addEntityBtn">Add Entity</button>
+            </div>
+            <div id="erd" class="erd"></div>
+          </section>
+          <section class="panel">
+            <h2>Entities</h2>
+            <div id="entityEditor" class="stack"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="screens" class="view">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Screen Plan</h2>
+            <button id="addScreenBtn">Add Screen</button>
+          </div>
+          <div id="screenList" class="screen-list"></div>
+        </section>
+      </section>
+
+      <section id="design" class="view">
+        <div class="grid two">
+          <section class="panel">
+            <h2>Theme</h2>
+            <div id="themeEditor" class="theme-grid"></div>
+          </section>
+          <section class="panel">
+            <h2>Preview</h2>
+            <div id="designPreview" class="preview-card">
+              <div class="preview-top"></div>
+              <div class="preview-body">
+                <strong>Dashboard card</strong>
+                <span>KPI, chart, and action surfaces inherit this palette.</span>
+                <button>Primary action</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="devops" class="view">
+        <section class="panel">
+          <h2>Azure DevOps Plan</h2>
+          <div id="devopsSummary" class="stack"></div>
+        </section>
+      </section>
+
+      <section id="changes" class="view">
+        <div class="grid two">
+          <section class="panel">
+            <h2>New Change Request</h2>
+            <label>
+              Title
+              <input id="changeTitle" placeholder="e.g. Add policy compliance chart" />
+            </label>
+            <label>
+              Details
+              <textarea id="changeDetails" rows="7" placeholder="Describe what should change."></textarea>
+            </label>
+            <button id="addChangeBtn" class="primary">Add Request</button>
+          </section>
+          <section class="panel">
+            <h2>Requests</h2>
+            <div id="changeList" class="stack"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="raw" class="view">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Raw JSON State</h2>
+            <select id="rawSelect"></select>
+          </div>
+          <textarea id="rawEditor" class="raw-editor" spellcheck="false"></textarea>
+          <div class="actions align-right">
+            <button id="saveRawBtn" class="primary">Save JSON</button>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
