@@ -60,6 +60,55 @@ Write-Host "Azure DevOps defaults set: $adoOrg / $adoProject"
 
 Official reference: https://learn.microsoft.com/en-us/azure/devops/cli/
 
+### Repeatable backlog creation script
+
+Prefer the repository helper script for real projects instead of hand-running one-off commands:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\create-devops-backlog.ps1 `
+  -BacklogPath ".\devops\my-project-backlog.json"
+```
+
+The backlog JSON should contain:
+
+```json
+{
+  "organizationUrl": "https://dev.azure.com/YOUR_ORG",
+  "project": "YOUR_PROJECT",
+  "epics": [
+    {
+      "title": "Epic title",
+      "description": "Epic description",
+      "features": [
+        {
+          "title": "Feature title",
+          "description": "Feature description",
+          "stories": [
+            {
+              "title": "User story title",
+              "description": "As a user, I want...",
+              "acceptanceCriteria": "Given..., when..., then..."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "name": "Active Work - All Types",
+      "wiql": "SELECT [System.Id],[System.Title] FROM workitems WHERE [System.TeamProject]=@project"
+    }
+  ]
+}
+```
+
+Lessons learned from live setup:
+
+- Use the friendly relation name `"Parent"` with `az boards work-item relation add`; the CLI may reject `"System.LinkTypes.Hierarchy-Reverse"` even though it appears in `relation list-type`.
+- Some Azure DevOps CLI extension versions support `az boards query` for running WIQL but do not support `az boards query create`. The helper script creates saved Shared Queries through the Azure DevOps Work Item Tracking REST API instead.
+- Make work-item creation idempotent by querying for an existing item with the same type and title before creating a new one. This prevents duplicates after partial failures.
+
 ---
 
 ## Step 1 — Check if the project already exists
@@ -158,10 +207,10 @@ $feat1 = az boards work-item create `
     --output json | ConvertFrom-Json
 $feat1Id = $feat1.id
 
-# "Hierarchy-Reverse" means "set this item's parent to..."
+# "Parent" means "set this item's parent to..."
 az boards work-item relation add `
     --id            $feat1Id `
-    --relation-type "System.LinkTypes.Hierarchy-Reverse" `
+    --relation-type "Parent" `
     --target-id     $epic1Id
 Write-Host "Feature $feat1Id linked to Epic $epic1Id"
 
@@ -172,7 +221,7 @@ $feat2 = az boards work-item create `
     --description "Users can add new records and change existing ones." `
     --output json | ConvertFrom-Json
 $feat2Id = $feat2.id
-az boards work-item relation add --id $feat2Id --relation-type "System.LinkTypes.Hierarchy-Reverse" --target-id $epic2Id
+az boards work-item relation add --id $feat2Id --relation-type "Parent" --target-id $epic2Id
 
 $feat3 = az boards work-item create `
     --title       "Search, filter, and browse records" `
@@ -180,7 +229,7 @@ $feat3 = az boards work-item create `
     --description "Users can search for records and filter the list by various criteria." `
     --output json | ConvertFrom-Json
 $feat3Id = $feat3.id
-az boards work-item relation add --id $feat3Id --relation-type "System.LinkTypes.Hierarchy-Reverse" --target-id $epic2Id
+az boards work-item relation add --id $feat3Id --relation-type "Parent" --target-id $epic2Id
 ```
 
 ---
@@ -210,7 +259,7 @@ function New-UserStory {
     # Link to its parent Feature
     az boards work-item relation add `
         --id            $story.id `
-        --relation-type "System.LinkTypes.Hierarchy-Reverse" `
+        --relation-type "Parent" `
         --target-id     $parentFeatureId | Out-Null
 
     Write-Host "User Story created: $($story.id) — $title"
@@ -248,30 +297,38 @@ New-UserStory `
 
 Queries let the team see work by status or area without scrolling through everything manually.
 
+Use `setup/scripts/create-devops-backlog.ps1` when possible. It creates the standard queries
+through the Work Item Tracking REST API because some Azure DevOps CLI extension versions can
+run `az boards query --wiql` but do not support `az boards query create`.
+
 ```powershell
-# All active work — nothing marked done or removed
-az boards query create `
-    --name   "Active Work — All Types" `
-    --wiql   "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State],[System.AssignedTo] FROM workitems WHERE [System.TeamProject]=@project AND [System.State] NOT IN ('Done','Closed','Removed') ORDER BY [System.WorkItemType] ASC,[System.ChangedDate] DESC" `
-    --path   "Shared Queries"
+# Create one saved shared query using REST.
+# Repeat this for each query definition, or let create-devops-backlog.ps1 do it.
+$token = az account get-access-token `
+    --resource 499b84ac-1321-427f-aa17-267ca6975798 `
+    --query accessToken `
+    --output tsv
 
-# User Stories that have not been started yet — the upcoming queue
-az boards query create `
-    --name   "User Stories — Not Started" `
-    --wiql   "SELECT [System.Id],[System.Title],[System.State],[System.AssignedTo] FROM workitems WHERE [System.TeamProject]=@project AND [System.WorkItemType]='User Story' AND [System.State]='New' ORDER BY [System.ChangedDate] DESC" `
-    --path   "Shared Queries"
+$headers = @{
+    Authorization  = "Bearer $token"
+    "Content-Type" = "application/json"
+    Accept         = "application/json"
+}
 
-# Everything assigned to the current user that is in progress
-az boards query create `
-    --name   "My Active Items" `
-    --wiql   "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State] FROM workitems WHERE [System.TeamProject]=@project AND [System.AssignedTo]=@me AND [System.State]='Active' ORDER BY [System.ChangedDate] DESC" `
-    --path   "Shared Queries"
+$encodedProject = [uri]::EscapeDataString($adoProject)
+$queryFolderUrl = "$adoOrg/$encodedProject/_apis/wit/queries/Shared%20Queries?api-version=7.1-preview.2"
 
-# Full Epic → Feature → User Story tree — useful for sprint planning
-az boards query create `
-    --name   "Full Backlog Hierarchy" `
-    --wiql   "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State],[System.AssignedTo] FROM workitemLinks WHERE [Source].[System.TeamProject]=@project AND [System.Links.LinkType]='System.LinkTypes.Hierarchy-Forward' AND [Target].[System.WorkItemType] IN ('Epic','Feature','User Story') ORDER BY [System.WorkItemType] ASC MODE (Recursive)" `
-    --path   "Shared Queries"
+$body = @{
+    name     = "Active Work - All Types"
+    wiql     = "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State],[System.AssignedTo] FROM workitems WHERE [System.TeamProject]=@project AND [System.State] NOT IN ('Done','Closed','Removed') ORDER BY [System.WorkItemType] ASC,[System.ChangedDate] DESC"
+    isFolder = $false
+} | ConvertTo-Json -Depth 5
+
+Invoke-RestMethod `
+    -Uri     $queryFolderUrl `
+    -Method  Post `
+    -Headers $headers `
+    -Body    $body
 
 Write-Host "Tracking queries created in Shared Queries"
 ```
