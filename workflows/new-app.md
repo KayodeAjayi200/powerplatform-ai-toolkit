@@ -81,9 +81,11 @@ Design the screen architecture before opening Power Apps Studio.
 
 **Every screen must follow the container rules from `skills/canvas-design.md`:**
 - Root: vertical container fills the screen
-- Header: horizontal container, fixed height
-- Body: vertical container, fills remaining space, scrollable if needed
+- Header: horizontal container with a deliberate fixed height only when it is app chrome
+- Body: vertical container with `FlexibleHeight = true` and `FillPortions = 1`
 - Navigation: left vertical panel (tablet) or bottom horizontal bar (phone)
+- Main/side columns: use `FlexibleWidth = true`, `FillPortions`, and `MinimumWidth` instead of `Width = Parent.Width * ...`
+- Avoid fixed `Width`, `Height`, `X`, and `Y` for layout. Use them only for small fixed UI atoms such as icons, avatars, separators, and row heights.
 
 ---
 
