@@ -289,6 +289,15 @@ powershell -ExecutionPolicy Bypass -File .\setup\scripts\create-sharepoint-lists
   -IndexesOnly
 ```
 
+Use `-VerifyOnly` before app build or handoff to check that the site matches the data model
+without creating or changing anything:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\create-sharepoint-lists-from-data-model.ps1 `
+  -SiteUrl "https://YOURTENANT.sharepoint.com/sites/YOURSITE" `
+  -VerifyOnly
+```
+
 Lessons learned from live provisioning:
 
 - If `m365 login --authType browser` fails because of app registration/client type issues, use
@@ -301,6 +310,8 @@ Lessons learned from live provisioning:
 - Treat indexing as a separate pass. It is common for field creation to succeed while some indexes
   need a second run after SharePoint finishes materializing the columns.
 - Write a provisioning summary file so later agents know the real site URL, list IDs, and list URLs.
+- Keep project-specific list definitions, seed data, URLs, tenant names, and DevOps work items out
+  of this toolkit. Put only reusable setup patterns and generic helper scripts here.
 
 ---
 

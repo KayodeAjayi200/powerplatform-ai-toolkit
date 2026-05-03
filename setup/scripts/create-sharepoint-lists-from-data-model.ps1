@@ -5,7 +5,8 @@ param(
     [string]$DataModelPath = "dashboard/state/data-model.json",
     [string]$SummaryPath = "sharepoint/provisioning-summary.json",
     [switch]$IncludePhase2,
-    [switch]$IndexesOnly
+    [switch]$IndexesOnly,
+    [switch]$VerifyOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -54,7 +55,7 @@ function Get-ListFields {
     return $script:FieldCache[$ListTitle]
 }
 
-function Set-FieldIndexed {
+function Resolve-ListField {
     param(
         [string]$ListTitle,
         [string]$RequestedName,
@@ -62,20 +63,37 @@ function Set-FieldIndexed {
     )
 
     $fields = @(Get-ListFields -ListTitle $ListTitle)
-    $field = $fields | Where-Object {
+    return ($fields | Where-Object {
         $_.InternalName -eq $RequestedName `
             -or $_.StaticName -eq $RequestedName `
             -or $_.Title -eq $DisplayName `
             -or $_.Title -eq $RequestedName
-    } | Select-Object -First 1
+    } | Select-Object -First 1)
+}
+
+function Set-FieldIndexed {
+    param(
+        [string]$ListTitle,
+        [string]$RequestedName,
+        [string]$DisplayName
+    )
+
+    $field = Resolve-ListField -ListTitle $ListTitle -RequestedName $RequestedName -DisplayName $DisplayName
 
     if (-not $field) {
         Write-Host "  Could not find field ${ListTitle}.${RequestedName} ($DisplayName) to index."
+        $script:VerificationFindings += "Missing field: ${ListTitle}.${RequestedName} ($DisplayName)"
         return
     }
 
     if ($field.Indexed) {
         Write-Host "  Field already indexed ${ListTitle}.$($field.InternalName)"
+        return
+    }
+
+    if ($VerifyOnly) {
+        Write-Host "  Field is not indexed ${ListTitle}.$($field.InternalName)"
+        $script:VerificationFindings += "Unindexed field: ${ListTitle}.$($field.InternalName)"
         return
     }
 
@@ -176,8 +194,13 @@ if (-not $entities.Count) {
 }
 
 $script:FieldCache = @{}
+$script:VerificationFindings = @()
 
-Write-Host "Provisioning SharePoint lists at $SiteUrl"
+if ($VerifyOnly) {
+    Write-Host "Verifying SharePoint lists at $SiteUrl"
+} else {
+    Write-Host "Provisioning SharePoint lists at $SiteUrl"
+}
 Write-Host "Lists to create or update: $($entities.name -join ', ')"
 
 $allLists = @(Invoke-M365Json "spo" "list" "list" "--webUrl" $SiteUrl)
@@ -190,6 +213,9 @@ foreach ($entity in $entities) {
         Write-Host "List already exists: $($entity.name)"
         $listIds[$entity.name] = $existing.Id
         $listUrls[$entity.name] = "$SiteUrl/Lists/$($entity.name)"
+    } elseif ($VerifyOnly) {
+        Write-Host "Missing list: $($entity.name)"
+        $script:VerificationFindings += "Missing list: $($entity.name)"
     } else {
         Invoke-M365Json "spo" "list" "add" "--title" $entity.name "--baseTemplate" "GenericList" "--webUrl" $SiteUrl | Out-Null
         Write-Host "Created list: $($entity.name)"
@@ -199,7 +225,9 @@ foreach ($entity in $entities) {
     }
 }
 
-if (-not $IndexesOnly) {
+if ($VerifyOnly) {
+    Write-Host "VerifyOnly set; skipping Title rename, list creation, and field creation."
+} elseif (-not $IndexesOnly) {
     foreach ($entity in $entities) {
         $titleField = $entity.fields | Where-Object { $_.name -eq "Title" } | Select-Object -First 1
         if ($titleField -and $titleField.displayName -ne "Title") {
@@ -219,10 +247,36 @@ if (-not $IndexesOnly) {
     Write-Host "IndexesOnly set; skipping Title rename and field creation."
 }
 
+if ($VerifyOnly) {
+    foreach ($entity in $entities) {
+        if (-not $listIds.ContainsKey($entity.name)) {
+            continue
+        }
+
+        foreach ($field in $entity.fields) {
+            $existingField = Resolve-ListField -ListTitle $entity.name -RequestedName $field.name -DisplayName $field.displayName
+            if (-not $existingField) {
+                Write-Host "  Missing field ${entity.name}.$($field.name) ($($field.displayName))"
+                $script:VerificationFindings += "Missing field: ${entity.name}.$($field.name) ($($field.displayName))"
+            }
+        }
+    }
+}
+
 foreach ($entity in $entities) {
+    if (-not $listIds.ContainsKey($entity.name)) {
+        continue
+    }
+
     foreach ($field in $entity.fields | Where-Object { $_.indexed }) {
         Set-FieldIndexed -ListTitle $entity.name -RequestedName $field.name -DisplayName $field.displayName
     }
+}
+
+if ($VerifyOnly -and $script:VerificationFindings.Count) {
+    Write-Host "Verification failed:"
+    $script:VerificationFindings | ForEach-Object { Write-Host "  $_" }
+    throw "SharePoint provisioning verification failed with $($script:VerificationFindings.Count) issue(s)."
 }
 
 $summary = [PSCustomObject]@{
@@ -231,6 +285,8 @@ $summary = [PSCustomObject]@{
     createdAt = (Get-Date).ToUniversalTime().ToString("o")
     includePhase2 = [bool]$IncludePhase2
     indexesOnly = [bool]$IndexesOnly
+    verifyOnly = [bool]$VerifyOnly
+    verificationFindings = $script:VerificationFindings
     lists = $entities | ForEach-Object {
         [PSCustomObject]@{
             name = $_.name

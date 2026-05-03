@@ -338,7 +338,7 @@ Do not install tools that are not needed. Only install what the confirmed data s
 Based on the confirmed data plan, create the tables, lists, or databases.
 
 - For **Dataverse** tables: follow the commands in `setup/datasource-mcps.md`
-- For **SharePoint sites and lists**: read and follow `setup/sharepoint.md` — it covers creating the site (if needed), creating lists, and adding the right column types. It also includes questions to ask the user before creating anything.
+- For **SharePoint sites and lists**: read and follow `setup/sharepoint.md` — it covers creating the site (if needed), creating lists, adding the right column types, and using the repeatable `setup/scripts/create-sharepoint-lists-from-data-model.ps1` helper. It also includes questions to ask the user before creating anything.
 - For **Azure SQL**: follow the commands in `setup/datasource-mcps.md`
 
 Tell the user each thing you create as you go. Use plain language:

@@ -119,6 +119,32 @@ galResults.Items = Filter(ProjectsList, StartsWith(Title, txtSearch.Text))
 
 **SharePoint indexing requirement:** Any column used in a `Filter()` must be **indexed** in SharePoint list settings for delegation to work at scale (>5,000 items). Go to List Settings → Indexed Columns.
 
+#### SharePoint Lookup, Choice, and Person fields
+
+SharePoint Lookup, Choice, and Person columns appear in Power Apps as complex fields. They do not automatically make an app non-delegable, but they become risky when formulas query unsupported subfields or combine them with non-delegable operations.
+
+Use this guidance before creating or reviewing a Canvas app over SharePoint lists:
+
+| Pattern | Delegation posture |
+|---|---|
+| `Filter(Tasks, Project = cmbProject.Selected)` | Usually safe when the lookup column is indexed and the comparison is simple equality. |
+| `Filter(Tasks, Project.Id = varProjectId)` | Prefer this when available; lookup IDs are stable and avoid display-name ambiguity. |
+| `Filter(Tasks, Project.Value = "Alpha")` | Risky; avoid filtering by lookup display text at scale. |
+| `StartsWith(Project.Value, txtSearch.Text)` | Avoid; SharePoint does not delegate `StartsWith` on Choice or Lookup subfields. |
+| `SortByColumns(Tasks, "Project")` | Avoid; sorting complex fields is not delegable for SharePoint. |
+| `Filter(Tasks, AssignedTo.Email = User().Email)` | Often acceptable because SharePoint delegates only specific Person subfields, especially `Email` and `DisplayName`. Verify in Studio. |
+| `Filter(Tasks, AssignedTo.Department = "Ops")` | Avoid; unsupported Person subfields are non-delegable. |
+
+When a screen needs scalable search/sort/grouping by related-record display names, denormalize the display value into an indexed text column on the child list, for example `ProjectName`, `ResourceName`, or `RequesterEmail`. Keep the lookup for referential navigation, but query the denormalized indexed field for gallery filters.
+
+For SharePoint-backed apps that may exceed 2,000 rows:
+
+- Index every lookup column used in equality filters.
+- Avoid gallery sorting on Lookup, Choice, Person, or other complex columns.
+- Avoid `Search()` for related records; use `StartsWith()` on an indexed text column on the base list.
+- Keep filters on the base list. Do not build formulas that require Power Apps to expand several related lists before filtering.
+- Use server-side list views, Power Automate, or Dataverse when the app needs joins, aggregates, many-to-many matching, or multi-field full-text search.
+
 ### SQL / Azure SQL ✅ (Strong server-side execution)
 
 - Most `Filter` and `SortByColumns` operations delegate to SQL.
