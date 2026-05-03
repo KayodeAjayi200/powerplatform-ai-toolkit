@@ -20,6 +20,7 @@
         <button class="nav-item" data-view="model">Data Model</button>
         <button class="nav-item" data-view="screens">Screens</button>
         <button class="nav-item" data-view="design">Design</button>
+        <button class="nav-item" data-view="config">Config</button>
         <button class="nav-item" data-view="devops">DevOps</button>
         <button class="nav-item" data-view="changes">Changes</button>
         <button class="nav-item" data-view="raw">Raw State</button>
@@ -97,6 +98,46 @@
                 <button>Primary action</button>
               </div>
             </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="config" class="view">
+        <div class="grid two">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Environment Config</h2>
+              <button id="addEnvVarBtn">Add Env Var</button>
+            </div>
+            <div class="form-grid" id="configForm"></div>
+            <h3>Environment Variables</h3>
+            <div id="envVarList" class="stack"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-header">
+              <h2>App Registrations</h2>
+              <button id="addAppRegBtn">Add App Reg</button>
+            </div>
+            <p class="hint">Store IDs, redirect URIs, scopes, and secret locations. Do not store client secrets or token values.</p>
+            <div id="appRegList" class="stack"></div>
+          </section>
+        </div>
+        <div class="grid two top-gap">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Secret References</h2>
+              <button id="addSecretRefBtn">Add Secret Ref</button>
+            </div>
+            <p class="hint">Use Key Vault names, environment variable names, GitHub/Azure secret names, or owner/status. Actual secret values are rejected by the server.</p>
+            <div id="secretRefList" class="stack"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Access Token References</h2>
+              <button id="addTokenRefBtn">Add Token Ref</button>
+            </div>
+            <p class="hint">Track token purpose, storage location, expiry, and status only. Never paste token strings here.</p>
+            <div id="tokenRefList" class="stack"></div>
           </section>
         </div>
       </section>

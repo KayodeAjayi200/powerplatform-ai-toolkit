@@ -15,6 +15,21 @@
     "studioUrl": "",
     "coauthoring": "unknown"
   },
+  "configuration": {
+    "tenantId": "",
+    "publisherPrefix": "",
+    "region": "",
+    "environmentVariables": [],
+    "connectionReferences": [],
+    "customConnectors": []
+  },
+  "security": {
+    "appRegistrations": [],
+    "servicePrincipals": [],
+    "apiPermissions": [],
+    "secretReferences": [],
+    "tokenReferences": []
+  },
   "mcp": {
     "powerappsCanvas": "unknown",
     "canvasAuthoring": "unknown",
