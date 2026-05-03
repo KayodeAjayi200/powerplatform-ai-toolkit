@@ -623,7 +623,7 @@ Use the Canvas Authoring MCP tools to:
 2. Sync the current app state before every edit request (read what is live in Studio before making changes)
 3. Build each screen according to the confirmed screen plan — one screen at a time, following `skills/canvas-yaml.md` for valid `.pa.yaml` structure
 4. Connect data sources using the MCP data tools or the Add Data panel
-5. Write Power Fx formulas — follow `skills/canvas-app.md` for correct formula patterns
+5. Write Power Fx formulas — follow `skills/canvas-app.md` for correct formula patterns, preferring `App.Formulas` over `App.OnStart`
 6. Apply the design — follow `skills/canvas-design.md` container rules at every level, using flexible container properties before formulas or fixed sizes
 7. Build charts/SVG/image visuals with `skills/canvas-image-visuals.md` when the screen needs dashboard charts, KPI visuals, icons, badges, sparklines, or custom SVG assets
 8. Check accessibility — follow `skills/canvas-accessibility.md`; set `AccessibleLabel` on every interactive control and every meaningful Image visual
@@ -633,6 +633,8 @@ Before editing local YAML through Canvas MCP, run `powerapps-canvas-sync_canvas`
 If `dashboard/state/change-requests.json` contains requests with status `new`, mark each request `active` before working on it, then mark it `done` after compile/push succeeds or `blocked` with a clear note when access or missing information prevents completion.
 
 Before compiling, run the validity preflight from `skills/canvas-yaml.md`: top-level keys are valid, every control has `Control`, `Children` are arrays of single-key control objects, property formulas start with `=`, schema keywords like `Control` and `Variant` are not formulas, data source names match `list_data_sources`, and component instances include `ComponentName`.
+
+Before compiling, review app-level logic: use `App.Formulas` for constants, themes, navigation tables, role flags, current-user derived values, and reusable derived data. Use `App.OnStart` only for ordered side effects, offline cache hydration/sync, mutable collections, or startup work that named formulas cannot perform efficiently or effectively.
 
 Before compiling, review the generated YAML for layout smells from `skills/canvas-design.md`: avoid `X`/`Y` positioning for content controls, avoid repeated fixed widths on panels/cards/columns, replace `Parent.Width`/`Parent.Height` sizing formulas with `FlexibleWidth`, `FlexibleHeight`, `FillPortions`, and `AlignInContainer.Stretch`, and remove oversized `MinimumWidth`/`MinimumHeight` values that cause clipping.
 

@@ -755,7 +755,8 @@ Filter Panel (Vertical Container) — slides in from side or drops from top
 Instead of tracking each filter in its own variable, store all filter state in a single collection. This makes it easy to count active filters and reset them all at once.
 
 ```powerfx
-// Initialise filter state collection (call this in App.OnStart or screen OnVisible):
+// Prefer App.Formulas for static filter definitions.
+// Use a collection only when users need to mutate filter state at runtime.
 ClearCollect(
     colFilterState,
     { Key: "StatusOpen",    Label: "Open",        IsActive: false },
@@ -1258,13 +1259,25 @@ This is how you build truly responsive headers and multi-column layouts without 
 
 ---
 
-## 13. Dynamic Tab Navigation — Gallery + Collection Pattern
+## 13. Dynamic Tab Navigation — Gallery + Named Formula Pattern
 
-> The cleanest way to build a tab bar in Power Apps is a **Horizontal Gallery** driven by a **collection** of tab definitions. The selected tab controls which content is visible. Tabs can be added or removed from the collection — the gallery adjusts automatically.
+> The cleanest way to build a tab bar in Power Apps is a **Horizontal Gallery** driven by an `App.Formulas` named formula for static/derived tab definitions. Use a collection only when tabs must be mutated during the session.
 
-### Step 1 — Define the tabs in a collection
+### Step 1 — Define the tabs
 
-Put this in `App.OnStart`:
+Prefer `App.Formulas`:
+
+```powerfx
+// App.Formulas:
+Tabs = Table(
+    {id: 1, name: "All Tickets",   logo: Icon.Tag},
+    {id: 2, name: "My Tickets",    logo: Icon.Person},
+    {id: 3, name: "Closed",        logo: Icon.Check},
+    {id: 4, name: "Settings",      logo: Icon.Settings}
+)
+```
+
+Use `App.OnStart` only if the tab collection must be mutated at runtime:
 
 ```powerfx
 // Build the list of tabs the app will show.
@@ -1298,9 +1311,9 @@ Insert a **Gallery** (not a container):
 
 | Property | Value | Why |
 |---|---|---|
-| `Items` | `colTabs` | Drives tabs from the collection |
+| `Items` | `Tabs` or `colTabs` | Drives tabs from the named formula or mutable collection |
 | `Layout` | Horizontal | Tabs go left to right |
-| `WrapCount` | `CountRows(colTabs)` | Forces all tabs into one row — no wrapping |
+| `WrapCount` | `CountRows(Tabs)` | Forces all tabs into one row — no wrapping |
 | `TemplateSize` | `Parent.Height` | Each tab fills the full height of the gallery |
 | `Height` | 48 (or match your header height) | Standard tab bar height |
 
@@ -1316,8 +1329,8 @@ Inside each gallery template, add:
 // Put this in the gallery template's OnSelect:
 Set(varActiveTab, ThisItem.id)
 
-// Initialise the default tab in App.OnStart (after ClearCollect):
-Set(varActiveTab, 1)
+// Set the gallery's Default property instead of using App.OnStart where possible:
+galTabs.Default = First(Tabs)
 ```
 
 ### Step 4 — Show tab content based on selected tab
@@ -1530,9 +1543,12 @@ conCard.Fill        = appTheme.bgCard
 - Named formulas are lazy (evaluated only when used), so no startup cost
 - Cleaner separation: theme definition vs startup data loading
 
-### Approach B — App.OnStart Variables (Alternative)
+### Approach B — App.OnStart Variables (Fallback Only)
+
+Use this only when the tenant/tooling cannot use `App.Formulas`, or when startup logic must create mutable global state with ordered side effects.
+
 ```powerfx
-// In App → OnStart: set a global variable with two sub-records (light + dark)
+// Fallback only: in App → OnStart, set a global variable with two sub-records.
 Set(globalTheme, {
     light: {
         bg:       RGBA(255, 255, 255, 1),
@@ -1757,9 +1773,16 @@ conPageContent.X     = LeftNavComponent_1.MenuWidth
 conPageContent.Width = Parent.Width - LeftNavComponent_1.MenuWidth
 ```
 
-### Initialising nav data in App.OnStart
+### Initialising nav data
 ```powerfx
-// Build the navigation collection once on app start.
+// Prefer App.Formulas for static navigation data.
+NavItems = Table(
+    {title: "Home",    screen: HomeScreen,    icon: Icon.Home},
+    {title: "Tasks",   screen: TaskScreen,    icon: Icon.DetailList},
+    {title: "Details", screen: DetailScreen,  icon: Icon.DocumentWithContent}
+)
+
+// Use App.OnStart only if the navigation collection must be mutated at runtime.
 // Use this collection as the NavItems input property on every screen.
 App.OnStart = ClearCollect(colNav,
     {title: "Home",    screen: HomeScreen,    icon: Icon.Home},
