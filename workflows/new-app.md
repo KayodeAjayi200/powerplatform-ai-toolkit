@@ -129,11 +129,12 @@ Official reference: https://learn.microsoft.com/en-us/power-apps/maker/canvas-ap
 
 Build one screen at a time:
 
-1. **Write the YAML** for the screen using the Canvas Authoring MCP
-2. **Follow the rules** in `skills/canvas-app.md` and `skills/canvas-design.md`
+1. **Write valid YAML first** using `skills/canvas-yaml.md` and a synced screen/control as the structural template
+2. **Follow the app/design rules** in `skills/canvas-app.md` and `skills/canvas-design.md`
 3. **Connect data** — reference the tables/lists created in Step 4
-4. **Compile** after each screen to catch errors early
-5. **Move to the next screen** only when the current one compiles cleanly
+4. **Run YAML preflight** — check top-level keys, `Children` structure, required `Control`, formula `=` prefixes, data source names, and component references before compiling
+5. **Compile** after each screen to catch errors early
+6. **Move to the next screen** only when the current one compiles cleanly
 
 ### Accessibility (mandatory)
 
