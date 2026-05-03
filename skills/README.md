@@ -30,6 +30,7 @@ Or reference them inline in your prompt:
 |---|---|
 | [canvas-app.md](./canvas-app.md) | Building canvas app controls, writing Power Fx formulas, working with galleries, forms, or collections |
 | [canvas-design.md](./canvas-design.md) | Designing canvas app screens — containers, Fluent UI controls, responsive layouts, navigation patterns |
+| [canvas-yaml.md](./canvas-yaml.md) | Generating valid `.pa.yaml` files — schema shape, formula value rules, indentation, preflight checks, compile failures |
 | [canvas-accessibility.md](./canvas-accessibility.md) | Making canvas apps WCAG 2.1 AA compliant — screen readers, keyboard navigation, accessible labelling |
 | [canvas-authoring-mcp.md](./canvas-authoring-mcp.md) | Editing a live canvas app via MCP — how to connect, sync, edit, and compile YAML |
 | [delegation.md](./delegation.md) | Fixing delegation warnings — filtering large SharePoint lists, Dataverse tables, or SQL tables correctly |

@@ -35,6 +35,7 @@ Before doing anything else, read these files from this repository so you have fu
 |---|---|
 | `skills/canvas-app.md` | Power Fx formulas, galleries, forms, collections, navigation |
 | `skills/canvas-design.md` | Container-based layout, Fluent UI, responsive design — the rules you must follow when building |
+| `skills/canvas-yaml.md` | Valid `.pa.yaml` schema, screen/control structure, formula value rules, and compile preflight checks |
 | `skills/canvas-accessibility.md` | WCAG 2.1 AA rules every canvas app must meet |
 | `skills/canvas-authoring-mcp.md` | How to connect and edit a live canvas app via MCP |
 | `skills/delegation.md` | How to filter large data sources without hitting delegation limits |
@@ -519,11 +520,13 @@ Do not proceed to `sync_canvas`, editing, or `compile_canvas` until `list_contro
 Use the Canvas Authoring MCP tools to:
 
 1. Sync the current app state (read what is already there before making changes)
-2. Build each screen according to the confirmed screen plan — one screen at a time
+2. Build each screen according to the confirmed screen plan — one screen at a time, following `skills/canvas-yaml.md` for valid `.pa.yaml` structure
 3. Connect data sources using the MCP data tools or the Add Data panel
 4. Write Power Fx formulas — follow `skills/canvas-app.md` for correct formula patterns
 5. Apply the design — follow `skills/canvas-design.md` container rules at every level, using flexible container properties before formulas or fixed sizes
 6. Check accessibility — follow `skills/canvas-accessibility.md`; set `AccessibleLabel` on every interactive control
+
+Before compiling, run the validity preflight from `skills/canvas-yaml.md`: top-level keys are valid, every control has `Control`, `Children` are arrays of single-key control objects, property formulas start with `=`, schema keywords like `Control` and `Variant` are not formulas, data source names match `list_data_sources`, and component instances include `ComponentName`.
 
 Before compiling, review the generated YAML for layout smells from `skills/canvas-design.md`: avoid `X`/`Y` positioning for content controls, avoid repeated fixed widths on panels/cards/columns, replace `Parent.Width`/`Parent.Height` sizing formulas with `FlexibleWidth`, `FlexibleHeight`, `FillPortions`, and `AlignInContainer.Stretch`, and remove oversized `MinimumWidth`/`MinimumHeight` values that cause clipping.
 
