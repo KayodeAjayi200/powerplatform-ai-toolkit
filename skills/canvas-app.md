@@ -443,7 +443,7 @@ Text(0.752, "0%")                      // "75%"
 | `UpdateContext({name: val})` | Screen-local | `UpdateContext({showModal: true})` |
 | `Navigate(screen, tr, {var: val})` | Passes to target screen as context | — |
 
-> **Rule:** Use context variables (`UpdateContext`) for screen-local state (show/hide panels, toggle modes). Use global variables (`Set`) for data shared across screens. Avoid overusing globals — prefer named formulas or passing context through Navigate.
+> **Rule:** Use `App.Formulas` named formulas before `App.OnStart` or global variables. Use context variables (`UpdateContext`) for screen-local interaction state (show/hide panels, toggle modes). Use global variables (`Set`) only for mutable cross-screen state that cannot be represented as a named formula or passed through `Navigate`.
 
 ### 💾 Offline & Local Storage
 | Function | Example |
@@ -545,7 +545,8 @@ If(
 
 ### Sync pending offline records on startup
 ```powerfx
-// App.OnStart or screen OnVisible:
+// App.OnStart is acceptable here because LoadData, Patch, ClearData, and Notify
+// are ordered side effects that App.Formulas cannot perform.
 LoadData(PendingOrders, "PendingOrders", true);
 If(
     Connection.Connected && !IsEmpty(PendingOrders),
@@ -602,14 +603,60 @@ If(
 
 ---
 
-## Named Formulas (App-level)
+## App.Formulas First (App-level Named Formulas)
 
-Define in the App object's `Formulas` section — auto-recompute, no `Set()` needed:
+Prefer `App.Formulas` for app-wide constants, theme records, reusable tables, calculated values, role flags, current-user records, navigation definitions, and other derived state.
+
+Define named formulas in the App object's `Formulas` section. They auto-recompute, are lazy evaluated, and do not need `Set()` or `App.OnStart`.
+
 ```powerfx
 TotalRevenue      = Sum(Orders, Amount)
 ActiveUserCount   = CountRows(Filter(Users, Active = true))
 CurrentUserOrders = Filter(Orders, Owner = User().Email)
 ```
+
+### When to use App.Formulas
+
+Use `App.Formulas` when the value is:
+
+- Derived from data, user, app size, environment, or other formulas
+- Read by multiple screens or components
+- A constant/config object such as theme, spacing, route names, statuses, or role names
+- A reusable table that does not need runtime mutation
+- Safe to recalculate when dependencies change
+
+```powerfx
+// App.Formulas:
+CurrentUserEmail = Lower(User().Email)
+IsManager = CurrentUserEmail in Managers.Email
+StatusChoices = ["Draft", "Submitted", "Approved", "Rejected"]
+NavItems = Table(
+    { Title: "Home", Target: HomeScreen, Icon: Icon.Home },
+    { Title: "Requests", Target: RequestsScreen, Icon: Icon.DetailList },
+    { Title: "Settings", Target: SettingsScreen, Icon: Icon.Settings }
+)
+```
+
+### When App.OnStart is acceptable
+
+Use `App.OnStart` only when `App.Formulas` is not possible, efficient, or effective. Good reasons include:
+
+- Ordered one-time side effects such as `LoadData`, `SaveData`, `ClearData`, or migration steps
+- Hydrating or syncing mutable offline collections
+- Calling `ClearCollect`, `Collect`, or `Set` for state users will mutate during the session
+- Sequential startup work where later steps depend on earlier side effects
+- Compatibility limits in a target tenant/tool where named formulas cannot represent the logic
+
+Before writing `App.OnStart`, ask: "Can this be a named formula instead?" If yes, use `App.Formulas`.
+
+Avoid using `App.OnStart` for:
+
+- Themes
+- Static navigation items
+- Role flags
+- Current-user derived values
+- Filter defaults that can be calculated from controls/formulas
+- Constants or lookup tables
 
 ---
 
@@ -1144,14 +1191,16 @@ Screen.Fill          = appTheme.bgDark
 
 ### Dark / light mode toggle
 ```powerfx
-// App.OnStart initialise the flag:
-App.OnStart = Set(varDarkMode, false)
+// Prefer App.Formulas for theme records. Use a variable only for the mutable
+// user choice because the toggle changes during the session.
+// App.OnStart is not needed if the toggle control has Default = false.
+tglDarkMode.Default = false
 
 // Toggle button:
-btnTheme.OnSelect = Set(varDarkMode, !varDarkMode)
+btnTheme.OnSelect = Set(varDarkMode, !Coalesce(varDarkMode, false))
 
 // Each control switches based on the flag:
-Screen.Fill = If(varDarkMode, RGBA(18, 18, 18, 1), RGBA(255, 255, 255, 1))
+Screen.Fill = If(Coalesce(varDarkMode, false), RGBA(18, 18, 18, 1), RGBA(255, 255, 255, 1))
 ```
 
 ---

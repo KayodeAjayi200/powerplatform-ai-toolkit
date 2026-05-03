@@ -186,10 +186,11 @@ Build one screen at a time:
 3. **Write valid YAML** using `skills/canvas-yaml.md` and a freshly synced screen/control as the structural template
 4. **Follow the app/design rules** in `skills/canvas-app.md` and `skills/canvas-design.md`
 5. **Connect data** — reference the tables/lists created in Step 4
-6. **Run YAML preflight** — check top-level keys, `Children` structure, required `Control`, formula `=` prefixes, data source names, and component references before compiling
-7. **Compile** after each screen to catch errors early
-8. **Update dashboard state** after each meaningful compile/push, including screen status and audit events
-9. **Move to the next screen** only when the current one compiles cleanly
+6. **Prefer App.Formulas** — use named formulas for themes, navigation, constants, role flags, and derived state; use `App.OnStart` only for ordered side effects or mutable startup collections
+7. **Run YAML preflight** — check top-level keys, `Children` structure, required `Control`, formula `=` prefixes, data source names, and component references before compiling
+8. **Compile** after each screen to catch errors early
+9. **Update dashboard state** after each meaningful compile/push, including screen status and audit events
+10. **Move to the next screen** only when the current one compiles cleanly
 
 Treat Studio as the source of truth at the start of each edit cycle. If the user manually changes the app between agent turns, pull those changes with Canvas MCP when available. If sync is blocked, ask the user what changed or use exported source/screenshots/manual inspection before editing so their work is not overwritten.
 
