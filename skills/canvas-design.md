@@ -4,7 +4,7 @@ description: Power Apps Canvas Apps UI/UX design guide — containers, responsiv
 license: MIT
 metadata:
   author: KayodeAjayi200
-  version: "2.2.1"
+  version: "2.2.2"
   organization: Veldarr
   date: April 2026
   abstract: >
@@ -89,7 +89,7 @@ Agents must use native auto-layout properties before writing sizing formulas.
 | Priority | Use this | For |
 |---|---|---|
 | 1 | `FlexibleWidth`, `FlexibleHeight`, `FillPortions` | Most screen, panel, column, card, gallery, and form layouts |
-| 2 | `MinimumWidth`, `MinimumHeight`, `Wrap`, `OverflowY` | Keeping flexible layouts usable on small screens |
+| 2 | `AlignInContainer.Stretch`, `Wrap`, `OverflowY`, smallest viable `MinimumWidth` / `MinimumHeight` | Preventing clipping while keeping layouts flexible |
 | 3 | Breakpoint formulas on visibility, form columns, or template size | True layout mode changes such as phone vs tablet |
 | 4 | Fixed `Width`, `Height`, `X`, `Y` | Icons, avatars, separators, row heights, and controls that must stay fixed |
 
@@ -110,14 +110,35 @@ conBody.FillPortions   = 1
 // Correct: main content and side panel share horizontal space
 conMain.FlexibleWidth = true
 conMain.FillPortions  = 3
-conMain.MinimumWidth  = 480
+conMain.AlignInContainer = AlignInContainer.Stretch
 
 conSidePanel.FlexibleWidth = true
 conSidePanel.FillPortions  = 1
-conSidePanel.MinimumWidth  = 280
+conSidePanel.AlignInContainer = AlignInContainer.Stretch
 ```
 
 Fixed sizes are allowed only for genuinely fixed UI atoms: icon buttons, avatars, compact nav rail widths, separators, gallery row heights, and known device-specific chrome. Everything else should participate in the container layout.
+
+Minimum sizes are not default layout values. Only set `MinimumWidth` or `MinimumHeight` when a flexible child becomes unusable below a known threshold. Start with no minimum, then add the smallest viable value after checking the actual content. Oversized minimums cause horizontal scrolling, clipped controls, and broken tablet/phone layouts.
+
+### AlignInContainer — default to Stretch
+
+Inside auto-layout containers, most child controls should stretch across the cross-axis instead of relying on manual width formulas.
+
+```powerfx
+// Preferred for cards, panels, galleries, forms, search rows, and content sections.
+AlignInContainer = AlignInContainer.Stretch
+
+// Use Center only for intentionally compact controls such as icons, avatars, badges,
+// progress spinners, or small command buttons.
+AlignInContainer = AlignInContainer.Center
+
+// Use Start/End only for deliberate edge-aligned controls.
+AlignInContainer = AlignInContainer.Start
+AlignInContainer = AlignInContainer.End
+```
+
+If a label, input, gallery, form, or card is clipping horizontally, first check `AlignInContainer`. The fix is usually `AlignInContainer.Stretch` plus `FlexibleWidth = true`, not a bigger `Width` or `MinimumWidth`.
 
 ### Layout review before compile
 
@@ -128,7 +149,9 @@ Before compiling a generated app, scan the YAML for layout smells:
 - `Height = Parent.Height ...` used to fill remaining space
 - repeated fixed widths such as `Width = 300`, `Width = 400`, `Width = 600` on columns/cards/panels
 - body/content containers missing `FlexibleHeight = true` and `FillPortions = 1`
-- horizontal columns missing `FlexibleWidth = true`, `FillPortions`, and sensible `MinimumWidth`
+- stretchable children missing `AlignInContainer = AlignInContainer.Stretch`
+- horizontal columns missing `FlexibleWidth = true` and `FillPortions`
+- oversized `MinimumWidth` / `MinimumHeight` values that force clipping or unnecessary scroll
 
 If a smell appears, fix the container hierarchy first. Only keep fixed/formula sizing when the control is a small fixed UI atom or the control type does not support the needed flexible property.
 
@@ -242,7 +265,7 @@ Screen (Vertical Container)
 | Property | What it does |
 |---|---|
 | `LayoutMode` | Auto (children flow) vs Manual |
-| `AlignInContainer` | Stretch / Start / End / Center |
+| `AlignInContainer` | Stretch / Start / End / Center. Use Stretch for most content children. |
 | `FlexibleWidth` / `FlexibleHeight` | Lets container grow to fill available space |
 | `Gap` | Spacing between children |
 | `Padding` | Inner spacing on all sides |
@@ -265,9 +288,11 @@ columnB.FillPortions  = 1   // gets 1 out of 4 shares = 25%
 columnC.FlexibleWidth = true
 columnC.FillPortions  = 1   // gets 1 out of 4 shares = 25%
 
-// Always set a minimum width so the column stays usable on small screens:
-columnA.MinimumWidth = 320
+// Add a minimum only if the column becomes unusable below a real threshold:
+columnA.MinimumWidth = 280
 ```
+
+Do not set minimum widths on every child by habit. If all columns have large minimums, the app will clip or force horizontal scrolling on smaller devices.
 
 ### Scrollable filter/content panel
 
@@ -365,9 +390,8 @@ FillPortions  = 1
 FlexibleHeight = true
 FillPortions   = 1
 
-// Preferred: preserve usability when space gets tight.
-MinimumWidth  = 320
-MinimumHeight = 160
+// Optional: add the smallest viable minimum only after checking real content.
+MinimumWidth  = 240
 ```
 
 Use formulas only when the layout genuinely changes by breakpoint or when a non-container control does not support the needed auto-layout behavior:
