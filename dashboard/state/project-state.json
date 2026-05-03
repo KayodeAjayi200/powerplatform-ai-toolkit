@@ -1,27 +1,19 @@
 {
   "projectName": "Power Platform Project",
   "environment": {
-    "name": "Kay's Environment",
-    "id": "ef77d261-f915-e0fb-95f4-1cbc09edb6ab",
-    "orgUrl": "https://org273306d6.crm11.dynamics.com/"
+    "name": "",
+    "id": "",
+    "orgUrl": ""
   },
   "solution": {
     "name": "",
     "displayName": ""
   },
-  "sharePoint": {
-    "siteName": "XMarque Workforce",
-    "siteUrl": "https://xhubafrica.sharepoint.com/sites/xmarqueworkforce",
-    "groupId": "0b398aea-95f4-4648-bdcc-681da0e0302d",
-    "status": "MVP lists and indexed columns provisioned",
-    "summaryPath": "sharepoint/xmarque-sharepoint-provisioning-summary.json",
-    "setupScript": "setup/scripts/create-xmarque-sharepoint-lists.ps1"
-  },
   "canvasApp": {
     "name": "",
     "appId": "",
     "studioUrl": "",
-    "coauthoring": "not configured yet"
+    "coauthoring": "unknown"
   },
   "configuration": {
     "tenantId": "",
@@ -39,18 +31,15 @@
     "tokenReferences": []
   },
   "mcp": {
-    "powerappsCanvas": "available; list_controls succeeded",
-    "canvasAuthoring": "stable server installed; dnx fallback unavailable from NuGet",
-    "lastListControls": "2026-05-03T16:00:53.9576964Z",
+    "powerappsCanvas": "unknown",
+    "canvasAuthoring": "unknown",
+    "lastListControls": "",
     "lastSync": "",
     "lastCompile": ""
   },
   "status": {
-    "phase": "SharePoint data foundation ready",
-    "lastAgentUpdate": "2026-05-03T18:10:00.0000000Z",
-    "risks": [
-      "Canvas sync/compile still requires the target canvas app to be open in Studio with coauthoring enabled.",
-      "dnx fallback package was not available from NuGet; stable CanvasAuthoringMcpServer is installed and available."
-    ]
+    "phase": "Planning",
+    "lastAgentUpdate": "",
+    "risks": []
   }
 }

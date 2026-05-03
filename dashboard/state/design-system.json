@@ -1,36 +1,19 @@
 {
   "theme": {
-    "brandPrimary": "#0F172A",
-    "brandAccent": "#2563EB",
-    "background": "#F7F9FB",
+    "brandPrimary": "#2563EB",
+    "brandAccent": "#0F766E",
+    "background": "#F8FAFC",
     "surface": "#FFFFFF",
-    "surfaceMuted": "#F2F4F6",
-    "border": "#E2E8F0",
-    "textPrimary": "#191C1E",
-    "textSecondary": "#565E74",
+    "textPrimary": "#111827",
+    "textSecondary": "#6B7280",
     "success": "#16A34A",
     "warning": "#F59E0B",
-    "danger": "#BA1A1A",
-    "pending": "#0051D5"
+    "danger": "#DC2626"
   },
   "layout": {
     "navigation": "left",
-    "density": "Compact enterprise admin UI using a 4px baseline grid.",
-    "containerPolicy": "Use horizontal and vertical containers everywhere; FlexibleWidth/FlexibleHeight/FillPortions first; fixed sizes only for small UI atoms.",
-    "shapePolicy": "Use 4px radius for controls and cards; up to 8px for larger framed panels.",
-    "imageVisualPolicy": "Use QuickChart for charts and inline SVG data URIs for icons/badges/micro-visuals.",
-    "delegationPolicy": "SharePoint galleries use indexed columns, simple filters, and StartsWith search patterns."
+    "containerPolicy": "FlexibleWidth/FlexibleHeight/FillPortions first; fixed sizes only for small UI atoms.",
+    "imageVisualPolicy": "Use QuickChart for charts and inline SVG data URIs for icons/badges/micro-visuals."
   },
-  "components": [
-    "Left navigation rail",
-    "Top search and utility bar",
-    "Compact KPI card",
-    "Resource availability card",
-    "Request review table",
-    "Calendar allocation marker",
-    "Allocation matrix row",
-    "Status badge",
-    "Filter panel"
-  ],
-  "sourceDesign": "C:\\Users\\kayod\\Downloads\\DESIGN (3).md"
+  "components": []
 }
