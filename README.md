@@ -66,7 +66,9 @@ powerplatform-ai-toolkit/
 │   ├── apis.md                    <- External API + custom connector setup guide
 │   ├── provision.md               <- Create environment, solution, and canvas app via CLI/API
 │   ├── github-integration.md      <- GitHub repo + service principal + Actions workflows
-│   └── devops.md                  <- Azure DevOps project, work item hierarchy, tracking queries
+│   ├── devops.md                  <- Azure DevOps project, work item hierarchy, tracking queries, Azure Repos
+│   └── scripts/
+│       └── open-dashboard.ps1     <- Starts/reuses the local dashboard server
 ├── dashboard/
 │   ├── server.js                  <- Localhost-only Node server for project state
 │   ├── public/                    <- Interactive dashboard UI
@@ -114,6 +116,8 @@ open dashboard
 The agent should start or reuse the local dashboard server and open the browser automatically.
 
 The dashboard gives the user a visual overview of the app, data model ERD, screen plan, design system, DevOps plan, change requests, and audit history. It persists to `dashboard/state/*.json`, so the agent can read browser edits before applying Canvas MCP changes.
+
+The DevOps tab can also configure an Azure Repos remote and let the user commit or commit+push the current local solution state without prompting an AI agent. The local solution files still need to be exported/synced from Power Platform before committing.
 
 If a local server is blocked, the agent should still use the JSON state files directly or keep equivalent Markdown/chat state. The dashboard improves visibility; it is not required to continue building.
 

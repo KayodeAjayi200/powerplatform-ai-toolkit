@@ -152,6 +152,11 @@ h2 {
   align-items: center;
 }
 
+.actions.wrap {
+  flex-wrap: wrap;
+  margin: 14px 0;
+}
+
 .align-right {
   justify-content: flex-end;
 }
@@ -235,6 +240,25 @@ label {
   gap: 7px;
   color: var(--muted);
   font-size: 13px;
+}
+
+.inline-option {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.inline-option input {
+  width: auto;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+  margin-top: 8px;
 }
 
 input,
@@ -328,6 +352,18 @@ textarea {
   font-family: "Cascadia Mono", Consolas, monospace;
   font-size: 13px;
   line-height: 1.5;
+}
+
+.status-output {
+  white-space: pre-wrap;
+  overflow: auto;
+  max-height: 340px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #0f172a;
+  color: #dbeafe;
+  padding: 12px;
+  font: 12px/1.5 "Cascadia Mono", Consolas, monospace;
 }
 
 .timeline {

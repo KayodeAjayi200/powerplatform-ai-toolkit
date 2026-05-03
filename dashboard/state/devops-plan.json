@@ -1,6 +1,14 @@
 {
   "organizationUrl": "",
   "project": "",
+  "repository": {
+    "name": "",
+    "remoteName": "azure",
+    "remoteUrl": "",
+    "defaultBranch": "main",
+    "localPath": "",
+    "lastUpdated": ""
+  },
   "epics": [],
   "features": [],
   "userStories": [],
