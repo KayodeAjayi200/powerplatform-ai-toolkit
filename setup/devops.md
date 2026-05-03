@@ -244,47 +244,137 @@ New-UserStory `
 
 ---
 
-## Step 6 — Create tracking queries
+## Step 6 — Create or update tracking queries
 
 Queries let the team see work by status or area without scrolling through everything manually.
 
+Rules:
+- Check existing shared queries first.
+- Create only missing queries.
+- Do not create duplicate queries with the same name.
+- Do not overwrite existing query WIQL unless the user explicitly asks you to update it.
+- Always create the four baseline queries.
+- Also create relevant app-specific queries based on the Epics, Features, screens, workflows, and data sources you created.
+
 ```powershell
-# All active work — nothing marked done or removed
-az boards query create `
-    --name   "Active Work — All Types" `
-    --wiql   "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State],[System.AssignedTo] FROM workitems WHERE [System.TeamProject]=@project AND [System.State] NOT IN ('Done','Closed','Removed') ORDER BY [System.WorkItemType] ASC,[System.ChangedDate] DESC" `
-    --path   "Shared Queries"
+# Read existing Shared Queries so this step is safe to run repeatedly.
+$existingQueries = az boards query list --path "Shared Queries" --output json 2>&1 | ConvertFrom-Json
 
-# User Stories that have not been started yet — the upcoming queue
-az boards query create `
-    --name   "User Stories — Not Started" `
-    --wiql   "SELECT [System.Id],[System.Title],[System.State],[System.AssignedTo] FROM workitems WHERE [System.TeamProject]=@project AND [System.WorkItemType]='User Story' AND [System.State]='New' ORDER BY [System.ChangedDate] DESC" `
-    --path   "Shared Queries"
+function Test-QueryExists {
+    param([string]$Name)
+    return [bool]($existingQueries | Where-Object { $_.name -eq $Name })
+}
 
-# Everything assigned to the current user that is in progress
-az boards query create `
-    --name   "My Active Items" `
-    --wiql   "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State] FROM workitems WHERE [System.TeamProject]=@project AND [System.AssignedTo]=@me AND [System.State]='Active' ORDER BY [System.ChangedDate] DESC" `
-    --path   "Shared Queries"
+function New-SharedQueryIfMissing {
+    param(
+        [string]$Name,
+        [string]$Wiql
+    )
 
-# Full Epic → Feature → User Story tree — useful for sprint planning
-az boards query create `
-    --name   "Full Backlog Hierarchy" `
-    --wiql   "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State],[System.AssignedTo] FROM workitemLinks WHERE [Source].[System.TeamProject]=@project AND [System.Links.LinkType]='System.LinkTypes.Hierarchy-Forward' AND [Target].[System.WorkItemType] IN ('Epic','Feature','User Story') ORDER BY [System.WorkItemType] ASC MODE (Recursive)" `
-    --path   "Shared Queries"
+    if (Test-QueryExists -Name $Name) {
+        Write-Host "Query already exists — leaving unchanged: $Name"
+        return
+    }
 
-Write-Host "Tracking queries created in Shared Queries"
+    az boards query create `
+        --name $Name `
+        --wiql $Wiql `
+        --path "Shared Queries" | Out-Null
+
+    Write-Host "Query created: $Name"
+}
+
+$baselineQueries = @(
+    @{
+        Name = "Active Work — All Types"
+        Wiql = "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State],[System.AssignedTo] FROM workitems WHERE [System.TeamProject]=@project AND [System.State] NOT IN ('Done','Closed','Removed') ORDER BY [System.WorkItemType] ASC,[System.ChangedDate] DESC"
+    },
+    @{
+        Name = "User Stories — Not Started"
+        Wiql = "SELECT [System.Id],[System.Title],[System.State],[System.AssignedTo] FROM workitems WHERE [System.TeamProject]=@project AND [System.WorkItemType]='User Story' AND [System.State]='New' ORDER BY [System.ChangedDate] DESC"
+    },
+    @{
+        Name = "My Active Items"
+        Wiql = "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State] FROM workitems WHERE [System.TeamProject]=@project AND [System.AssignedTo]=@me AND [System.State]='Active' ORDER BY [System.ChangedDate] DESC"
+    },
+    @{
+        Name = "Full Backlog Hierarchy"
+        Wiql = "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State],[System.AssignedTo] FROM workitemLinks WHERE [Source].[System.TeamProject]=@project AND [System.Links.LinkType]='System.LinkTypes.Hierarchy-Forward' AND [Target].[System.WorkItemType] IN ('Epic','Feature','User Story') ORDER BY [System.WorkItemType] ASC MODE (Recursive)"
+    }
+)
+
+foreach ($query in $baselineQueries) {
+    New-SharedQueryIfMissing -Name $query.Name -Wiql $query.Wiql
+}
+
+Write-Host "Baseline tracking queries checked in Shared Queries"
 ```
+
+### App-specific queries
+
+After creating the baseline queries, derive useful queries from the actual app backlog.
+
+Create queries for:
+- important screens or feature areas, such as Dashboard, New Submission, Manager Review, Admin, Reporting
+- major workflows, such as Submit Expense, Approve Request, Reject Request, Audit History
+- integration or data work, such as Dataverse Tables, Power Automate Flows, SharePoint Lists, Connectors
+- quality work, such as Accessibility, Delegation, Responsive Layout, Security, Performance
+- release tracking, such as Ready for Test, Blocked Items, Done This Sprint
+
+Only create a query when matching work items actually exist or when the user explicitly wants a placeholder tracking view.
+
+```powershell
+# Example: create app-specific queries only when the related work exists.
+$allWorkItems = az boards query --wiql "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State] FROM workitems WHERE [System.TeamProject]=@project" --output json 2>&1 | ConvertFrom-Json
+
+function Test-WorkItemTitleContains {
+    param([string]$Text)
+    return [bool]($allWorkItems | Where-Object { $_.fields.'System.Title' -like "*$Text*" })
+}
+
+if (Test-WorkItemTitleContains -Text "Dashboard") {
+    New-SharedQueryIfMissing `
+        -Name "Dashboard Work" `
+        -Wiql "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State],[System.AssignedTo] FROM workitems WHERE [System.TeamProject]=@project AND [System.Title] CONTAINS WORDS 'Dashboard' AND [System.State] NOT IN ('Done','Closed','Removed') ORDER BY [System.ChangedDate] DESC"
+}
+
+if (Test-WorkItemTitleContains -Text "Accessibility") {
+    New-SharedQueryIfMissing `
+        -Name "Accessibility Work" `
+        -Wiql "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State],[System.AssignedTo] FROM workitems WHERE [System.TeamProject]=@project AND [System.Title] CONTAINS WORDS 'Accessibility' AND [System.State] NOT IN ('Done','Closed','Removed') ORDER BY [System.ChangedDate] DESC"
+}
+
+if (Test-WorkItemTitleContains -Text "Manager") {
+    New-SharedQueryIfMissing `
+        -Name "Manager Review Work" `
+        -Wiql "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State],[System.AssignedTo] FROM workitems WHERE [System.TeamProject]=@project AND [System.Title] CONTAINS WORDS 'Manager Review' AND [System.State] NOT IN ('Done','Closed','Removed') ORDER BY [System.ChangedDate] DESC"
+}
+```
+
+For each project, generate query names that match the app's real vocabulary. An expense app might need:
+- `Expense Submission Work`
+- `Manager Review Work`
+- `Policy Compliance Work`
+- `Receipt Capture Work`
+- `Expense Reporting Work`
+
+A field inspection app might need:
+- `Inspection Capture Work`
+- `Photo Evidence Work`
+- `Issue Triage Work`
+- `Offline Sync Work`
+- `Supervisor Review Work`
 
 Tell the user after this step:
 > "Your project backlog is ready. You can view it here:
 > $adoOrg/$adoProject/_backlogs/backlog
 >
-> I've also set up these shared queries for your team:
+> I've also checked and created any missing shared queries for your team:
 > - **Active Work** — everything currently in flight
 > - **User Stories — Not Started** — the queue of upcoming work
 > - **My Active Items** — your own in-progress items
-> - **Full Backlog Hierarchy** — the complete Epic → Feature → User Story tree"
+> - **Full Backlog Hierarchy** — the complete Epic → Feature → User Story tree
+> - App-specific queries based on your screens, workflows, integrations, and quality work"
 
 ---
 

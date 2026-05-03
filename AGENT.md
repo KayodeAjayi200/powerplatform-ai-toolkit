@@ -400,7 +400,7 @@ The file will guide you through:
 2. Asking the user for their ADO organisation URL and project name
 3. Creating the project if it does not exist (ask which process: Agile, Scrum, or CMMI)
 4. Creating Epics, Features, and User Stories based on what the user described in their app brief — derive real, relevant items from the app description, not generic placeholders
-5. Creating four shared tracking queries (active work, not-started stories, my items, full hierarchy)
+5. Checking existing shared queries, creating any missing baseline queries, and creating relevant app-specific queries for screens, workflows, integrations, and quality work
 
 **Before creating any work items**, show the user the Epics you plan to create and ask:
 > "Here is how I plan to organise your backlog: [list Epics]. Does that look right, or would you like to adjust anything?"
