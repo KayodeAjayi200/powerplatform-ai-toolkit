@@ -88,6 +88,7 @@ Before doing anything else, read these files from this repository so you have fu
 | `skills/canvas-yaml.md` | Valid `.pa.yaml` schema, screen/control structure, formula value rules, and compile preflight checks |
 | `skills/canvas-accessibility.md` | WCAG 2.1 AA rules every canvas app must meet |
 | `skills/canvas-authoring-mcp.md` | How to connect and edit a live canvas app via MCP |
+| `skills/sharepoint-list-design.md` | SharePoint list creation rules — clean internal names, optional fields, Title column policy, draft-friendly saves |
 | `skills/delegation.md` | How to filter large data sources without hitting delegation limits |
 | `setup/agentic-mcp-clients.md` | How Codex, VS Code/Copilot, Claude Code, Cursor, Windsurf, and Zed each configure MCP differently |
 | `setup/agent-skills-clients.md` | How Codex, GitHub Copilot, Claude Code, Windsurf, Cursor, and Zed each load skills or skill-equivalent rules |
@@ -338,7 +339,7 @@ Do not install tools that are not needed. Only install what the confirmed data s
 Based on the confirmed data plan, create the tables, lists, or databases.
 
 - For **Dataverse** tables: follow the commands in `setup/datasource-mcps.md`
-- For **SharePoint sites and lists**: read and follow `setup/sharepoint.md` — it covers creating the site (if needed), creating lists, adding the right column types, and using the repeatable `setup/scripts/create-sharepoint-lists-from-data-model.ps1` helper. It also includes questions to ask the user before creating anything.
+- For **SharePoint sites and lists**: read and follow `skills/sharepoint-list-design.md` and `setup/sharepoint.md` — they cover safe internal column names, draft-friendly optional fields, the Title column policy, creating the site (if needed), creating lists, adding the right column types, and using the repeatable `setup/scripts/create-sharepoint-lists-from-data-model.ps1` helper. They also include questions to ask the user before creating anything.
 - For **Azure SQL**: follow the commands in `setup/datasource-mcps.md`
 
 Tell the user each thing you create as you go. Use plain language:

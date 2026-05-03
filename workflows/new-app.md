@@ -100,6 +100,12 @@ Wait for user confirmation before proceeding.
 
 Execute the creation commands from `setup/datasource-mcps.md` for the confirmed datasource type.
 
+If the confirmed datasource is SharePoint, read `skills/sharepoint-list-design.md` before creating lists or fields:
+- Create fields with clean internal names first (`DueDate`, not `Due Date`)
+- Do not rename the built-in `Title` column
+- Set custom columns to optional by default so draft saves can work
+- Apply friendly display names only after successful field creation
+
 After creating each table or list:
 - Confirm it exists by listing tables (`pac dataverse table list` for Dataverse)
 - Note the exact table/list name — you'll need it when writing Power Fx formulas

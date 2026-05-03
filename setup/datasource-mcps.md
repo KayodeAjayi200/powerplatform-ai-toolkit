@@ -90,18 +90,36 @@ m365 spo list add `
     --webUrl "https://YOURTENANT.sharepoint.com/sites/YOURSITE"
 
 # Add columns to the list
+# SharePoint rule: create fields with clean internal names first (no spaces), set Required="FALSE",
+# then optionally rename the display title after creation. Do not rename the built-in Title column.
 m365 spo field add `
     --webUrl "https://YOURTENANT.sharepoint.com/sites/YOURSITE" `
     --listTitle "Projects" `
-    --xml '<Field Type="Text" DisplayName="Project Name" Name="ProjectName" />'
+    --xml '<Field Type="Text" DisplayName="ProjectName" Name="ProjectName" StaticName="ProjectName" Required="FALSE" />'
+
+m365 spo field set `
+    --webUrl "https://YOURTENANT.sharepoint.com/sites/YOURSITE" `
+    --listTitle "Projects" `
+    --fieldTitle "ProjectName" `
+    --title "Project Name" `
+    --required false
 
 m365 spo field add `
     --webUrl "https://YOURTENANT.sharepoint.com/sites/YOURSITE" `
     --listTitle "Projects" `
-    --xml '<Field Type="DateTime" DisplayName="Due Date" Name="DueDate" />'
+    --xml '<Field Type="DateTime" DisplayName="DueDate" Name="DueDate" StaticName="DueDate" Required="FALSE" />'
+
+m365 spo field set `
+    --webUrl "https://YOURTENANT.sharepoint.com/sites/YOURSITE" `
+    --listTitle "Projects" `
+    --fieldTitle "DueDate" `
+    --title "Due Date" `
+    --required false
 ```
 
 Official reference for m365 CLI: https://pnp.github.io/cli-microsoft365/cmd/spo/list/list-add/
+
+For the full SharePoint-safe naming policy, read `skills/sharepoint-list-design.md` and `setup/sharepoint.md` before creating columns.
 
 ### Connect SharePoint to a canvas app
 
