@@ -129,12 +129,15 @@ Official reference: https://learn.microsoft.com/en-us/power-apps/maker/canvas-ap
 
 Build one screen at a time:
 
-1. **Write valid YAML first** using `skills/canvas-yaml.md` and a synced screen/control as the structural template
-2. **Follow the app/design rules** in `skills/canvas-app.md` and `skills/canvas-design.md`
-3. **Connect data** — reference the tables/lists created in Step 4
-4. **Run YAML preflight** — check top-level keys, `Children` structure, required `Control`, formula `=` prefixes, data source names, and component references before compiling
-5. **Compile** after each screen to catch errors early
-6. **Move to the next screen** only when the current one compiles cleanly
+1. **Pull Studio first** with `powerapps-canvas-sync_canvas` before every new edit request, even when local YAML already exists
+2. **Write valid YAML** using `skills/canvas-yaml.md` and a freshly synced screen/control as the structural template
+3. **Follow the app/design rules** in `skills/canvas-app.md` and `skills/canvas-design.md`
+4. **Connect data** — reference the tables/lists created in Step 4
+5. **Run YAML preflight** — check top-level keys, `Children` structure, required `Control`, formula `=` prefixes, data source names, and component references before compiling
+6. **Compile** after each screen to catch errors early
+7. **Move to the next screen** only when the current one compiles cleanly
+
+Treat Studio as the source of truth at the start of each edit cycle. If the user manually changes the app between agent turns, the next sync must pull those changes before the agent edits or compiles anything.
 
 ### Accessibility (mandatory)
 

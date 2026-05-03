@@ -519,12 +519,14 @@ Do not proceed to `sync_canvas`, editing, or `compile_canvas` until `list_contro
 
 Use the Canvas Authoring MCP tools to:
 
-1. Sync the current app state (read what is already there before making changes)
+1. Sync the current app state before every edit request (read what is live in Studio before making changes)
 2. Build each screen according to the confirmed screen plan — one screen at a time, following `skills/canvas-yaml.md` for valid `.pa.yaml` structure
 3. Connect data sources using the MCP data tools or the Add Data panel
 4. Write Power Fx formulas — follow `skills/canvas-app.md` for correct formula patterns
 5. Apply the design — follow `skills/canvas-design.md` container rules at every level, using flexible container properties before formulas or fixed sizes
 6. Check accessibility — follow `skills/canvas-accessibility.md`; set `AccessibleLabel` on every interactive control
+
+Before editing local YAML, always run `powerapps-canvas-sync_canvas` to pull the current Studio state. Treat Studio as the source of truth at the start of each edit cycle because the user may have made manual updates since the previous agent turn. Apply new changes only on top of the freshly synced YAML, then compile.
 
 Before compiling, run the validity preflight from `skills/canvas-yaml.md`: top-level keys are valid, every control has `Control`, `Children` are arrays of single-key control objects, property formulas start with `=`, schema keywords like `Control` and `Variant` are not formulas, data source names match `list_data_sources`, and component instances include `ComponentName`.
 

@@ -157,6 +157,8 @@ Ask the AI to start editing your app. It pulls the current YAML from Studio:
 
 The AI runs `powerapps-canvas-sync_canvas` to pull all screens and controls into local `.pa.yaml` files.
 
+This step is mandatory before every additional edit, even if local YAML already exists. The user may have changed the app manually in Studio since the previous agent run. Pull Studio first so local files represent the current live app before generating new changes.
+
 ### Step 2 — Describe your changes
 
 Examples:
@@ -397,6 +399,8 @@ The update script in Step 3 always updates both — always use it.
 > ⚠️ **`sync_canvas` is PULL-ONLY.** It always overwrites your local files with the Studio version.
 > It does NOT push local edits to Studio. To push, use `compile_canvas`.
 
+> ⚠️ **Before every new edit request, run `sync_canvas` first.** This protects manual Studio changes by pulling them into local YAML before the agent modifies anything. Never compile stale local YAML over a live app that may have been edited manually.
+
 ---
 
 ## Workflow summary — every time you need to edit a canvas app
@@ -409,11 +413,27 @@ The update script in Step 3 always updates both — always use it.
 5. Run powerapps-canvas-sync_canvas  →  confirm you get YAML files back (PULL)
 6. Edit the local YAML files
 7. Run powerapps-canvas-compile_canvas  →  if PASSED, changes are committed to Studio (PUSH)
-8. Repeat steps 5-7 iteratively until all changes are in
+8. For every additional user-requested change, repeat step 5 before editing again
+9. Repeat steps 5-8 iteratively until all changes are in
 ```
 
 > **The push/pull cycle:** sync = pull from Studio. compile (pass) = push to Studio.
 > These are two separate operations. Never confuse them.
+
+### Manual Studio change protection
+
+Treat Power Apps Studio as the source of truth at the start of each edit cycle.
+
+Use this sequence for every additional change:
+
+1. Run `powerapps-canvas-sync_canvas` into the working sync directory.
+2. Compare the pulled files with the previous local version if possible.
+3. Preserve user/manual Studio changes found in the pull.
+4. Apply the requested change on top of the freshly pulled YAML.
+5. Run YAML/design/accessibility preflight.
+6. Run `powerapps-canvas-compile_canvas`.
+
+Do not skip the pull because the local sync folder "looks current". In coauthoring workflows, the user may have changed layout, formulas, data cards, or components directly in Studio between agent turns.
 
 ---
 
@@ -552,6 +572,7 @@ Use `powerapps-canvas-compile_canvas` to push. When it returns "Validation PASSE
 **Lesson learned:**
 - `sync_canvas` = pull from Studio (always overwrites local)
 - `compile_canvas` = validate + push to Studio (zero errors = committed)
+- pull before every new edit request so manual Studio changes are preserved locally before the next compile
 - Use `powerapps-canvas-compile_canvas`, NOT `canvas-authoring-compile_canvas` — the `canvas-authoring` variant returns "no active coauthoring session" even when Studio is open
 
 ---
