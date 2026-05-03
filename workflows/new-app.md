@@ -19,13 +19,19 @@ Document the answers. You will use them to make datasource and design decisions.
 
 ## Step 1.5 — Start the local project dashboard
 
-For any app with more than one screen, table, workflow, or backlog area, try to start the dashboard early:
+For any app with more than one screen, table, workflow, or backlog area, try to start the dashboard automatically early:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\open-dashboard.ps1
+```
+
+If the launcher script is unavailable, use:
 
 ```powershell
 node .\dashboard\server.js
 ```
 
-Open:
+Open or report:
 
 ```text
 http://127.0.0.1:4817

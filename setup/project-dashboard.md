@@ -37,13 +37,28 @@ Do not stop the project just because the dashboard cannot run.
 
 ## Start the dashboard
 
-From the repo root, try:
+When the user says **"open dashboard"**, **"show dashboard"**, or **"start dashboard"**, the agent should launch the dashboard automatically and open the browser when possible.
+
+From the repo root, prefer:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\open-dashboard.ps1
+```
+
+This script:
+
+- finds the repo/project root from the current directory
+- starts the dashboard server only if it is not already responding
+- opens the browser to the dashboard URL
+- prints the URL for the user
+
+If the script is unavailable or blocked, fall back to:
 
 ```powershell
 node .\dashboard\server.js
 ```
 
-Open:
+Then open:
 
 ```text
 http://127.0.0.1:4817
