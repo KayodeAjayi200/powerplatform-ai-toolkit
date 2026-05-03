@@ -52,6 +52,30 @@ Recommended fallbacks include:
 | Azure DevOps automation | A Markdown backlog, CSV import plan, or manual ADO work item instructions |
 | Dataverse/SharePoint creation | Schema plan plus exact commands/instructions for an admin to run |
 
+### User shortcut commands
+
+Treat these user phrases as direct operational commands:
+
+| User says | Agent should do |
+|---|---|
+| "open dashboard" | Find the current project/toolkit repo, start or reuse the local dashboard server, open the browser to the dashboard URL, and report the URL |
+| "show dashboard" | Same as "open dashboard" |
+| "start dashboard" | Start or reuse the dashboard server and report the URL, opening the browser when possible |
+
+For PowerShell environments, prefer:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\open-dashboard.ps1
+```
+
+If the script is unavailable or blocked, fall back to:
+
+```powershell
+node .\dashboard\server.js
+```
+
+Then open `http://127.0.0.1:4817`.
+
 ### 1A — Load your domain knowledge
 
 Before doing anything else, read these files from this repository so you have full context for every decision you make throughout:
@@ -382,13 +406,19 @@ Save the environment ID and app ID — you will need them when connecting the Ca
 
 Read `setup/project-dashboard.md`.
 
-For any non-trivial app (more than one screen, table, workflow, or backlog area), try to start the local dashboard so the user and agent have a shared project view:
+For any non-trivial app (more than one screen, table, workflow, or backlog area), try to start the local dashboard automatically so the user and agent have a shared project view:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\open-dashboard.ps1
+```
+
+If the launcher script is unavailable, use:
 
 ```powershell
 node .\dashboard\server.js
 ```
 
-Open or show the user:
+Open or show the user the dashboard URL:
 
 ```text
 http://127.0.0.1:4817

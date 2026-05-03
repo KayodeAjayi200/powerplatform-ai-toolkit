@@ -100,10 +100,18 @@ powerplatform-ai-toolkit/
 For larger apps, agents should try to run:
 
 ```powershell
-node .\dashboard\server.js
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\open-dashboard.ps1
 ```
 
 Then open [http://127.0.0.1:4817](http://127.0.0.1:4817).
+
+You can also tell the agent:
+
+```text
+open dashboard
+```
+
+The agent should start or reuse the local dashboard server and open the browser automatically.
 
 The dashboard gives the user a visual overview of the app, data model ERD, screen plan, design system, DevOps plan, change requests, and audit history. It persists to `dashboard/state/*.json`, so the agent can read browser edits before applying Canvas MCP changes.
 
