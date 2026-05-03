@@ -42,6 +42,7 @@ Before doing anything else, read these files from this repository so you have fu
 | `skills/delegation.md` | How to filter large data sources without hitting delegation limits |
 | `setup/agentic-mcp-clients.md` | How Codex, VS Code/Copilot, Claude Code, Cursor, Windsurf, and Zed each configure MCP differently |
 | `setup/agent-skills-clients.md` | How Codex, GitHub Copilot, Claude Code, Windsurf, Cursor, and Zed each load skills or skill-equivalent rules |
+| `setup/project-dashboard.md` | How to run the local project dashboard server and keep project state/change requests synced |
 
 Reading these now means you will not need to look anything up mid-build.
 
@@ -352,6 +353,37 @@ Save the environment ID and app ID — you will need them when connecting the Ca
 
 ---
 
+## Phase 2F.1 — Start the local project dashboard
+
+Read `setup/project-dashboard.md`.
+
+For any non-trivial app (more than one screen, table, workflow, or backlog area), start the local dashboard so the user and agent have a shared project view:
+
+```powershell
+node .\dashboard\server.js
+```
+
+Open or show the user:
+
+```text
+http://127.0.0.1:4817
+```
+
+Then populate the state files before continuing:
+
+- `dashboard/state/project-state.json` with environment, org URL, solution, canvas app, Studio URL, MCP status, and current phase
+- `dashboard/state/data-model.json` with confirmed Dataverse/SharePoint entities, fields, and relationships
+- `dashboard/state/screen-plan.json` with the confirmed screens, status, data sources, and planned controls
+- `dashboard/state/design-system.json` with theme, layout policy, and design notes
+- `dashboard/state/devops-plan.json` with Azure DevOps org/project, Epics, Features, User Stories, and shared queries if DevOps is enabled
+- `dashboard/state/audit-log.json` with a short event for each major agent action
+
+Do not put secrets, PATs, service principal passwords, or tenant secrets in dashboard state.
+
+Before every later app edit, read `dashboard/state/change-requests.json` and the current state files, then update them after completing the change. This lets manual browser edits become agent-readable work.
+
+---
+
 ## Phase 2G — Set up GitHub source control for the solution
 
 Now that the Power Platform resources exist, connect the solution to GitHub
@@ -413,6 +445,8 @@ Tell the user when done:
 
 If the user says **no**: continue to the next step.
 
+If the local project dashboard is running, update `dashboard/state/devops-plan.json` after DevOps setup. Include created Epics, Features, User Stories, Story Points where known, and any shared queries created or reused.
+
 ---
 
 ## Phase 3 — Design
@@ -448,6 +482,8 @@ Based on the app purpose, user type, and data sources, plan:
 - Brand colours or Fluent defaults apply consistently across every screen
 
 Present the screen plan and confirm with the user before building.
+
+If the local dashboard is running, update `dashboard/state/screen-plan.json` and `dashboard/state/design-system.json` with the confirmed screen plan and design direction before opening Studio. This gives the user a glanceable plan and gives future agent turns durable context.
 
 ---
 
@@ -520,15 +556,18 @@ Do not proceed to `sync_canvas`, editing, or `compile_canvas` until `list_contro
 
 Use the Canvas Authoring MCP tools to:
 
-1. Sync the current app state before every edit request (read what is live in Studio before making changes)
-2. Build each screen according to the confirmed screen plan — one screen at a time, following `skills/canvas-yaml.md` for valid `.pa.yaml` structure
-3. Connect data sources using the MCP data tools or the Add Data panel
-4. Write Power Fx formulas — follow `skills/canvas-app.md` for correct formula patterns
-5. Apply the design — follow `skills/canvas-design.md` container rules at every level, using flexible container properties before formulas or fixed sizes
-6. Build charts/SVG/image visuals with `skills/canvas-image-visuals.md` when the screen needs dashboard charts, KPI visuals, icons, badges, sparklines, or custom SVG assets
-7. Check accessibility — follow `skills/canvas-accessibility.md`; set `AccessibleLabel` on every interactive control and every meaningful Image visual
+1. Read dashboard state and open change requests first if `dashboard/state/` exists
+2. Sync the current app state before every edit request (read what is live in Studio before making changes)
+3. Build each screen according to the confirmed screen plan — one screen at a time, following `skills/canvas-yaml.md` for valid `.pa.yaml` structure
+4. Connect data sources using the MCP data tools or the Add Data panel
+5. Write Power Fx formulas — follow `skills/canvas-app.md` for correct formula patterns
+6. Apply the design — follow `skills/canvas-design.md` container rules at every level, using flexible container properties before formulas or fixed sizes
+7. Build charts/SVG/image visuals with `skills/canvas-image-visuals.md` when the screen needs dashboard charts, KPI visuals, icons, badges, sparklines, or custom SVG assets
+8. Check accessibility — follow `skills/canvas-accessibility.md`; set `AccessibleLabel` on every interactive control and every meaningful Image visual
 
 Before editing local YAML, always run `powerapps-canvas-sync_canvas` to pull the current Studio state. Treat Studio as the source of truth at the start of each edit cycle because the user may have made manual updates since the previous agent turn. Apply new changes only on top of the freshly synced YAML, then compile.
+
+If `dashboard/state/change-requests.json` contains requests with status `new`, mark each request `active` before working on it, then mark it `done` after compile/push succeeds or `blocked` with a clear note when access or missing information prevents completion.
 
 Before compiling, run the validity preflight from `skills/canvas-yaml.md`: top-level keys are valid, every control has `Control`, `Children` are arrays of single-key control objects, property formulas start with `=`, schema keywords like `Control` and `Variant` are not formulas, data source names match `list_data_sources`, and component instances include `ComponentName`.
 
@@ -541,6 +580,8 @@ Before compiling, review the generated YAML for layout smells from `skills/canva
 - Validate generated code — always check formulas compile and data sources are connected correctly
 
 Compile and verify each screen before moving to the next. Fix any errors before continuing.
+
+After each screen or meaningful change compiles, update the local dashboard state files and append an audit event. Keep the dashboard aligned with the live app, not with stale plans.
 
 ---
 
@@ -570,6 +611,7 @@ After all screens are built and verified, give the user:
 | Provision environment, solution, canvas app | `setup/provision.md` |
 | GitHub source control + Actions workflows | `setup/github-integration.md` |
 | Azure DevOps project + work item hierarchy | `setup/devops.md` |
+| Local project dashboard server + state files | `setup/project-dashboard.md` |
 | End-to-end new app workflow (detailed) | `workflows/new-app.md` |
 | Per-MCP-server reference | `mcp-tools/` |
 | Canvas App formulas and controls | `skills/canvas-app.md` |

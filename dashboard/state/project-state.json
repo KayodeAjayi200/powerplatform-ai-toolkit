@@ -1,0 +1,30 @@
+{
+  "projectName": "Power Platform Project",
+  "environment": {
+    "name": "",
+    "id": "",
+    "orgUrl": ""
+  },
+  "solution": {
+    "name": "",
+    "displayName": ""
+  },
+  "canvasApp": {
+    "name": "",
+    "appId": "",
+    "studioUrl": "",
+    "coauthoring": "unknown"
+  },
+  "mcp": {
+    "powerappsCanvas": "unknown",
+    "canvasAuthoring": "unknown",
+    "lastListControls": "",
+    "lastSync": "",
+    "lastCompile": ""
+  },
+  "status": {
+    "phase": "Planning",
+    "lastAgentUpdate": "",
+    "risks": []
+  }
+}

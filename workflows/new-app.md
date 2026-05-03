@@ -17,6 +17,36 @@ Document the answers. You will use them to make datasource and design decisions.
 
 ---
 
+## Step 1.5 — Start the local project dashboard
+
+For any app with more than one screen, table, workflow, or backlog area, start the dashboard early:
+
+```powershell
+node .\dashboard\server.js
+```
+
+Open:
+
+```text
+http://127.0.0.1:4817
+```
+
+Use `setup/project-dashboard.md` as the operating guide. The dashboard is the shared visible state between the user and agent, not a replacement for Dataverse, Azure DevOps, GitHub, or Canvas MCP verification.
+
+Initialise or update these files as soon as the related information exists:
+
+- `dashboard/state/project-state.json` for environment, solution, app, Studio URL, MCP status, and phase
+- `dashboard/state/data-model.json` for entities, fields, and relationships
+- `dashboard/state/screen-plan.json` for screens, purpose, status, data sources, and controls
+- `dashboard/state/design-system.json` for palette, typography notes, layout policy, and component rules
+- `dashboard/state/devops-plan.json` for Epics, Features, Stories, Story Points, and queries
+- `dashboard/state/change-requests.json` for user requests made from the dashboard
+- `dashboard/state/audit-log.json` for important agent actions
+
+Before every later edit, read dashboard state and open change requests first. After every meaningful change, update the state and audit log so the browser stays truthful.
+
+---
+
 ## Step 2 — Identify data needs
 
 From the description, identify every distinct **entity** the app needs to track.
@@ -62,6 +92,7 @@ Execute the creation commands from `setup/datasource-mcps.md` for the confirmed 
 After creating each table or list:
 - Confirm it exists by listing tables (`pac dataverse table list` for Dataverse)
 - Note the exact table/list name — you'll need it when writing Power Fx formulas
+- Update `dashboard/state/data-model.json` if the local dashboard is present
 
 ---
 
@@ -88,6 +119,8 @@ Design the screen architecture before opening Power Apps Studio.
 - Minimum sizes: add `MinimumWidth` or `MinimumHeight` only when real content clips below a known threshold, and use the smallest viable value
 - Avoid fixed `Width`, `Height`, `X`, and `Y` for layout. Use them only for small fixed UI atoms such as icons, avatars, separators, and row heights.
 
+If the local dashboard is present, update `dashboard/state/screen-plan.json` with the confirmed screen list before connecting to Canvas MCP.
+
 ---
 
 ## Step 6 — Get design references
@@ -110,6 +143,8 @@ Map their answer to a colour palette. For Fluent default:
 - Subtle text: `#605E5C`
 - Destructive: `#D13438`
 
+If the local dashboard is present, update `dashboard/state/design-system.json` with the confirmed theme, layout policy, and any component notes.
+
 ---
 
 ## Step 7 — Connect to Canvas Authoring MCP
@@ -129,15 +164,19 @@ Official reference: https://learn.microsoft.com/en-us/power-apps/maker/canvas-ap
 
 Build one screen at a time:
 
-1. **Pull Studio first** with `powerapps-canvas-sync_canvas` before every new edit request, even when local YAML already exists
-2. **Write valid YAML** using `skills/canvas-yaml.md` and a freshly synced screen/control as the structural template
-3. **Follow the app/design rules** in `skills/canvas-app.md` and `skills/canvas-design.md`
-4. **Connect data** — reference the tables/lists created in Step 4
-5. **Run YAML preflight** — check top-level keys, `Children` structure, required `Control`, formula `=` prefixes, data source names, and component references before compiling
-6. **Compile** after each screen to catch errors early
-7. **Move to the next screen** only when the current one compiles cleanly
+1. **Read dashboard state first** if `dashboard/state/` exists, especially `change-requests.json`
+2. **Pull Studio first** with `powerapps-canvas-sync_canvas` before every new edit request, even when local YAML already exists
+3. **Write valid YAML** using `skills/canvas-yaml.md` and a freshly synced screen/control as the structural template
+4. **Follow the app/design rules** in `skills/canvas-app.md` and `skills/canvas-design.md`
+5. **Connect data** — reference the tables/lists created in Step 4
+6. **Run YAML preflight** — check top-level keys, `Children` structure, required `Control`, formula `=` prefixes, data source names, and component references before compiling
+7. **Compile** after each screen to catch errors early
+8. **Update dashboard state** after each meaningful compile/push, including screen status and audit events
+9. **Move to the next screen** only when the current one compiles cleanly
 
 Treat Studio as the source of truth at the start of each edit cycle. If the user manually changes the app between agent turns, the next sync must pull those changes before the agent edits or compiles anything.
+
+If a dashboard change request is being handled, set it to `active` while editing. Set it to `done` only after compile/push succeeds; otherwise set it to `blocked` and add a note explaining what is missing.
 
 ### Accessibility (mandatory)
 
