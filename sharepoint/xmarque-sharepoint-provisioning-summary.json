@@ -1,0 +1,70 @@
+﻿{
+    "siteUrl":  "https://xhubafrica.sharepoint.com/sites/xmarqueworkforce",
+    "createdAt":  "2026-05-03T17:02:21.0591697Z",
+    "includePhase2":  false,
+    "lists":  [
+                  {
+                      "name":  "Resources",
+                      "displayName":  "Resources",
+                      "id":  "c6fc17b7-b5ee-4d1a-8e62-22cdd51584ec",
+                      "webUrl":  "https://xhubafrica.sharepoint.com/sites/xmarqueworkforce/Lists/Resources",
+                      "fieldCount":  13
+                  },
+                  {
+                      "name":  "Projects",
+                      "displayName":  "Projects",
+                      "id":  "3da01b42-b1ab-4f85-a298-c721ca8311ed",
+                      "webUrl":  "https://xhubafrica.sharepoint.com/sites/xmarqueworkforce/Lists/Projects",
+                      "fieldCount":  9
+                  },
+                  {
+                      "name":  "Skills",
+                      "displayName":  "Skills",
+                      "id":  "c72c6414-6524-4c07-8954-055668fd6e5d",
+                      "webUrl":  "https://xhubafrica.sharepoint.com/sites/xmarqueworkforce/Lists/Skills",
+                      "fieldCount":  3
+                  },
+                  {
+                      "name":  "ResourceSkills",
+                      "displayName":  "Resource Skills",
+                      "id":  "dbd1755e-9291-475e-81f8-f45a586d70c7",
+                      "webUrl":  "https://xhubafrica.sharepoint.com/sites/xmarqueworkforce/Lists/ResourceSkills",
+                      "fieldCount":  6
+                  },
+                  {
+                      "name":  "ResourceRequests",
+                      "displayName":  "Resource Requests",
+                      "id":  "cadda60b-d7e2-4f90-9e6d-1cb70babed9b",
+                      "webUrl":  "https://xhubafrica.sharepoint.com/sites/xmarqueworkforce/Lists/ResourceRequests",
+                      "fieldCount":  13
+                  },
+                  {
+                      "name":  "Allocations",
+                      "displayName":  "Allocations",
+                      "id":  "c4af6af8-d886-4b87-be8d-540850b6d8b2",
+                      "webUrl":  "https://xhubafrica.sharepoint.com/sites/xmarqueworkforce/Lists/Allocations",
+                      "fieldCount":  11
+                  },
+                  {
+                      "name":  "AvailabilityAdjustments",
+                      "displayName":  "Availability Adjustments",
+                      "id":  "a9c5ceb2-c68d-4fe1-a53c-2c8bc0868237",
+                      "webUrl":  "https://xhubafrica.sharepoint.com/sites/xmarqueworkforce/Lists/AvailabilityAdjustments",
+                      "fieldCount":  7
+                  },
+                  {
+                      "name":  "Notifications",
+                      "displayName":  "Notifications",
+                      "id":  "592af3f4-a0d2-4189-9d35-175655fd662b",
+                      "webUrl":  "https://xhubafrica.sharepoint.com/sites/xmarqueworkforce/Lists/Notifications",
+                      "fieldCount":  7
+                  },
+                  {
+                      "name":  "AuditEvents",
+                      "displayName":  "Audit Events",
+                      "id":  "d552507e-852d-459e-bcc8-ed99fd080815",
+                      "webUrl":  "https://xhubafrica.sharepoint.com/sites/xmarqueworkforce/Lists/AuditEvents",
+                      "fieldCount":  8
+                  }
+              ]
+}

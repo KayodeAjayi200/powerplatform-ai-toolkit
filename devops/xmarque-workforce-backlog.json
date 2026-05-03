@@ -1,0 +1,280 @@
+{
+  "organizationUrl": "https://dev.azure.com/VeldarrProjects",
+  "project": "XMarque Workforce",
+  "process": "Agile",
+  "description": "Power Platform delivery backlog for XMarque Workforce.",
+  "epics": [
+    {
+      "title": "Foundation, Data, and Governance",
+      "description": "Set up SharePoint data sources, permissions, auditability, and maintainable project foundations.",
+      "features": [
+        {
+          "title": "SharePoint information architecture",
+          "description": "Create the SharePoint site, lists, columns, indexes, and lookup relationships for the MVP.",
+          "stories": [
+            {
+              "title": "Create the XMarque Workforce SharePoint site",
+              "description": "As an administrator, I want a dedicated SharePoint site for XMarque Workforce so that app data is contained in one governed workspace.",
+              "acceptanceCriteria": "Given the site does not exist, when setup runs, then a private SharePoint site named XMarque Workforce is created or documented for manual creation.\nGiven the site exists, when setup runs, then the existing site is reused and not overwritten."
+            },
+            {
+              "title": "Create workforce planning lists and columns",
+              "description": "As an administrator, I want SharePoint lists for resources, projects, skills, requests, allocations, availability adjustments, notifications, and audit events so that the app has reliable structured data.",
+              "acceptanceCriteria": "Given the approved data model, when setup runs, then each MVP list exists with the planned columns and required choice values.\nGiven lookup columns are needed, when setup runs, then each lookup points to the correct list."
+            },
+            {
+              "title": "Index SharePoint columns used by filters",
+              "description": "As an operations manager, I want key SharePoint columns indexed so that large lists remain usable in app filters.",
+              "acceptanceCriteria": "Given the planned lists, when setup completes, then filter columns such as Title, status, type, team, priority, dates, and lookup fields are indexed where SharePoint supports indexing."
+            }
+          ]
+        },
+        {
+          "title": "Security, roles, and audit trail",
+          "description": "Define role behaviour, access boundaries, and change history for governance.",
+          "stories": [
+            {
+              "title": "Define Admin, Manager, and User role behaviour",
+              "description": "As an administrator, I want role-based behaviour so that users see and update only the areas appropriate to their responsibilities.",
+              "acceptanceCriteria": "Given a user opens the app, when their role is Admin, Manager, or User, then navigation and actions reflect that role.\nGiven a restricted user attempts a manager action, then the app blocks or hides the action."
+            },
+            {
+              "title": "Write audit events for request and allocation changes",
+              "description": "As a manager, I want request and allocation changes logged so that decisions are traceable.",
+              "acceptanceCriteria": "Given a request or allocation is created, updated, approved, rejected, or overridden, then an AuditEvents row captures user, timestamp, action, entity, and summary."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Resource Planning Experience",
+      "description": "Build the core screens used to browse resources, requests, calendars, and allocation workloads.",
+      "features": [
+        {
+          "title": "Dashboard overview",
+          "description": "Operational overview using the compact XMarque admin design.",
+          "stories": [
+            {
+              "title": "View utilisation and demand KPIs",
+              "description": "As an operations manager, I want dashboard KPIs for utilisation, resources, projects, and pending requests so that I can assess workforce health quickly.",
+              "acceptanceCriteria": "Given dashboard data exists, when I open the Dashboard screen, then I see overall utilisation, total resources, active projects, and pending request metrics.\nGiven values indicate risk, then status colours and labels make the risk clear without relying on colour alone."
+            },
+            {
+              "title": "Review upcoming allocations and pending requests",
+              "description": "As a resource manager, I want a next-7-days panel and pending requests table so that I can act on urgent planning work.",
+              "acceptanceCriteria": "Given upcoming allocations and requests exist, when I open the Dashboard screen, then I can scan upcoming events and pending request rows.\nGiven I select a row, then I can navigate to the relevant request or allocation context."
+            }
+          ]
+        },
+        {
+          "title": "Resource directory",
+          "description": "Manage people, equipment, rooms, skills, availability, and utilisation in a dense card/table interface.",
+          "stories": [
+            {
+              "title": "Browse and filter resources",
+              "description": "As a project manager, I want to filter resources by type, skill, location, and availability so that I can find suitable capacity.",
+              "acceptanceCriteria": "Given resources exist, when I use filters, then the directory updates using SharePoint-safe indexed filters.\nGiven I search by name, then results use a delegation-safe StartsWith pattern on Title."
+            },
+            {
+              "title": "View a resource profile",
+              "description": "As a manager, I want to open a resource profile so that I can see skills, utilisation, current allocations, and availability notes.",
+              "acceptanceCriteria": "Given I select a resource, when the profile opens, then I see core details, skill tags, utilisation, and current/future allocations."
+            },
+            {
+              "title": "Onboard a new resource",
+              "description": "As an administrator, I want to add people, equipment, or rooms from the app so that the directory stays current.",
+              "acceptanceCriteria": "Given I complete required fields, when I save a new resource, then a Resources row is created and appears in the directory.\nGiven required fields are missing, then the app shows accessible validation messages."
+            }
+          ]
+        },
+        {
+          "title": "Resource calendar",
+          "description": "Calendar-based schedule view for hard, soft, and pending allocations.",
+          "stories": [
+            {
+              "title": "View allocations on a monthly calendar",
+              "description": "As an operations manager, I want to see allocations on a monthly calendar so that conflicts and upcoming demand are visible.",
+              "acceptanceCriteria": "Given allocations exist in the selected month, when I view the calendar, then hard, soft, and pending allocations appear with distinct labels and accessible text."
+            },
+            {
+              "title": "Filter calendar by resource type and team",
+              "description": "As a manager, I want calendar filters for resource type and team so that I can focus on a planning area.",
+              "acceptanceCriteria": "Given filters are selected, when the calendar reloads, then only matching allocation markers are shown."
+            }
+          ]
+        },
+        {
+          "title": "Allocation matrix",
+          "description": "Staff-vs-day capacity matrix with utilisation, over-capacity, leave, and conflict indicators.",
+          "stories": [
+            {
+              "title": "Review workforce allocation by day",
+              "description": "As an operations manager, I want a resource-by-day matrix so that I can identify capacity pressure and gaps.",
+              "acceptanceCriteria": "Given resources and allocations exist, when I open Allocation View, then rows show resources and columns show the selected period.\nGiven a resource is over capacity, then the cell shows a warning state and text label."
+            },
+            {
+              "title": "Export allocation summary",
+              "description": "As a manager, I want to export allocation summary data so that I can share planning snapshots.",
+              "acceptanceCriteria": "Given allocation rows are visible, when I choose Export, then an export-ready dataset or documented export path is available."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Requests and Approval Workflow",
+      "description": "Manage resource requests from submission through approval, rejection, allocation, and notification.",
+      "features": [
+        {
+          "title": "Request intake",
+          "description": "Create and track requests for people, equipment, and rooms.",
+          "stories": [
+            {
+              "title": "Submit a resource request",
+              "description": "As a project manager, I want to submit a request with type, quantity, dates, priority, department, description, and required skills so that managers can fulfil demand.",
+              "acceptanceCriteria": "Given I complete required fields, when I submit the request, then a ResourceRequests row is created with Pending status.\nGiven required fields are missing, then validation identifies each missing field."
+            },
+            {
+              "title": "Track request status",
+              "description": "As a requester, I want to see pending, approved, rejected, and cancelled requests so that I understand where my request stands.",
+              "acceptanceCriteria": "Given requests exist, when I open Resource Requests, then I can filter by status, priority, and department.\nGiven a request is processed, then its status and decision notes are visible."
+            }
+          ]
+        },
+        {
+          "title": "Approval decisions",
+          "description": "Approve, reject, and document decisions on requests.",
+          "stories": [
+            {
+              "title": "Approve or reject pending requests",
+              "description": "As a resource manager, I want to approve or reject pending requests so that allocations can move forward or demand can be declined.",
+              "acceptanceCriteria": "Given a pending request exists, when I approve it, then the status changes to Approved and an audit event is written.\nGiven I reject it, then I must provide decision notes and an audit event is written."
+            },
+            {
+              "title": "Bulk process low-risk requests",
+              "description": "As an operations manager, I want to process multiple simple requests together so that routine approvals take less time.",
+              "acceptanceCriteria": "Given multiple eligible requests are selected, when I run a bulk action, then each selected request is updated and audited."
+            }
+          ]
+        },
+        {
+          "title": "Notifications",
+          "description": "Notify users about approvals, denials, reminders, and conflicts.",
+          "stories": [
+            {
+              "title": "Create in-app notifications for request decisions",
+              "description": "As a requester, I want a notification when my request is approved or rejected so that I do not need to monitor the request list manually.",
+              "acceptanceCriteria": "Given a request decision is saved, when processing completes, then a Notifications row is created for the requester."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Allocation Engine and Insights",
+      "description": "Implement allocation rules, conflict detection, matching logic, and reporting foundations.",
+      "features": [
+        {
+          "title": "Conflict detection",
+          "description": "Detect hard allocation overlaps, over-capacity, and leave/maintenance conflicts.",
+          "stories": [
+            {
+              "title": "Warn or block conflicting allocations",
+              "description": "As a manager, I want the app to warn or block invalid allocations so that resources are not overbooked.",
+              "acceptanceCriteria": "Given a hard allocation overlaps another hard allocation for the same resource, when I try to save it, then the app blocks the save unless override rules allow it.\nGiven a soft allocation overlaps capacity, then the app warns and records the conflict severity."
+            },
+            {
+              "title": "Record override justification",
+              "description": "As an administrator, I want overrides to require justification so that exceptions are auditable.",
+              "acceptanceCriteria": "Given an override is used, when the allocation saves, then OverrideJustification is required and an AuditEvents row is created."
+            }
+          ]
+        },
+        {
+          "title": "Skill and availability matching",
+          "description": "Rank candidate resources by skills, availability, utilisation, and experience.",
+          "stories": [
+            {
+              "title": "Suggest matching resources for a request",
+              "description": "As a resource manager, I want candidate resources ranked for a request so that I can assign the best available resource faster.",
+              "acceptanceCriteria": "Given a request has required skills and dates, when I view matches, then candidates are ranked by skill match, availability, utilisation, and experience.\nGiven no exact match exists, then the app shows near matches with missing criteria."
+            }
+          ]
+        },
+        {
+          "title": "Reports and insights",
+          "description": "Utilisation, demand versus capacity, request performance, and future planning signals.",
+          "stories": [
+            {
+              "title": "View utilisation trend insights",
+              "description": "As an operations manager, I want utilisation trend reporting so that I can spot demand pressure and underuse.",
+              "acceptanceCriteria": "Given allocation data exists, when I open insights, then I can see utilisation by team/resource type and demand versus capacity."
+            },
+            {
+              "title": "Track request approval performance",
+              "description": "As a manager, I want approval turnaround metrics so that I can improve request processing speed.",
+              "acceptanceCriteria": "Given request decisions exist, when I view reports, then I can see average approval time and pending SLA risk."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Build, ALM, and Handoff",
+      "description": "Prepare the app for source control, deployment, testing, and user handoff.",
+      "features": [
+        {
+          "title": "Canvas app implementation",
+          "description": "Build the Power Apps canvas screens using the approved design system and SharePoint lists.",
+          "stories": [
+            {
+              "title": "Create the XMarque Workforce canvas app shell",
+              "description": "As a user, I want a branded app shell with left navigation and top utilities so that every screen feels consistent.",
+              "acceptanceCriteria": "Given the app opens, then the XMarque Workforce navigation and theme match the approved design direction."
+            },
+            {
+              "title": "Connect SharePoint lists to the canvas app",
+              "description": "As a developer, I want the app connected to the approved SharePoint lists so that screens can read and write real data.",
+              "acceptanceCriteria": "Given the SharePoint site and lists exist, when data connections are added, then the app can read and write the MVP lists."
+            },
+            {
+              "title": "Run accessibility review before handoff",
+              "description": "As an administrator, I want accessibility issues fixed before publishing so that the app is usable by keyboard and screen reader users.",
+              "acceptanceCriteria": "Given the app is built, when accessibility checks run, then interactive controls have accessible labels, focus indicators, and logical navigation."
+            }
+          ]
+        },
+        {
+          "title": "Documentation and operating model",
+          "description": "Document setup, usage, known limitations, and phase-2 roadmap.",
+          "stories": [
+            {
+              "title": "Document SharePoint and Power Apps setup",
+              "description": "As an administrator, I want setup documentation so that the app can be maintained after handoff.",
+              "acceptanceCriteria": "Given setup is complete, then documentation lists the site, lists, app link, environment, and known operational steps."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "name": "Active Work - All Types",
+      "wiql": "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State],[System.AssignedTo] FROM workitems WHERE [System.TeamProject]=@project AND [System.State] NOT IN ('Done','Closed','Removed') ORDER BY [System.WorkItemType] ASC,[System.ChangedDate] DESC"
+    },
+    {
+      "name": "User Stories - Not Started",
+      "wiql": "SELECT [System.Id],[System.Title],[System.State],[System.AssignedTo] FROM workitems WHERE [System.TeamProject]=@project AND [System.WorkItemType]='User Story' AND [System.State]='New' ORDER BY [System.ChangedDate] DESC"
+    },
+    {
+      "name": "My Active Items",
+      "wiql": "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State] FROM workitems WHERE [System.TeamProject]=@project AND [System.AssignedTo]=@me AND [System.State]='Active' ORDER BY [System.ChangedDate] DESC"
+    },
+    {
+      "name": "Full Backlog Hierarchy",
+      "wiql": "SELECT [System.Id],[System.Title],[System.WorkItemType],[System.State],[System.AssignedTo] FROM workitemLinks WHERE [Source].[System.TeamProject]=@project AND [System.Links.LinkType]='System.LinkTypes.Hierarchy-Forward' AND [Target].[System.WorkItemType] IN ('Epic','Feature','User Story') ORDER BY [System.WorkItemType] ASC MODE (Recursive)"
+    }
+  ]
+}
