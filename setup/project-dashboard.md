@@ -10,7 +10,7 @@ This dashboard is a local companion UI for Power Platform projects. It gives the
 - change requests
 - audit log
 
-It runs as a small localhost-only Node server and persists changes to JSON files inside `dashboard/state`.
+It runs as a small localhost-only Node server and persists changes to JSON files inside `dashboard/state`. It is a helper, not a hard requirement.
 
 ---
 
@@ -24,11 +24,20 @@ Use the dashboard when:
 - the agent needs durable project state across turns
 - the app uses Dataverse/SharePoint schemas that benefit from an ERD
 
+If the user's environment blocks local servers, Node, ports, browser access to localhost, or file writes, continue with a fallback:
+
+- edit `dashboard/state/*.json` directly
+- keep equivalent project state in Markdown
+- use chat-confirmed state and update it in the next available file-backed workspace
+- export snapshots from the real source systems instead of relying on dashboard persistence
+
+Do not stop the project just because the dashboard cannot run.
+
 ---
 
 ## Start the dashboard
 
-From the repo root:
+From the repo root, try:
 
 ```powershell
 node .\dashboard\server.js
@@ -49,6 +58,8 @@ node .\dashboard\server.js
 
 The server binds to `127.0.0.1` only. It does not expose arbitrary file write endpoints.
 
+If this command fails, capture the error, explain the limitation, and use the state files or Markdown fallback instead.
+
 ---
 
 ## State files
@@ -65,7 +76,7 @@ The dashboard persists these files:
 | `dashboard/state/change-requests.json` | User-requested changes from the browser |
 | `dashboard/state/audit-log.json` | Recent dashboard and agent events |
 
-Agents should read these files before making project changes and write them after completing project changes.
+Agents should read these files before making project changes when they are available and write them after completing project changes. If they are unavailable, use the best available project-state record and tell the user where that state is being kept.
 
 ---
 
@@ -96,7 +107,7 @@ The server rejects unknown state names so the browser cannot write arbitrary pat
 
 ## Agent workflow
 
-At the start of a project:
+At the start of a project, when the local dashboard is available:
 
 1. Copy or keep the `dashboard/` folder in the project repo.
 2. Start `node .\dashboard\server.js`.
@@ -107,13 +118,13 @@ At the start of a project:
 7. Populate `devops-plan.json` from ADO Epics/Features/Stories/Queries.
 8. Append an event to `audit-log.json`.
 
-Before each additional app edit:
+Before each additional app edit, when dashboard state is available:
 
 1. Read `change-requests.json`.
 2. Read `project-state.json`, `data-model.json`, `screen-plan.json`, and `design-system.json`.
-3. Run Canvas MCP `sync_canvas` to pull the live Studio app.
+3. Run Canvas MCP `sync_canvas` to pull the live Studio app when Canvas MCP is available.
 4. Apply the requested change.
-5. Compile/push through Canvas MCP.
+5. Compile/push through Canvas MCP when available, or provide the best fallback implementation path.
 6. Update state files and audit log.
 7. Mark completed change requests as `done` or add notes explaining blockers.
 

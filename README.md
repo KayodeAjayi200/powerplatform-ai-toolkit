@@ -2,7 +2,9 @@
 
 A self-contained setup and skills repository for AI-assisted Power Apps development.
 
-Point your AI coding agent at this repo and tell it to set up your Power Apps environment — it reads the instructions here, installs everything it needs, configures MCP servers, asks what you want to build, and then builds it.
+Point your AI coding agent at this repo and tell it to set up your Power Apps environment. It reads the instructions here, checks what is available, configures what it can, asks what you want to build, and then uses the best viable path for your environment.
+
+The toolkit is designed for real-world constraints: locked-down laptops, missing admin rights, tenants without creation permissions, clients without MCP support, or networks that block local servers. Recommended tools should be attempted and verified, but optional helpers are not absolute blockers.
 
 ---
 
@@ -95,7 +97,7 @@ powerplatform-ai-toolkit/
 
 ## Local project dashboard
 
-For larger apps, agents should run:
+For larger apps, agents should try to run:
 
 ```powershell
 node .\dashboard\server.js
@@ -104,6 +106,8 @@ node .\dashboard\server.js
 Then open [http://127.0.0.1:4817](http://127.0.0.1:4817).
 
 The dashboard gives the user a visual overview of the app, data model ERD, screen plan, design system, DevOps plan, change requests, and audit history. It persists to `dashboard/state/*.json`, so the agent can read browser edits before applying Canvas MCP changes.
+
+If a local server is blocked, the agent should still use the JSON state files directly or keep equivalent Markdown/chat state. The dashboard improves visibility; it is not required to continue building.
 
 ---
 

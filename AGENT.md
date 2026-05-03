@@ -3,10 +3,12 @@
 > **You are an AI coding agent.**
 > A user has pointed you at this repository to set up their environment for Power Apps / Power Platform development.
 >
-> **Read this file completely, then execute every phase in order without waiting to be asked.**
-> Only pause at steps explicitly marked **"Ask the user"**.
+> **Read this file completely, then work through the phases in order without waiting to be asked.**
+> Only pause at steps explicitly marked **"Ask the user"**, or when a blocked/restricted environment requires the user to choose between viable fallback paths.
 >
 > **Core rule:** If a tool, credential, or service is already present and working on this machine, use it — never overwrite a working install. Check first, act second.
+>
+> **Adaptability rule:** Nothing in this toolkit is absolutely compulsory unless the user explicitly requires that exact tool or a platform action cannot be completed without it. Try the recommended path, verify whether it works, then fall back to the best available alternative when the user's device, organisation policy, network, permissions, or AI client blocks part of the setup. Keep moving toward the user's goal and clearly state any capability tradeoffs.
 
 ---
 
@@ -26,6 +28,29 @@ Follow these rules every time you write a message the user will see:
 ---
 
 ## Phase 1 — Environment setup
+
+### Operating in restricted environments
+
+Users may be working on locked-down corporate laptops, browsers without local server access, clients without MCP support, terminals without admin rights, or tenants where they cannot create apps, environments, service principals, DevOps projects, or GitHub repos.
+
+When something is blocked:
+
+- Explain the blocker in plain language and name what you tried.
+- Use the least disruptive fallback that still moves the project forward.
+- Prefer read-only inspection, manual instructions, generated scripts, or documented handoff steps when direct automation is unavailable.
+- Record any skipped capability and its impact so the user understands what will need manual follow-up.
+- Do not abandon the project just because an optional helper, dashboard, MCP server, CLI, or integration is unavailable.
+
+Recommended fallbacks include:
+
+| If this is blocked | Continue with |
+|---|---|
+| Local installs | Existing browser tools, portable tools, or manual setup instructions |
+| Local dashboard server | Direct edits to `dashboard/state/*.json`, Markdown notes, or chat-confirmed state |
+| Canvas MCP | Studio manual steps, exported YAML/source edits where available, or a clear change script/checklist |
+| GitHub CLI | Git commands, browser-based GitHub instructions, or local patch files |
+| Azure DevOps automation | A Markdown backlog, CSV import plan, or manual ADO work item instructions |
+| Dataverse/SharePoint creation | Schema plan plus exact commands/instructions for an admin to run |
 
 ### 1A — Load your domain knowledge
 
@@ -357,7 +382,7 @@ Save the environment ID and app ID — you will need them when connecting the Ca
 
 Read `setup/project-dashboard.md`.
 
-For any non-trivial app (more than one screen, table, workflow, or backlog area), start the local dashboard so the user and agent have a shared project view:
+For any non-trivial app (more than one screen, table, workflow, or backlog area), try to start the local dashboard so the user and agent have a shared project view:
 
 ```powershell
 node .\dashboard\server.js
@@ -369,7 +394,9 @@ Open or show the user:
 http://127.0.0.1:4817
 ```
 
-Then populate the state files before continuing:
+If the server cannot run because Node, localhost, ports, or policy are restricted, keep using the same state files directly and tell the user that the visual dashboard is unavailable in this environment.
+
+When dashboard state is available, populate the state files before continuing:
 
 - `dashboard/state/project-state.json` with environment, org URL, solution, canvas app, Studio URL, MCP status, and current phase
 - `dashboard/state/data-model.json` with confirmed Dataverse/SharePoint entities, fields, and relationships
@@ -380,7 +407,7 @@ Then populate the state files before continuing:
 
 Do not put secrets, PATs, service principal passwords, or tenant secrets in dashboard state.
 
-Before every later app edit, read `dashboard/state/change-requests.json` and the current state files, then update them after completing the change. This lets manual browser edits become agent-readable work.
+Before later app edits, read `dashboard/state/change-requests.json` and the current state files when available, then update them after completing the change. This lets manual browser edits become agent-readable work. If dashboard state is unavailable, ask the user to describe any manual changes and preserve those changes by syncing/pulling from the live source before editing.
 
 ---
 
@@ -493,9 +520,9 @@ If the local dashboard is running, update `dashboard/state/screen-plan.json` and
 
 Read `skills/canvas-authoring-mcp.md` now if you have not already.
 
-> **⚠️ Coauthoring must be enabled before the Canvas MCP will work.**
+> **⚠️ Coauthoring is needed for Canvas MCP editing.**
 > Once the app is open in Studio, go to **Settings → Updates** and turn on **Coauthoring**.
-> If it is off, the MCP server cannot sync changes into the app. Ask the user to confirm it is on.
+> If it is off or unavailable, the MCP server cannot sync changes into the app. Ask the user to confirm it is on; if they cannot enable it, use the Canvas MCP fallback guidance below instead of blocking the whole project.
 
 You already have the environment ID and app ID from the provisioning step. Update the canvas MCP entries
 in `mcp-config.json` with them now (use the update script in `setup/mcp-config.md`).
@@ -521,9 +548,9 @@ Wait for the user to confirm the app is open and coauthoring is on before procee
 Official reference: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/canvas-app-mcp-server
 Coauthoring + external tools: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/create-canvas-external-tools
 
-### 4A.1 — Mandatory proactive recovery gate (do this before any canvas build)
+### 4A.1 — Proactive Canvas MCP recovery gate
 
-When a Studio URL is available, do this automatically before asking the user for manual retries:
+When a Studio URL is available, do this automatically before asking the user for manual retries where the current client supports these actions:
 
 1. For the toolkit's default Copilot-style setup, run the URL-based updater:
 ```powershell
@@ -542,7 +569,7 @@ If `list_controls` fails (for example HTTP 404), run this exact automated recove
 - Ask the user to refresh Studio once and confirm coauthoring is still ON.
 - Wait 20-30 seconds and retry `list_controls`.
 
-Do not proceed to `sync_canvas`, editing, or `compile_canvas` until `list_controls` succeeds.
+Do not use Canvas MCP editing commands until `list_controls` succeeds. If the user's client or tenant cannot support Canvas MCP after reasonable recovery attempts, switch to a fallback: provide Studio manual steps, update exported source/YAML where available, or produce a precise implementation checklist. Make the limitation explicit and continue with the best viable path.
 
 ---
 
@@ -565,7 +592,7 @@ Use the Canvas Authoring MCP tools to:
 7. Build charts/SVG/image visuals with `skills/canvas-image-visuals.md` when the screen needs dashboard charts, KPI visuals, icons, badges, sparklines, or custom SVG assets
 8. Check accessibility — follow `skills/canvas-accessibility.md`; set `AccessibleLabel` on every interactive control and every meaningful Image visual
 
-Before editing local YAML, always run `powerapps-canvas-sync_canvas` to pull the current Studio state. Treat Studio as the source of truth at the start of each edit cycle because the user may have made manual updates since the previous agent turn. Apply new changes only on top of the freshly synced YAML, then compile.
+Before editing local YAML through Canvas MCP, run `powerapps-canvas-sync_canvas` to pull the current Studio state. Treat Studio as the source of truth at the start of each edit cycle because the user may have made manual updates since the previous agent turn. If sync is unavailable, use the best available source of truth (exported source, screenshots, user confirmation, or manual Studio inspection) and call out the risk before changing anything.
 
 If `dashboard/state/change-requests.json` contains requests with status `new`, mark each request `active` before working on it, then mark it `done` after compile/push succeeds or `blocked` with a clear note when access or missing information prevents completion.
 

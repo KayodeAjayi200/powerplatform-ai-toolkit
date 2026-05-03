@@ -19,7 +19,7 @@ Document the answers. You will use them to make datasource and design decisions.
 
 ## Step 1.5 — Start the local project dashboard
 
-For any app with more than one screen, table, workflow, or backlog area, start the dashboard early:
+For any app with more than one screen, table, workflow, or backlog area, try to start the dashboard early:
 
 ```powershell
 node .\dashboard\server.js
@@ -33,6 +33,8 @@ http://127.0.0.1:4817
 
 Use `setup/project-dashboard.md` as the operating guide. The dashboard is the shared visible state between the user and agent, not a replacement for Dataverse, Azure DevOps, GitHub, or Canvas MCP verification.
 
+If the local server cannot run because Node, localhost access, ports, or policy are restricted, continue without blocking the project. Use `dashboard/state/*.json` directly, keep a Markdown project state file, or maintain the state in chat until a better persistence option is available.
+
 Initialise or update these files as soon as the related information exists:
 
 - `dashboard/state/project-state.json` for environment, solution, app, Studio URL, MCP status, and phase
@@ -43,7 +45,7 @@ Initialise or update these files as soon as the related information exists:
 - `dashboard/state/change-requests.json` for user requests made from the dashboard
 - `dashboard/state/audit-log.json` for important agent actions
 
-Before every later edit, read dashboard state and open change requests first. After every meaningful change, update the state and audit log so the browser stays truthful.
+Before later edits, read dashboard state and open change requests first when available. After meaningful changes, update the best available state store so the user and future agent turns have current context.
 
 ---
 
@@ -110,7 +112,7 @@ Design the screen architecture before opening Power Apps Studio.
 | Multi-step form | Step 1, Step 2, Step 3, Review + Submit, Confirmation |
 | Field worker | My assignments, Job detail, Capture data/photo, Submit |
 
-**Every screen must follow the container rules from `skills/canvas-design.md`:**
+**Every screen should follow the container rules from `skills/canvas-design.md` unless a specific control or platform limitation requires a documented exception:**
 - Root: vertical container fills the screen
 - Header: horizontal container with a deliberate fixed height only when it is app chrome
 - Body: vertical container with `FlexibleHeight = true` and `FillPortions = 1`
@@ -165,7 +167,7 @@ Official reference: https://learn.microsoft.com/en-us/power-apps/maker/canvas-ap
 Build one screen at a time:
 
 1. **Read dashboard state first** if `dashboard/state/` exists, especially `change-requests.json`
-2. **Pull Studio first** with `powerapps-canvas-sync_canvas` before every new edit request, even when local YAML already exists
+2. **Pull Studio first when Canvas MCP is available** with `powerapps-canvas-sync_canvas` before new edit requests, even when local YAML already exists
 3. **Write valid YAML** using `skills/canvas-yaml.md` and a freshly synced screen/control as the structural template
 4. **Follow the app/design rules** in `skills/canvas-app.md` and `skills/canvas-design.md`
 5. **Connect data** — reference the tables/lists created in Step 4
@@ -174,13 +176,13 @@ Build one screen at a time:
 8. **Update dashboard state** after each meaningful compile/push, including screen status and audit events
 9. **Move to the next screen** only when the current one compiles cleanly
 
-Treat Studio as the source of truth at the start of each edit cycle. If the user manually changes the app between agent turns, the next sync must pull those changes before the agent edits or compiles anything.
+Treat Studio as the source of truth at the start of each edit cycle. If the user manually changes the app between agent turns, pull those changes with Canvas MCP when available. If sync is blocked, ask the user what changed or use exported source/screenshots/manual inspection before editing so their work is not overwritten.
 
 If a dashboard change request is being handled, set it to `active` while editing. Set it to `done` only after compile/push succeeds; otherwise set it to `blocked` and add a note explaining what is missing.
 
-### Accessibility (mandatory)
+### Accessibility
 
-Before finishing each screen, apply the rules from `skills/canvas-accessibility.md`:
+Before finishing each screen, apply the rules from `skills/canvas-accessibility.md` as far as the available controls and platform constraints allow:
 - Every interactive control has `AccessibleLabel` set
 - Every image has a descriptive `AccessibleLabel`
 - Tab order (`TabIndex`) follows a logical left-to-right, top-to-bottom sequence
