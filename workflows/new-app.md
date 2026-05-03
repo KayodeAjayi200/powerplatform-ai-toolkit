@@ -44,6 +44,7 @@ If the local server cannot run because Node, localhost access, ports, or policy 
 Initialise or update these files as soon as the related information exists:
 
 - `dashboard/state/project-state.json` for environment, solution, app, Studio URL, MCP status, and phase
+- `dashboard/state/project-state.json` configuration/security sections for tenant IDs, app registration IDs, scopes, environment variables, and secret/token references
 - `dashboard/state/data-model.json` for entities, fields, and relationships
 - `dashboard/state/screen-plan.json` for screens, purpose, status, data sources, and controls
 - `dashboard/state/design-system.json` for palette, typography notes, layout policy, and component rules
@@ -52,6 +53,8 @@ Initialise or update these files as soon as the related information exists:
 - `dashboard/state/audit-log.json` for important agent actions
 
 Before later edits, read dashboard state and open change requests first when available. After meaningful changes, update the best available state store so the user and future agent turns have current context.
+
+Never store credential values in dashboard state. For app registrations and access tokens, record metadata only: client ID, object ID, redirect URI, scopes, storage location, Key Vault/GitHub/Azure secret name, owner, expiry, and status.
 
 ---
 

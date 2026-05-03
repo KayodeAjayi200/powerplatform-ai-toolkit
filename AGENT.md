@@ -435,7 +435,9 @@ When dashboard state is available, populate the state files before continuing:
 - `dashboard/state/devops-plan.json` with Azure DevOps org/project, Epics, Features, User Stories, and shared queries if DevOps is enabled
 - `dashboard/state/audit-log.json` with a short event for each major agent action
 
-Do not put secrets, PATs, service principal passwords, or tenant secrets in dashboard state.
+Use the dashboard Config tab for tenant IDs, app registration IDs, redirect URIs, scopes, environment variables, connection references, and credential references/status.
+
+Do not put access token values, refresh token values, client secret values, PATs, passwords, certificate private keys, service principal passwords, or tenant secrets in dashboard state. Store Key Vault references, environment variable names, GitHub/Azure secret names, owner, expiry, and status instead.
 
 Before later app edits, read `dashboard/state/change-requests.json` and the current state files when available, then update them after completing the change. This lets manual browser edits become agent-readable work. If dashboard state is unavailable, ask the user to describe any manual changes and preserve those changes by syncing/pulling from the live source before editing.
 

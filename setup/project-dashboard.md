@@ -6,6 +6,7 @@ This dashboard is a local companion UI for Power Platform projects. It gives the
 - data model and ERD
 - screen plan
 - design system
+- configuration, app registrations, and credential references
 - Azure DevOps plan
 - change requests
 - audit log
@@ -93,6 +94,18 @@ The dashboard persists these files:
 
 Agents should read these files before making project changes when they are available and write them after completing project changes. If they are unavailable, use the best available project-state record and tell the user where that state is being kept.
 
+`project-state.json` can include configuration metadata:
+
+- tenant ID, region, publisher prefix, and org URL
+- Power Platform environment variables and connection references
+- custom connector names and endpoints
+- app registration client/application IDs, object IDs, redirect URIs, and scopes
+- service principal names/IDs
+- secret references such as Key Vault secret names, GitHub/Azure secret names, or environment variable names
+- access token references such as purpose, storage location, owner, expiry, and status
+
+Do not store actual credential values. The dashboard is for visibility and coordination, not for secret storage.
+
 ---
 
 ## API endpoints
@@ -122,6 +135,8 @@ audit-log
 The server rejects unknown state names so the browser cannot write arbitrary paths.
 
 The DevOps endpoints only run fixed `git` and `az` commands from the project root. They do not accept arbitrary command text or arbitrary filesystem paths.
+
+The state API rejects obvious persisted secret values under keys such as `accessToken`, `refreshToken`, `idToken`, `clientSecret`, `secretValue`, `password`, `PAT`, or `personalAccessToken`. Store references/status only.
 
 ---
 
@@ -156,6 +171,11 @@ At the start of a project, when the local dashboard is available:
 6. Populate `design-system.json` from the user’s brand/design references.
 7. Populate `devops-plan.json` from ADO Epics/Features/Stories/Queries.
 8. Append an event to `audit-log.json`.
+
+For app registrations and credentials, populate only non-secret metadata and references:
+
+- OK: tenant ID, client ID, object ID, redirect URI, scope names, Key Vault secret name, GitHub secret name, expiry date, owner, status.
+- Not OK: access token value, refresh token value, client secret value, password, PAT, certificate private key.
 
 Before each additional app edit, when dashboard state is available:
 
@@ -231,6 +251,8 @@ Keep entity names aligned with actual Dataverse/SharePoint names. Do not invent 
 - Keep the server bound to `127.0.0.1`.
 - Do not add endpoints that accept arbitrary filesystem paths.
 - Do not store secrets, PATs, tenant secrets, or service principal passwords in dashboard state.
+- Do not store access tokens, refresh tokens, client secrets, passwords, PATs, or private keys in dashboard state.
+- Store Key Vault references, environment variable names, GitHub/Azure secret names, expiry dates, and ownership metadata instead.
 - Log user-visible decisions and agent actions to `audit-log.json`.
 - Treat dashboard state as planning/source-of-truth metadata, not as a replacement for live Dataverse or Canvas MCP verification.
 

@@ -20,6 +20,17 @@ const STATE_FILES = {
   "audit-log": "audit-log.json",
 };
 
+const FORBIDDEN_SECRET_KEY_PATTERNS = [
+  /access[_-]?token/i,
+  /refresh[_-]?token/i,
+  /id[_-]?token/i,
+  /client[_-]?secret/i,
+  /secret[_-]?value/i,
+  /password/i,
+  /^pat$/i,
+  /personal[_-]?access[_-]?token/i,
+];
+
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -76,8 +87,34 @@ function readStateFile(name) {
 function writeStateFile(name, value) {
   const filePath = statePath(name);
   if (!filePath) throw new Error(`Unknown state file: ${name}`);
+  const secretPath = findPersistedSecret(value);
+  if (secretPath) {
+    throw new Error(`Refusing to store secret-like value at '${secretPath}'. Store a Key Vault reference, environment variable name, expiry, or status instead.`);
+  }
   ensureStateDir();
   fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+function findPersistedSecret(value, pathParts = []) {
+  if (!value || typeof value !== "object") return "";
+
+  if (Array.isArray(value)) {
+    for (let index = 0; index < value.length; index += 1) {
+      const found = findPersistedSecret(value[index], [...pathParts, String(index)]);
+      if (found) return found;
+    }
+    return "";
+  }
+
+  for (const [key, child] of Object.entries(value)) {
+    const childPath = [...pathParts, key];
+    if (FORBIDDEN_SECRET_KEY_PATTERNS.some((pattern) => pattern.test(key)) && String(child || "").trim()) {
+      return childPath.join(".");
+    }
+    const found = findPersistedSecret(child, childPath);
+    if (found) return found;
+  }
+  return "";
 }
 
 function appendAudit(event) {

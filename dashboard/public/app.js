@@ -68,6 +68,7 @@ function render() {
   renderEntities();
   renderScreens();
   renderTheme();
+  renderConfig();
   renderDevops();
   renderChanges();
   renderRaw();
@@ -75,6 +76,34 @@ function render() {
 
 function normalizeState() {
   state["project-state"] = state["project-state"] || {};
+  state["project-state"].configuration = {
+    environmentVariables: [],
+    connectionReferences: [],
+    customConnectors: [],
+    ...(state["project-state"].configuration || {}),
+  };
+  state["project-state"].configuration.environmentVariables = Array.isArray(state["project-state"].configuration.environmentVariables)
+    ? state["project-state"].configuration.environmentVariables
+    : [];
+  state["project-state"].configuration.connectionReferences = Array.isArray(state["project-state"].configuration.connectionReferences)
+    ? state["project-state"].configuration.connectionReferences
+    : [];
+  state["project-state"].configuration.customConnectors = Array.isArray(state["project-state"].configuration.customConnectors)
+    ? state["project-state"].configuration.customConnectors
+    : [];
+  state["project-state"].security = {
+    appRegistrations: [],
+    servicePrincipals: [],
+    apiPermissions: [],
+    secretReferences: [],
+    tokenReferences: [],
+    ...(state["project-state"].security || {}),
+  };
+  for (const key of ["appRegistrations", "servicePrincipals", "apiPermissions", "secretReferences", "tokenReferences"]) {
+    state["project-state"].security[key] = Array.isArray(state["project-state"].security[key])
+      ? state["project-state"].security[key]
+      : [];
+  }
   state["data-model"] = {
     entities: [],
     relationships: [],
@@ -295,6 +324,99 @@ function renderTheme() {
   applyThemePreview();
 }
 
+function renderConfig() {
+  const project = state["project-state"] || {};
+  const config = project.configuration || {};
+  const security = project.security || {};
+  const fields = [
+    ["configuration.tenantId", "Tenant ID", config.tenantId || ""],
+    ["configuration.publisherPrefix", "Publisher prefix", config.publisherPrefix || ""],
+    ["configuration.region", "Region", config.region || ""],
+    ["environment.orgUrl", "Dataverse org URL", project.environment?.orgUrl || ""],
+  ];
+
+  $("#configForm").innerHTML = fields.map(([path, label, value]) => `
+    <label>${escapeHtml(label)}
+      <input data-config-path="${escapeHtml(path)}" value="${escapeAttr(value)}" />
+    </label>
+  `).join("");
+
+  $$("[data-config-path]").forEach((input) => {
+    input.addEventListener("change", () => {
+      setDeep(project, input.dataset.configPath, input.value);
+      state["project-state"] = project;
+    });
+  });
+
+  renderEditableCards("#envVarList", config.environmentVariables, [
+    ["schemaName", "Schema name"],
+    ["displayName", "Display name"],
+    ["type", "Type"],
+    ["currentValueReference", "Value/reference"],
+  ]);
+
+  renderEditableCards("#appRegList", security.appRegistrations, [
+    ["name", "Name"],
+    ["tenantId", "Tenant ID"],
+    ["clientId", "Client/Application ID"],
+    ["objectId", "Object ID"],
+    ["redirectUris", "Redirect URIs"],
+    ["scopes", "Scopes"],
+  ]);
+
+  renderEditableCards("#secretRefList", security.secretReferences, [
+    ["name", "Name"],
+    ["purpose", "Purpose"],
+    ["storageLocation", "Storage location"],
+    ["referenceName", "Secret/env var name"],
+    ["owner", "Owner"],
+    ["rotationDue", "Rotation due"],
+    ["status", "Status"],
+  ]);
+
+  renderEditableCards("#tokenRefList", security.tokenReferences, [
+    ["name", "Name"],
+    ["purpose", "Purpose"],
+    ["storageLocation", "Storage location"],
+    ["expiresOn", "Expires on"],
+    ["owner", "Owner"],
+    ["status", "Status"],
+  ]);
+}
+
+function renderEditableCards(selector, items, fields) {
+  const collectionName = selector.replace("#", "");
+  $(selector).innerHTML = (items || []).map((item, index) => `
+    <article class="entity-card">
+      <div class="form-grid compact">
+        ${fields.map(([key, label]) => `
+          <label>${escapeHtml(label)}
+            <input data-collection="${escapeAttr(collectionName)}" data-index="${index}" data-key="${escapeAttr(key)}" value="${escapeAttr(formatFieldValue(item[key]))}" />
+          </label>
+        `).join("")}
+      </div>
+    </article>
+  `).join("") || "<p>No items yet.</p>";
+
+  $$(`[data-collection="${collectionName}"]`).forEach((input) => {
+    input.addEventListener("change", () => {
+      const target = collectionTarget(collectionName);
+      target[Number(input.dataset.index)][input.dataset.key] = parseListValue(input.value);
+    });
+  });
+}
+
+function collectionTarget(collectionName) {
+  const project = state["project-state"];
+  const map = {
+    envVarList: project.configuration.environmentVariables,
+    appRegList: project.security.appRegistrations,
+    secretRefList: project.security.secretReferences,
+    tokenRefList: project.security.tokenReferences,
+  };
+  return map[collectionName] || [];
+}
+
 function applyThemePreview() {
   const theme = state["design-system"]?.theme || {};
   document.documentElement.style.setProperty("--brand", theme.brandPrimary || "#2563EB");
@@ -387,6 +509,14 @@ function escapeAttr(value) {
   return escapeHtml(value).replace(/'/g, "&#39;");
 }
 
+function formatFieldValue(value) {
+  return Array.isArray(value) ? value.join(", ") : (value || "");
+}
+
+function parseListValue(value) {
+  return value.includes(",") ? value.split(",").map((item) => item.trim()).filter(Boolean) : value;
+}
+
 function bindEvents() {
   $$(".nav-item").forEach((button) => {
     button.addEventListener("click", () => {
@@ -422,6 +552,53 @@ function bindEvents() {
       controls: [],
     });
     renderScreens();
+  });
+
+  $("#addEnvVarBtn").addEventListener("click", () => {
+    state["project-state"].configuration.environmentVariables.push({
+      schemaName: "new_environment_variable",
+      displayName: "New environment variable",
+      type: "Text",
+      currentValueReference: "",
+    });
+    renderConfig();
+  });
+
+  $("#addAppRegBtn").addEventListener("click", () => {
+    state["project-state"].security.appRegistrations.push({
+      name: "New app registration",
+      tenantId: "",
+      clientId: "",
+      objectId: "",
+      redirectUris: [],
+      scopes: [],
+    });
+    renderConfig();
+  });
+
+  $("#addSecretRefBtn").addEventListener("click", () => {
+    state["project-state"].security.secretReferences.push({
+      name: "New secret reference",
+      purpose: "",
+      storageLocation: "Azure Key Vault / GitHub Secret / environment variable",
+      referenceName: "",
+      owner: "",
+      rotationDue: "",
+      status: "unknown",
+    });
+    renderConfig();
+  });
+
+  $("#addTokenRefBtn").addEventListener("click", () => {
+    state["project-state"].security.tokenReferences.push({
+      name: "New token reference",
+      purpose: "",
+      storageLocation: "Not stored in dashboard",
+      expiresOn: "",
+      owner: "",
+      status: "unknown",
+    });
+    renderConfig();
   });
 
   $("#addChangeBtn").addEventListener("click", () => {

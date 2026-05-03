@@ -115,7 +115,9 @@ open dashboard
 
 The agent should start or reuse the local dashboard server and open the browser automatically.
 
-The dashboard gives the user a visual overview of the app, data model ERD, screen plan, design system, DevOps plan, change requests, and audit history. It persists to `dashboard/state/*.json`, so the agent can read browser edits before applying Canvas MCP changes.
+The dashboard gives the user a visual overview of the app, data model ERD, screen plan, design system, configuration/app registration metadata, DevOps plan, change requests, and audit history. It persists to `dashboard/state/*.json`, so the agent can read browser edits before applying Canvas MCP changes.
+
+The Config tab stores non-secret configuration and credential references: tenant IDs, client IDs, object IDs, redirect URIs, scopes, environment variables, Key Vault secret names, GitHub/Azure secret names, expiry dates, owners, and status. It must not store access token values, refresh token values, client secrets, passwords, PATs, or private keys.
 
 The DevOps tab can also configure an Azure Repos remote and let the user commit or commit+push the current local solution state without prompting an AI agent. The local solution files still need to be exported/synced from Power Platform before committing.
 
