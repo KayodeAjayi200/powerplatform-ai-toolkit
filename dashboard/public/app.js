@@ -96,6 +96,7 @@ function normalizeState() {
   state["design-system"].theme = state["design-system"].theme || {};
 
   state["devops-plan"] = state["devops-plan"] || {};
+  state["devops-plan"].repository = state["devops-plan"].repository || {};
   state["change-requests"] = {
     requests: [],
     ...(state["change-requests"] || {}),
@@ -305,20 +306,44 @@ function applyThemePreview() {
 
 function renderDevops() {
   const devops = state["devops-plan"] || {};
+  const repo = devops.repository || {};
   const groups = [
     ["Epics", devops.epics || []],
     ["Features", devops.features || []],
     ["User Stories", devops.userStories || []],
     ["Queries", devops.queries || []],
+    ["Repository", repo.name ? [repo] : []],
   ];
   $("#devopsSummary").innerHTML = groups.map(([title, items]) => `
     <article class="entity-card">
       <strong>${escapeHtml(title)}</strong>
       <div class="entity-fields">
-        ${items.length ? items.map((item) => `<span class="pill">${escapeHtml(item.title || item.name || String(item))}</span>`).join("") : "<span class='pill'>None yet</span>"}
+        ${items.length ? items.map((item) => `<span class="pill">${escapeHtml(item.title || item.name || item.remoteUrl || String(item))}</span>`).join("") : "<span class='pill'>None yet</span>"}
       </div>
     </article>
   `).join("");
+
+  const fields = [
+    ["organizationUrl", "Organisation URL", devops.organizationUrl || ""],
+    ["project", "Project", devops.project || ""],
+    ["repository.name", "Repo name", repo.name || ""],
+    ["repository.remoteName", "Remote name", repo.remoteName || "azure"],
+    ["repository.defaultBranch", "Branch", repo.defaultBranch || "main"],
+    ["repository.remoteUrl", "Remote URL (optional)", repo.remoteUrl || ""],
+  ];
+
+  $("#devopsRepoForm").innerHTML = fields.map(([path, label, value]) => `
+    <label>${escapeHtml(label)}
+      <input data-devops-path="${escapeHtml(path)}" value="${escapeAttr(value)}" />
+    </label>
+  `).join("");
+
+  $$("[data-devops-path]").forEach((input) => {
+    input.addEventListener("change", () => {
+      setDeep(devops, input.dataset.devopsPath, input.value);
+      state["devops-plan"] = devops;
+    });
+  });
 }
 
 function renderChanges() {
@@ -416,6 +441,11 @@ function bindEvents() {
     renderChanges();
   });
 
+  $("#devopsStatusBtn").addEventListener("click", showDevopsStatus);
+  $("#devopsSetupRepoBtn").addEventListener("click", setupDevopsRepo);
+  $("#devopsCommitBtn").addEventListener("click", () => commitDevops(false));
+  $("#devopsCommitPushBtn").addEventListener("click", () => commitDevops(true));
+
   $("#rawSelect").addEventListener("change", renderRaw);
   $("#saveRawBtn").addEventListener("click", async () => {
     const name = $("#rawSelect").value;
@@ -423,6 +453,78 @@ function bindEvents() {
     await saveState(name, value);
     render();
   });
+}
+
+function repoPayload() {
+  const devops = state["devops-plan"] || {};
+  const repo = devops.repository || {};
+  return {
+    organizationUrl: devops.organizationUrl || "",
+    project: devops.project || "",
+    repository: repo.name || "",
+    remoteName: repo.remoteName || "azure",
+    branch: repo.defaultBranch || "main",
+    remoteUrl: repo.remoteUrl || "",
+    createRepo: $("#devopsCreateRepo")?.checked || false,
+  };
+}
+
+function setDevopsOutput(value) {
+  $("#devopsRepoStatus").textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2);
+}
+
+async function showDevopsStatus() {
+  setDevopsOutput("Checking repository status...");
+  const result = await api("/api/devops/status");
+  setDevopsOutput(formatDevopsStatus(result));
+}
+
+async function setupDevopsRepo() {
+  await saveState("devops-plan", state["devops-plan"]);
+  setDevopsOutput("Configuring Azure Repos remote...");
+  const result = await api("/api/devops/setup-repo", {
+    method: "POST",
+    body: JSON.stringify(repoPayload()),
+  });
+  state["devops-plan"] = result.devops || state["devops-plan"];
+  renderDevops();
+  setDevopsOutput(result);
+}
+
+async function commitDevops(push) {
+  await saveAll();
+  setDevopsOutput(push ? "Committing and pushing..." : "Committing...");
+  const payload = {
+    ...repoPayload(),
+    message: $("#devopsCommitMessage").value || "Save current Power Platform solution state",
+    push,
+  };
+  const result = await api("/api/devops/commit", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  setDevopsOutput(result.committed === false ? result.message : result);
+  await loadState();
+}
+
+function formatDevopsStatus(result) {
+  const git = result.git || {};
+  const lines = [
+    `Project root: ${git.projectRoot || ""}`,
+    `Git repo: ${git.isGitRepo ? "yes" : "no"}`,
+    `Branch: ${git.branch || "(none)"}`,
+    `Changes: ${git.hasChanges ? "yes" : "no"}`,
+    `Git available: ${result.tools?.git ? "yes" : "no"}`,
+    `Azure CLI available: ${result.tools?.azureCli ? "yes" : "no"}`,
+    `Azure DevOps extension: ${result.tools?.azureDevopsExtension ? "yes" : "no"}`,
+    "",
+    "Remotes:",
+    git.remotes || "(none)",
+    "",
+    "Changed files:",
+    git.status || "(none)",
+  ];
+  return lines.join("\n");
 }
 
 bindEvents();

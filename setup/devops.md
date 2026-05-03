@@ -288,6 +288,103 @@ Tell the user after this step:
 
 ---
 
+## Step 7 — Set up an Azure Repos Git repository
+
+Azure DevOps can also host the project's source repo. This is useful when the user wants everything in DevOps: backlog, repo, and pipelines.
+
+Ask:
+
+> "Would you also like me to set up an Azure Repos Git repo for this solution, so you can save the current solution state to DevOps from the dashboard?"
+
+If yes, use an existing repo when possible. If it does not exist and the user has permission, create it:
+
+```powershell
+$repoName = $adoProject
+
+# Configure defaults from earlier steps.
+az devops configure --defaults organization=$adoOrg project=$adoProject
+
+# Check existing repos first.
+$repos = az repos list --organization $adoOrg --project $adoProject --output json | ConvertFrom-Json
+$existingRepo = $repos | Where-Object { $_.name -eq $repoName }
+
+if (-not $existingRepo) {
+    $existingRepo = az repos create `
+        --name $repoName `
+        --organization $adoOrg `
+        --project $adoProject `
+        --output json | ConvertFrom-Json
+}
+
+$remoteUrl = $existingRepo.remoteUrl
+Write-Host "Azure Repos remote: $remoteUrl"
+```
+
+Then configure the local project repo:
+
+```powershell
+if (-not (Test-Path .git)) {
+    git init
+}
+
+$remoteName = "azure"
+$branch = "main"
+
+if ((git remote) -contains $remoteName) {
+    git remote set-url $remoteName $remoteUrl
+} else {
+    git remote add $remoteName $remoteUrl
+}
+
+git branch -M $branch
+git status --short
+```
+
+Update `dashboard/state/devops-plan.json`:
+
+```json
+{
+  "repository": {
+    "name": "YOUR_REPO_NAME",
+    "remoteName": "azure",
+    "remoteUrl": "https://dev.azure.com/ORG/PROJECT/_git/REPO",
+    "defaultBranch": "main",
+    "localPath": "PROJECT_ROOT"
+  }
+}
+```
+
+If Azure CLI or permissions are blocked, give the user the manual path:
+
+1. Open `https://dev.azure.com/<org>/<project>/_git`.
+2. Create or choose a repo.
+3. Copy the clone URL.
+4. Paste it into the dashboard DevOps tab as **Remote URL**.
+5. Click **Set Up Repo**.
+
+---
+
+## No-code dashboard commits
+
+The local dashboard includes DevOps repo controls so a user can save progress without asking an AI agent:
+
+- **Check Status** — shows local Git branch, remotes, changed files, and whether Azure CLI tools are present.
+- **Set Up Repo** — configures the Azure Repos remote from the dashboard fields.
+- **Commit** — saves all dashboard state, stages current local files, and creates a Git commit.
+- **Commit + Push** — commits and pushes to the configured Azure Repos remote.
+
+Safety rules:
+
+- The dashboard server is localhost-only.
+- It runs fixed `git` and `az` commands only; it does not expose arbitrary shell command execution.
+- It operates only against the project root that contains the `dashboard/` folder.
+- It does not store PATs, passwords, or service principal secrets.
+- If there are no local changes, it reports "No changes to commit" rather than creating an empty commit.
+
+For this to capture the actual Power Platform solution, the current solution source must already be in the local repo. If the latest app changes only exist in Power Apps Studio/Dataverse, export or sync the solution first, then use **Commit** or **Commit + Push**.
+
+---
+
 ## Using the Azure DevOps MCP server during development
 
 Once the project is set up and the MCP server is configured (see `setup/mcp-config.md`),

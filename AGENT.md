@@ -490,6 +490,7 @@ The file will guide you through:
 3. Creating the project if it does not exist (ask which process: Agile, Scrum, or CMMI)
 4. Creating Epics, Features, and User Stories based on what the user described in their app brief — derive real, relevant items from the app description, not generic placeholders
 5. Creating four shared tracking queries (active work, not-started stories, my items, full hierarchy)
+6. Offering to create or connect an Azure Repos Git repo so the dashboard can commit the current local solution state without an AI agent
 
 **Before creating any work items**, show the user the Epics you plan to create and ask:
 > "Here is how I plan to organise your backlog: [list Epics]. Does that look right, or would you like to adjust anything?"
@@ -502,7 +503,9 @@ Tell the user when done:
 
 If the user says **no**: continue to the next step.
 
-If the local project dashboard is running, update `dashboard/state/devops-plan.json` after DevOps setup. Include created Epics, Features, User Stories, Story Points where known, and any shared queries created or reused.
+If the local project dashboard is running, update `dashboard/state/devops-plan.json` after DevOps setup. Include created Epics, Features, User Stories, Story Points where known, shared queries created or reused, and Azure Repos details when configured.
+
+If the user wants no-code commits through the dashboard, make sure the DevOps tab has `organizationUrl`, `project`, and `repository` populated, then confirm **Check Status**, **Set Up Repo**, **Commit**, and **Commit + Push** are available. Explain that these buttons commit local exported/synced solution files; they do not magically export unsynced Studio changes.
 
 ---
 

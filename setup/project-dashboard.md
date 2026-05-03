@@ -103,6 +103,9 @@ Agents should read these files before making project changes when they are avail
 | `GET` | `/api/state/{name}` | Read one state file |
 | `POST` | `/api/state/{name}` | Replace one whitelisted state file |
 | `POST` | `/api/events` | Append an audit event |
+| `GET` | `/api/devops/status` | Check Git/Azure DevOps tool and repo status |
+| `POST` | `/api/devops/setup-repo` | Configure an Azure Repos remote for the project repo |
+| `POST` | `/api/devops/commit` | Commit, and optionally push, the current local project state |
 
 Valid `{name}` values:
 
@@ -118,6 +121,27 @@ audit-log
 
 The server rejects unknown state names so the browser cannot write arbitrary paths.
 
+The DevOps endpoints only run fixed `git` and `az` commands from the project root. They do not accept arbitrary command text or arbitrary filesystem paths.
+
+---
+
+## No-code DevOps repo actions
+
+The **DevOps** tab can be used without an AI agent once the dashboard server is running.
+
+Supported actions:
+
+- **Check Status** — shows whether the project root is a Git repo, current branch, remotes, changed files, and whether Azure CLI/DevOps extension are available.
+- **Set Up Repo** — uses Organisation URL, Project, Repo name, Remote name, Branch, and optional Remote URL to configure a Git remote.
+- **Commit** — saves dashboard state, stages local files, and creates a Git commit.
+- **Commit + Push** — commits and pushes to the configured Azure Repos remote.
+
+Important limitation:
+
+The dashboard commits the current local files. If the latest Power Apps solution state only exists in Power Apps Studio or Dataverse, export/sync the solution into the repo first, then commit from the dashboard.
+
+If Azure CLI cannot create the repo, create it manually in Azure DevOps, paste the remote URL into the dashboard, and click **Set Up Repo**.
+
 ---
 
 ## Agent workflow
@@ -125,7 +149,7 @@ The server rejects unknown state names so the browser cannot write arbitrary pat
 At the start of a project, when the local dashboard is available:
 
 1. Copy or keep the `dashboard/` folder in the project repo.
-2. Start `node .\dashboard\server.js`.
+2. Start `powershell -ExecutionPolicy Bypass -File .\setup\scripts\open-dashboard.ps1`, or fall back to `node .\dashboard\server.js`.
 3. Populate `dashboard/state/project-state.json` with environment, solution, app, and MCP details.
 4. Populate `data-model.json` from Dataverse/SharePoint schemas.
 5. Populate `screen-plan.json` from the confirmed screen plan.

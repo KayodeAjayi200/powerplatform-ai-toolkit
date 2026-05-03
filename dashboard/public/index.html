@@ -102,10 +102,32 @@
       </section>
 
       <section id="devops" class="view">
-        <section class="panel">
-          <h2>Azure DevOps Plan</h2>
-          <div id="devopsSummary" class="stack"></div>
-        </section>
+        <div class="grid two">
+          <section class="panel">
+            <h2>Azure DevOps Plan</h2>
+            <div id="devopsSummary" class="stack"></div>
+          </section>
+          <section class="panel">
+            <h2>Azure Repos</h2>
+            <p class="hint">Configure a DevOps Git repo and commit the current local solution state without using an agent.</p>
+            <div class="form-grid" id="devopsRepoForm"></div>
+            <label class="inline-option">
+              <input id="devopsCreateRepo" type="checkbox" />
+              Create Azure repo if it does not already exist
+            </label>
+            <label>
+              Commit message
+              <input id="devopsCommitMessage" value="Save current Power Platform solution state" />
+            </label>
+            <div class="actions wrap">
+              <button id="devopsStatusBtn">Check Status</button>
+              <button id="devopsSetupRepoBtn">Set Up Repo</button>
+              <button id="devopsCommitBtn" class="primary">Commit</button>
+              <button id="devopsCommitPushBtn" class="primary">Commit + Push</button>
+            </div>
+            <pre id="devopsRepoStatus" class="status-output">Not checked yet.</pre>
+          </section>
+        </div>
       </section>
 
       <section id="changes" class="view">

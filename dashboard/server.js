@@ -1,10 +1,12 @@
 const http = require("http");
+const { execFile } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
 const HOST = "127.0.0.1";
 const PORT = Number(process.env.PORT || 4817);
 const ROOT = __dirname;
+const PROJECT_ROOT = path.resolve(ROOT, "..");
 const PUBLIC_DIR = path.join(ROOT, "public");
 const STATE_DIR = path.join(ROOT, "state");
 
@@ -99,6 +101,175 @@ function readAllState() {
   return state;
 }
 
+function runCommand(command, args, options = {}) {
+  return new Promise((resolve) => {
+    execFile(command, args, {
+      cwd: PROJECT_ROOT,
+      windowsHide: true,
+      timeout: options.timeout || 120_000,
+      maxBuffer: 2_000_000,
+    }, (error, stdout, stderr) => {
+      resolve({
+        ok: !error,
+        code: error?.code || 0,
+        command: [command, ...args].join(" "),
+        stdout: String(stdout || "").trim(),
+        stderr: String(stderr || "").trim(),
+      });
+    });
+  });
+}
+
+async function gitStatus() {
+  const [inside, branch, status, remotes, lastCommit] = await Promise.all([
+    runCommand("git", ["rev-parse", "--is-inside-work-tree"]),
+    runCommand("git", ["branch", "--show-current"]),
+    runCommand("git", ["status", "--short"]),
+    runCommand("git", ["remote", "-v"]),
+    runCommand("git", ["log", "-1", "--oneline"]),
+  ]);
+
+  return {
+    projectRoot: PROJECT_ROOT,
+    isGitRepo: inside.ok && inside.stdout === "true",
+    branch: branch.stdout || "",
+    hasChanges: Boolean(status.stdout),
+    status: status.stdout || "",
+    remotes: remotes.stdout || "",
+    lastCommit: lastCommit.stdout || "",
+    diagnostics: { inside, branch, status, remotes, lastCommit },
+  };
+}
+
+function azureRepoUrl(organizationUrl, project, repository) {
+  const org = String(organizationUrl || "").replace(/\/+$/, "");
+  const encodedProject = encodeURIComponent(String(project || ""));
+  const encodedRepo = encodeURIComponent(String(repository || ""));
+  if (!org || !encodedProject || !encodedRepo) return "";
+  return `${org}/${encodedProject}/_git/${encodedRepo}`;
+}
+
+function updateDevopsRepoState(input, remoteUrl) {
+  const devops = readStateFile("devops-plan") || {};
+  devops.organizationUrl = input.organizationUrl || devops.organizationUrl || "";
+  devops.project = input.project || devops.project || "";
+  devops.repository = {
+    ...(devops.repository || {}),
+    name: input.repository || devops.repository?.name || "",
+    remoteName: input.remoteName || devops.repository?.remoteName || "azure",
+    remoteUrl: remoteUrl || devops.repository?.remoteUrl || "",
+    defaultBranch: input.branch || devops.repository?.defaultBranch || "main",
+    localPath: PROJECT_ROOT,
+    lastUpdated: new Date().toISOString(),
+  };
+  writeStateFile("devops-plan", devops);
+  return devops;
+}
+
+async function handleDevopsStatus(res) {
+  const [git, azVersion, azDevopsExt] = await Promise.all([
+    gitStatus(),
+    runCommand("az", ["version"], { timeout: 20_000 }),
+    runCommand("az", ["extension", "show", "--name", "azure-devops", "--output", "json"], { timeout: 20_000 }),
+  ]);
+
+  sendJson(res, 200, {
+    git,
+    tools: {
+      git: git.diagnostics.inside.ok,
+      azureCli: azVersion.ok,
+      azureDevopsExtension: azDevopsExt.ok,
+    },
+  });
+}
+
+async function handleDevopsSetup(req, res) {
+  const input = JSON.parse(await readBody(req) || "{}");
+  const remoteName = input.remoteName || "azure";
+  const branch = input.branch || "main";
+  const repository = input.repository || "";
+  const project = input.project || "";
+  const organizationUrl = input.organizationUrl || "";
+  const remoteUrl = input.remoteUrl || azureRepoUrl(organizationUrl, project, repository);
+  const results = [];
+
+  if (!remoteUrl) {
+    sendJson(res, 400, { error: "organizationUrl, project, and repository are required when remoteUrl is not supplied." });
+    return;
+  }
+
+  const currentStatus = await gitStatus();
+  if (!currentStatus.isGitRepo) {
+    results.push(await runCommand("git", ["init"]));
+  }
+
+  if (input.createRepo) {
+    results.push(await runCommand("az", ["devops", "configure", "--defaults", `organization=${organizationUrl}`, `project=${project}`], { timeout: 60_000 }));
+    const existingRepo = await runCommand("az", ["repos", "show", "--repository", repository, "--project", project, "--organization", organizationUrl, "--output", "json"], { timeout: 60_000 });
+    if (existingRepo.ok) {
+      results.push(existingRepo);
+    } else {
+      results.push(await runCommand("az", ["repos", "create", "--name", repository, "--project", project, "--organization", organizationUrl, "--output", "json"], { timeout: 120_000 }));
+    }
+  }
+
+  const remotes = await runCommand("git", ["remote"]);
+  const remoteNames = remotes.stdout.split(/\r?\n/).filter(Boolean);
+  if (remoteNames.includes(remoteName)) {
+    results.push(await runCommand("git", ["remote", "set-url", remoteName, remoteUrl]));
+  } else {
+    results.push(await runCommand("git", ["remote", "add", remoteName, remoteUrl]));
+  }
+  results.push(await runCommand("git", ["branch", "-M", branch]));
+
+  const devops = updateDevopsRepoState({ ...input, remoteName, branch }, remoteUrl);
+  appendAudit({
+    type: "devops-repo-setup",
+    message: `Configured Azure Repos remote '${remoteName}'.`,
+    details: { remoteName, remoteUrl, branch },
+  });
+
+  sendJson(res, 200, { ok: results.every((result) => result.ok || result.stderr.includes("already exists")), results, devops });
+}
+
+async function handleDevopsCommit(req, res) {
+  const input = JSON.parse(await readBody(req) || "{}");
+  const message = String(input.message || "Save current Power Platform solution state").trim();
+  const push = Boolean(input.push);
+  const devops = readStateFile("devops-plan") || {};
+  const remoteName = input.remoteName || devops.repository?.remoteName || "azure";
+  const branch = input.branch || devops.repository?.defaultBranch || "main";
+  const before = await gitStatus();
+  const results = [];
+
+  if (!before.isGitRepo) {
+    sendJson(res, 400, { error: "Project root is not a Git repository. Set up the DevOps repo first.", status: before });
+    return;
+  }
+
+  if (!before.hasChanges) {
+    sendJson(res, 200, { ok: true, committed: false, message: "No changes to commit.", status: before });
+    return;
+  }
+
+  results.push(await runCommand("git", ["add", "-A"]));
+  const commit = await runCommand("git", ["commit", "-m", message], { timeout: 120_000 });
+  results.push(commit);
+
+  if (commit.ok && push) {
+    results.push(await runCommand("git", ["push", "-u", remoteName, branch], { timeout: 180_000 }));
+  }
+
+  const after = await gitStatus();
+  appendAudit({
+    type: "devops-commit",
+    message: push ? "Committed and pushed current solution state." : "Committed current solution state locally.",
+    details: { message, push, remoteName, branch, commit: after.lastCommit },
+  });
+
+  sendJson(res, 200, { ok: results.every((result) => result.ok), committed: commit.ok, results, status: after });
+}
+
 function serveStatic(req, res) {
   const url = new URL(req.url, `http://${HOST}:${PORT}`);
   const requested = url.pathname === "/" ? "/index.html" : decodeURIComponent(url.pathname);
@@ -174,6 +345,21 @@ async function handleApi(req, res) {
       return;
     }
 
+    if (req.method === "GET" && url.pathname === "/api/devops/status") {
+      await handleDevopsStatus(res);
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/devops/setup-repo") {
+      await handleDevopsSetup(req, res);
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/devops/commit") {
+      await handleDevopsCommit(req, res);
+      return;
+    }
+
     sendJson(res, 404, { error: "Unknown API endpoint." });
   } catch (error) {
     sendJson(res, 500, { error: error.message });
@@ -192,5 +378,6 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`Power Platform project dashboard running at http://${HOST}:${PORT}`);
+  console.log(`Project root: ${PROJECT_ROOT}`);
   console.log(`State directory: ${STATE_DIR}`);
 });
