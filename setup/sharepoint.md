@@ -227,6 +227,83 @@ Official reference: https://pnp.github.io/cli-microsoft365/cmd/spo/field/field-a
 
 ---
 
+## Repeatable provisioning from the dashboard data model
+
+For real projects, prefer the reusable helper script instead of hand-running one-off
+`m365 spo list add` and `m365 spo field add` commands:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\create-sharepoint-lists-from-data-model.ps1 `
+  -SiteUrl "https://YOURTENANT.sharepoint.com/sites/YOURSITE" `
+  -DataModelPath ".\dashboard\state\data-model.json"
+```
+
+The data model should define SharePoint entities like this:
+
+```json
+{
+  "entities": [
+    {
+      "name": "Projects",
+      "displayName": "Projects",
+      "source": "SharePoint",
+      "fields": [
+        { "name": "Title", "displayName": "Project Name", "type": "Text", "required": true, "indexed": true },
+        { "name": "Priority", "displayName": "Priority", "type": "Choice", "choices": ["High", "Medium", "Low"], "indexed": true },
+        { "name": "StartDate", "displayName": "Start Date", "type": "Date", "indexed": true }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "displayName": "Tasks",
+      "source": "SharePoint",
+      "fields": [
+        { "name": "Title", "displayName": "Task Name", "type": "Text", "required": true, "indexed": true },
+        { "name": "Project", "displayName": "Project", "type": "Lookup", "lookupList": "Projects", "indexed": true }
+      ]
+    }
+  ]
+}
+```
+
+Supported field types:
+
+- `Text`
+- `MultilineText`
+- `Choice`
+- `Date`
+- `DateTime`
+- `Number`
+- `Boolean`
+- `Person`
+- `Hyperlink`
+- `Currency`
+- `Lookup`
+
+Use `-IndexesOnly` to repair indexes after a partial run or after adding `indexed: true`
+to fields in the data model:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\create-sharepoint-lists-from-data-model.ps1 `
+  -SiteUrl "https://YOURTENANT.sharepoint.com/sites/YOURSITE" `
+  -IndexesOnly
+```
+
+Lessons learned from live provisioning:
+
+- If `m365 login --authType browser` fails because of app registration/client type issues, use
+  `m365 login --authType deviceCode --tenant <tenant-id>`.
+- Create all lists before adding lookup fields, because lookup field XML needs the target list ID.
+- Make list creation idempotent: list existing lists first and reuse matching titles.
+- SharePoint can change field internal names. For example, a model field named `StartDate` may
+  become `Start_x0020_Date` if the display name is `Start Date`. Resolve live fields by
+  `InternalName`, `StaticName`, or display `Title` before setting indexes or updating fields.
+- Treat indexing as a separate pass. It is common for field creation to succeed while some indexes
+  need a second run after SharePoint finishes materializing the columns.
+- Write a provisioning summary file so later agents know the real site URL, list IDs, and list URLs.
+
+---
+
 ## Step 6 — Set permissions (if needed)
 
 By default, the site inherits permissions from the SharePoint admin and the site owners. If
