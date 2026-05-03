@@ -154,27 +154,90 @@ Official reference: https://pnp.github.io/cli-microsoft365/cmd/spo/list/list-add
 
 Every list already has a **Title** column. Add the additional columns that your data plan requires.
 
+### SharePoint column naming rules for Power Apps
+
+Follow these rules every time you create SharePoint columns:
+
+- Do **not** create fields with spaces in `Name`, `StaticName`, or the initial `DisplayName`.
+- Create fields first with clean internal names such as `DueDate`, `AssignedTo`, `EstimatedHours`.
+- After the field exists, optionally rename only the display title to a friendly label such as `Due Date`, `Assigned To`, `Estimated Hours`.
+- Do **not** rename the built-in `Title` column. Leave its internal/display identity alone so SharePoint, Power Apps, search, and integrations keep predictable behavior.
+- Make custom columns optional by default with `Required="FALSE"` so the app can support **Save as Draft** and partial records.
+- Set the built-in `Title` column to not required where the tenant/list allows it. If SharePoint still requires it, patch a generated draft title from Power Apps instead of forcing users to fill it in.
+
+Why: SharePoint preserves the first internal name it creates. If you create a column as `Due Date`, SharePoint may encode the internal name into values such as `Due_x0020_Date`. Those names then leak into Power Fx, JSON, APIs, and integrations. Creating `DueDate` first avoids that mess; the friendly display name can be added later.
+
 Tell the user what you're adding as you go:
 > "I'm adding [column name] as a [type] column to [list name]."
+
+Recommended helper for generated internal names:
+
+```powershell
+function ConvertTo-SharePointInternalName {
+    param([string]$DisplayName)
+
+    $candidate = ($DisplayName -replace '[^A-Za-z0-9]', '')
+    if ([string]::IsNullOrWhiteSpace($candidate)) {
+        throw "Column '$DisplayName' does not produce a valid internal name."
+    }
+    if ($candidate[0] -match '[0-9]') {
+        $candidate = "Field$candidate"
+    }
+    return $candidate
+}
+
+function Set-SharePointFriendlyTitle {
+    param(
+        [string]$SiteUrl,
+        [string]$ListTitle,
+        [string]$InternalName,
+        [string]$FriendlyTitle
+    )
+
+    if ($InternalName -eq "Title") {
+        Write-Host "Skipping Title rename. Keep the built-in Title column unchanged."
+        return
+    }
+
+    # If your installed m365 CLI uses a different option name, run:
+    # m365 spo field set --help
+    m365 spo field set `
+        --webUrl     $SiteUrl `
+        --listTitle  $ListTitle `
+        --fieldTitle $InternalName `
+        --title      $FriendlyTitle `
+        --required   false
+}
+```
+
+Before adding custom fields, make `Title` optional if possible, but do not rename it:
+
+```powershell
+m365 spo field set `
+    --webUrl     $siteUrl `
+    --listTitle  $listTitle `
+    --fieldTitle "Title" `
+    --required   false
+```
 
 ```powershell
 # --- Text column (short text, up to 255 characters) ---
 m365 spo field add `
     --webUrl   $siteUrl `
     --listTitle $listTitle `
-    --xml '<Field Type="Text" DisplayName="Status" Name="Status" />'
+    --xml '<Field Type="Text" DisplayName="Status" Name="Status" StaticName="Status" Required="FALSE" />'
 
 # --- Multi-line text column ---
 m365 spo field add `
     --webUrl   $siteUrl `
     --listTitle $listTitle `
-    --xml '<Field Type="Note" DisplayName="Description" Name="Description" />'
+    --xml '<Field Type="Note" DisplayName="Description" Name="Description" StaticName="Description" Required="FALSE" />'
 
 # --- Choice column (dropdown with fixed options) ---
 m365 spo field add `
     --webUrl   $siteUrl `
     --listTitle $listTitle `
-    --xml '<Field Type="Choice" DisplayName="Priority" Name="Priority">
+    --xml '<Field Type="Choice" DisplayName="Priority" Name="Priority" StaticName="Priority" Required="FALSE">
               <CHOICES>
                 <CHOICE>High</CHOICE>
                 <CHOICE>Medium</CHOICE>
@@ -186,25 +249,28 @@ m365 spo field add `
 m365 spo field add `
     --webUrl   $siteUrl `
     --listTitle $listTitle `
-    --xml '<Field Type="DateTime" DisplayName="Due Date" Name="DueDate" />'
+    --xml '<Field Type="DateTime" DisplayName="DueDate" Name="DueDate" StaticName="DueDate" Required="FALSE" />'
+Set-SharePointFriendlyTitle -SiteUrl $siteUrl -ListTitle $listTitle -InternalName "DueDate" -FriendlyTitle "Due Date"
 
 # --- Number column ---
 m365 spo field add `
     --webUrl   $siteUrl `
     --listTitle $listTitle `
-    --xml '<Field Type="Number" DisplayName="Estimated Hours" Name="EstimatedHours" />'
+    --xml '<Field Type="Number" DisplayName="EstimatedHours" Name="EstimatedHours" StaticName="EstimatedHours" Required="FALSE" />'
+Set-SharePointFriendlyTitle -SiteUrl $siteUrl -ListTitle $listTitle -InternalName "EstimatedHours" -FriendlyTitle "Estimated Hours"
 
 # --- Person column (picks a user from the directory) ---
 m365 spo field add `
     --webUrl   $siteUrl `
     --listTitle $listTitle `
-    --xml '<Field Type="User" DisplayName="Assigned To" Name="AssignedTo" />'
+    --xml '<Field Type="User" DisplayName="AssignedTo" Name="AssignedTo" StaticName="AssignedTo" Required="FALSE" />'
+Set-SharePointFriendlyTitle -SiteUrl $siteUrl -ListTitle $listTitle -InternalName "AssignedTo" -FriendlyTitle "Assigned To"
 
 # --- Yes/No (boolean) column ---
 m365 spo field add `
     --webUrl   $siteUrl `
     --listTitle $listTitle `
-    --xml '<Field Type="Boolean" DisplayName="Completed" Name="Completed" />'
+    --xml '<Field Type="Boolean" DisplayName="Completed" Name="Completed" StaticName="Completed" Required="FALSE" />'
 
 # --- Lookup column (references a row in another list on the same site) ---
 # First, get the ID of the source list:
@@ -214,13 +280,29 @@ $sourceListId = ($sourceLists | Where-Object { $_.Title -eq "Projects" }).Id
 m365 spo field add `
     --webUrl   $siteUrl `
     --listTitle $listTitle `
-    --xml "<Field Type='Lookup' DisplayName='Project' Name='ProjectId' List='$sourceListId' ShowField='Title' />"
+    --xml "<Field Type='Lookup' DisplayName='ProjectId' Name='ProjectId' StaticName='ProjectId' List='$sourceListId' ShowField='Title' Required='FALSE' />"
+Set-SharePointFriendlyTitle -SiteUrl $siteUrl -ListTitle $listTitle -InternalName "ProjectId" -FriendlyTitle "Project"
 
 # --- Currency column ---
 m365 spo field add `
     --webUrl   $siteUrl `
     --listTitle $listTitle `
-    --xml '<Field Type="Currency" DisplayName="Budget" Name="Budget" LCID="1033" />'
+    --xml '<Field Type="Currency" DisplayName="Budget" Name="Budget" StaticName="Budget" LCID="1033" Required="FALSE" />'
+```
+
+Power Apps draft pattern:
+
+```powerfx
+// If SharePoint still requires Title, generate one for drafts instead of asking the user for it.
+Patch(
+    Tasks,
+    Defaults(Tasks),
+    {
+        Title: Coalesce(txtTitle.Text, "Draft-" & Text(GUID())),
+        Status: "Draft",
+        DueDate: datDueDate.SelectedDate
+    }
+)
 ```
 
 Official reference: https://pnp.github.io/cli-microsoft365/cmd/spo/field/field-add/

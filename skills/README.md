@@ -34,4 +34,5 @@ Or reference them inline in your prompt:
 | [canvas-yaml.md](./canvas-yaml.md) | Generating valid `.pa.yaml` files — schema shape, formula value rules, indentation, preflight checks, compile failures |
 | [canvas-accessibility.md](./canvas-accessibility.md) | Making canvas apps WCAG 2.1 AA compliant — screen readers, keyboard navigation, accessible labelling |
 | [canvas-authoring-mcp.md](./canvas-authoring-mcp.md) | Editing a live canvas app via MCP — how to connect, sync, edit, and compile YAML |
+| [sharepoint-list-design.md](./sharepoint-list-design.md) | Designing SharePoint lists for Power Apps — safe internal names, optional columns, Title column policy, draft-friendly saves |
 | [delegation.md](./delegation.md) | Fixing delegation warnings — filtering large SharePoint lists, Dataverse tables, or SQL tables correctly |
