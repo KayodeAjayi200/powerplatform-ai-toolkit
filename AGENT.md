@@ -435,6 +435,8 @@ Based on the app purpose, user type, and data sources, plan:
 
 **Rules from `skills/canvas-design.md` that apply at this stage:**
 - Every screen uses Horizontal and Vertical containers — no absolute X/Y positions ever
+- Use native container sizing first: `FlexibleWidth`, `FlexibleHeight`, `FillPortions`, `MinimumWidth`, `MinimumHeight`, `Wrap`, and overflow settings
+- Avoid fixed widths/heights and `Parent.Width` / `Parent.Height` sizing formulas for layout unless a control cannot participate in auto-layout
 - Navigation is always a vertical left-panel or a bottom tab bar
 - Cards use rounded corners, subtle shadows, and consistent spacing
 - Brand colours or Fluent defaults apply consistently across every screen
@@ -515,8 +517,10 @@ Use the Canvas Authoring MCP tools to:
 2. Build each screen according to the confirmed screen plan — one screen at a time
 3. Connect data sources using the MCP data tools or the Add Data panel
 4. Write Power Fx formulas — follow `skills/canvas-app.md` for correct formula patterns
-5. Apply the design — follow `skills/canvas-design.md` container rules at every level
+5. Apply the design — follow `skills/canvas-design.md` container rules at every level, using flexible container properties before formulas or fixed sizes
 6. Check accessibility — follow `skills/canvas-accessibility.md`; set `AccessibleLabel` on every interactive control
+
+Before compiling, review the generated YAML for layout smells from `skills/canvas-design.md`: avoid `X`/`Y` positioning for content controls, avoid repeated fixed widths on panels/cards/columns, and replace `Parent.Width`/`Parent.Height` sizing formulas with `FlexibleWidth`, `FlexibleHeight`, `FillPortions`, and minimum sizes where the control supports them.
 
 **Best practices:**
 - Start simple — build a basic working version first, then add complexity

@@ -4,7 +4,7 @@ description: Power Apps Canvas Apps UI/UX design guide — containers, responsiv
 license: MIT
 metadata:
   author: KayodeAjayi200
-  version: "2.2.0"
+  version: "2.2.1"
   organization: Veldarr
   date: April 2026
   abstract: >
@@ -81,6 +81,56 @@ PaddingRight  = 16
 // Align children — Stretch makes them fill the container width
 AlignInContainer = AlignInContainer.Stretch
 ```
+
+### Layout sizing priority — use this order every time
+
+Agents must use native auto-layout properties before writing sizing formulas.
+
+| Priority | Use this | For |
+|---|---|---|
+| 1 | `FlexibleWidth`, `FlexibleHeight`, `FillPortions` | Most screen, panel, column, card, gallery, and form layouts |
+| 2 | `MinimumWidth`, `MinimumHeight`, `Wrap`, `OverflowY` | Keeping flexible layouts usable on small screens |
+| 3 | Breakpoint formulas on visibility, form columns, or template size | True layout mode changes such as phone vs tablet |
+| 4 | Fixed `Width`, `Height`, `X`, `Y` | Icons, avatars, separators, row heights, and controls that must stay fixed |
+
+**Do not use formulas like `Width = Parent.Width - 32` or `Height = Parent.Height - Header.Height` when the same result can be achieved by putting the control in the right container and setting `FlexibleWidth`, `FlexibleHeight`, and `FillPortions`.**
+
+```powerfx
+// Correct: root screen structure
+conRoot.FlexibleWidth  = true
+conRoot.FlexibleHeight = true
+
+// Correct: body fills remaining vertical space under the header
+conHeader.FlexibleHeight = false
+conHeader.Height         = 64
+
+conBody.FlexibleHeight = true
+conBody.FillPortions   = 1
+
+// Correct: main content and side panel share horizontal space
+conMain.FlexibleWidth = true
+conMain.FillPortions  = 3
+conMain.MinimumWidth  = 480
+
+conSidePanel.FlexibleWidth = true
+conSidePanel.FillPortions  = 1
+conSidePanel.MinimumWidth  = 280
+```
+
+Fixed sizes are allowed only for genuinely fixed UI atoms: icon buttons, avatars, compact nav rail widths, separators, gallery row heights, and known device-specific chrome. Everything else should participate in the container layout.
+
+### Layout review before compile
+
+Before compiling a generated app, scan the YAML for layout smells:
+
+- `X =` or `Y =` on normal content controls
+- `Width = Parent.Width ...` on controls inside auto-layout containers
+- `Height = Parent.Height ...` used to fill remaining space
+- repeated fixed widths such as `Width = 300`, `Width = 400`, `Width = 600` on columns/cards/panels
+- body/content containers missing `FlexibleHeight = true` and `FillPortions = 1`
+- horizontal columns missing `FlexibleWidth = true`, `FillPortions`, and sensible `MinimumWidth`
+
+If a smell appears, fix the container hierarchy first. Only keep fixed/formula sizing when the control is a small fixed UI atom or the control type does not support the needed flexible property.
 
 ### 🚨 Drop Shadow — set to None unless you explicitly want it
 
@@ -302,17 +352,29 @@ btnCancelEdit      — the cancel button in edit mode
 
 Turn off fixed canvas scaling in **Settings → Display**. This enables percentage-based sizing and makes containers flexible.
 
-### Fluid sizing formulas
+### Native layout before sizing formulas
+
+First try to solve layout with auto-layout container properties:
 
 ```powerfx
-// 50% width of parent
-Width = Parent.Width * 0.5
+// Preferred: let a control fill its parent container.
+FlexibleWidth = true
+FillPortions  = 1
 
-// Fill remaining height
-Height = Parent.Height - HeaderContainer.Height
+// Preferred: let the content area take all remaining vertical space.
+FlexibleHeight = true
+FillPortions   = 1
 
-// Responsive padding
-Padding = If(App.Width < 600, 8, 16)
+// Preferred: preserve usability when space gets tight.
+MinimumWidth  = 320
+MinimumHeight = 160
+```
+
+Use formulas only when the layout genuinely changes by breakpoint or when a non-container control does not support the needed auto-layout behavior:
+
+```powerfx
+// Responsive padding is a valid formula because spacing changes by device class.
+Padding = If(IsPhone, 8, 16)
 ```
 
 ### Breakpoints pattern
@@ -348,8 +410,8 @@ Gallery1.TemplateSize = If(IsPhone, 80, 120)
 | Phone | Hidden menu, hamburger ☰ button opens overlay |
 
 ```powerfx
-// Side menu width — collapses on narrow screens
-SideNavContainer.Width = If(IsPhone, 0, If(varMenuCollapsed, 48, 200))
+// Side menu visibility changes by breakpoint; width stays a deliberate fixed rail size.
+SideNavContainer.Width = If(varMenuCollapsed, 56, 220)
 SideNavContainer.Visible = !IsPhone || varMenuOpen
 
 // Label visibility in nav items
@@ -366,9 +428,10 @@ EditForm1.Columns = If(App.Width < 700, 1, 2)
 ### Responsive galleries
 
 ```powerfx
-// Gallery fills remaining content area
-Gallery1.Height = Parent.Height - SearchBar.Height - FilterBar.Height
-Gallery1.Width = Parent.Width
+// Gallery fills the content container without width/height math
+Gallery1.FlexibleWidth  = true
+Gallery1.FlexibleHeight = true
+Gallery1.FillPortions   = 1
 
 // Template size adapts to screen
 Gallery1.TemplateSize = If(IsPhone, 72, 96)
