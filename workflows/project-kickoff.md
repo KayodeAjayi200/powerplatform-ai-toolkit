@@ -58,20 +58,61 @@ If the user provided a reference image, URL, or style description, **do this bef
 
 ### What to extract
 
-| What to look for | What to produce in `App.pa.yaml` Formulas |
+**Colours**
+
+| What to look for | `App.pa.yaml` Formulas constant |
 |---|---|
-| Primary / brand colour | `ColorPrimary` constant |
-| Accent / highlight colour | `ColorAccent` constant |
-| Background colour | `ColorBackground` constant |
-| Card / surface colour | `ColorSurface` constant |
-| Text colour (primary + muted) | `ColorText` + `ColorTextSubtle` constants |
-| Border / divider colour | `ColorBorder` constant |
-| Corner radius (sharp / soft / pill) | `RadiusSmall`, `RadiusMedium` — 0=sharp, 4-8=soft, 20+=pill |
-| Spacing density (compact / airy) | `SpacingSmall`, `SpacingMedium`, `SpacingLarge` constants |
-| Navigation position (top / left / bottom) | Screen layout: top bar vs left nav vs bottom tab bar |
-| Card layout (list vs grid) | Gallery template choice |
-| Shadow style (flat / subtle / heavy) | `DropShadow.None` / `DropShadow.Light` / `DropShadow.Regular` |
-| Typography weight | `FontSizeHeading`, `FontSizeBody`, `FontSizeSmall` constants |
+| Primary / brand colour | `ColorPrimary` |
+| Accent / highlight colour | `ColorAccent` |
+| Background colour | `ColorBackground` |
+| Card / surface colour | `ColorSurface` |
+| Text colour (primary) | `ColorText` |
+| Text colour (secondary / muted) | `ColorTextSubtle` |
+| Disabled / placeholder text | `ColorTextDisabled` |
+| Border / divider colour | `ColorBorder` |
+| Success / warning / error colours | `ColorSuccess`, `ColorWarning`, `ColorError` |
+
+**Typography**
+
+| What to look for | What to produce |
+|---|---|
+| Font family | Note the font; Power Apps supports system fonts, custom via HTML text |
+| Heading hierarchy (how many levels, size ratio) | `FontSizeH1`, `FontSizeH2`, `FontSizeBody`, `FontSizeSmall`, `FontSizeCaption` |
+| Font weights per level | Note per level — headings bold, body regular, captions light |
+| Text colour per hierarchy level | Map to `ColorText` or `ColorTextSubtle` |
+| Text alignment (left / centre / mixed) | Default alignment for labels, titles, body |
+
+**Icons**
+
+| What to look for | What to produce |
+|---|---|
+| Icon style (filled / outlined / rounded / sharp) | Note in design-system.json; source from Fluent Icons or SVG |
+| Icon size relative to adjacent text | `IconSizeSmall`, `IconSizeMedium`, `IconSizeLarge` constants |
+| Icon colour usage | Default icon colour token |
+| Icon + label pattern (left of text / icon-only / stacked) | Gallery and button layout choice |
+
+**Layout and Placement**
+
+| What to look for | What to produce |
+|---|---|
+| Navigation position (top / left / bottom) | Screen architecture decision |
+| Card / list layout (rows / grid / table) | Gallery template choice |
+| Content alignment within cards | Container `LayoutAlignItems` setting |
+| Label placement (above input / inline / floating) | Form layout pattern |
+| Visual hierarchy: what draws the eye first / second / third | Drives control sizing and weight in YAML |
+| Spacing density (compact / comfortable / spacious) | `SpacingSmall`, `SpacingMedium`, `SpacingLarge`, `SpacingXL` |
+| Padding inside cards / containers | Container `PaddingTop/Bottom/Left/Right` values |
+
+**Controls and Components**
+
+| What to look for | What to produce |
+|---|---|
+| Button style (filled / outlined / ghost / text-only) | Button variant + fill/border state properties |
+| Input field style (bordered / underline / filled background) | Classic Text Input styling choices |
+| Status indicators (badges / chips / pills / colour dots) | Badge control or SVG/rectangle overlay |
+| Avatar / image usage (circular / square, size relative to row) | Image control + `BorderRadius` |
+| Corner radius (sharp / soft / pill) | `RadiusSmall`, `RadiusMedium`, `RadiusLarge` constants |
+| Shadow / elevation (flat / subtle / raised) | `DropShadow.None` / `.Light` / `.Regular` |
 
 ### Rules
 
