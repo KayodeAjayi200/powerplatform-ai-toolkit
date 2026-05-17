@@ -23,6 +23,67 @@ Official references:
 
 ---
 
+## ⚠️ Confirmed YAML Gotchas — Read Before Editing
+
+These issues cause silent or confusing failures. Check before writing any property value.
+
+### 1. `RGBA()` with non-zero alpha inline in screen files → `YamlInvalidSyntax`
+
+**Do not write non-transparent RGBA values directly in screen `.pa.yaml` files.**
+
+```yaml
+# BAD — causes YamlInvalidSyntax in a screen file
+Fill: =RGBA(14, 16, 36, 1)
+
+# GOOD — define a named constant in App.pa.yaml Formulas block
+# In App.pa.yaml:
+#   ColorHeaderBg = RGBA(14, 16, 36, 1)
+# Then reference it in screen files:
+Fill: =ColorHeaderBg
+```
+
+`RGBA(0,0,0,0)` (fully transparent) works inline everywhere. Only non-zero alpha values are affected.
+
+### 2. Colon-space inside a string literal → YAML parse error
+
+If a Power Fx string contains `: ` (colon + space), the YAML parser treats it as a key-value separator.
+
+```yaml
+# BAD — parser sees "Open task" as a key
+AccessibleLabel: ="Open task: " & ThisItem.Title
+
+# GOOD — use a |- block scalar (strips trailing newline)
+AccessibleLabel: |-
+  ="Open task: " & ThisItem.Title
+```
+
+Any property value that contains `: ` must use a block scalar.
+
+### 3. `AccessibleLabel: =""` still fails the accessibility checker
+
+An empty string is not valid — it satisfies the YAML syntax but fails the Power Apps accessibility checker. Always provide a real descriptive string.
+
+```yaml
+# BAD
+AccessibleLabel: =""
+
+# GOOD
+AccessibleLabel: ="Priority indicator"
+```
+
+### 4. `TabIndex: =-1` still fails the accessibility checker
+
+Even for decorative shapes (rectangles, background fills), the accessibility checker rejects `-1`. Use `=0`.
+
+```yaml
+# BAD
+TabIndex: =-1
+
+# GOOD
+TabIndex: =0
+```
+
+---
 ## Ground rules
 
 - Use the active `*.pa.yaml` Source Code schema only.
@@ -256,6 +317,9 @@ Before running `powerapps-canvas-compile_canvas`, scan every changed `.pa.yaml` 
 8. Data source formulas reference sources returned by `list_data_sources`.
 9. Component instances include `ComponentName`.
 10. Layout review from `skills/canvas-design.md` has been applied.
+11. **No inline `RGBA()` with non-zero alpha in screen files** — use named App.pa.yaml constants.
+12. **No `: ` inside string literals** — wrap in `|-` block scalar if needed.
+13. **No `AccessibleLabel: =""` or `TabIndex: =-1`** — both fail the accessibility checker.
 
 Then compile:
 
@@ -270,12 +334,15 @@ powerapps-canvas-compile_canvas directoryPath: "<sync-dir>"
 | Symptom | Likely cause | First fix |
 |---|---|---|
 | `PA1001` / parse error | Invalid YAML indentation or malformed key/value | Check the line/column, then validate nesting around `Children` and `Properties` |
+| `YamlInvalidSyntax` on `Fill` | Inline `RGBA()` with non-zero alpha in a screen file | Move colour constant to App.pa.yaml Formulas block |
+| YAML parse error on `AccessibleLabel` | `: ` colon-space inside string literal | Use `\|-` block scalar |
 | Property not supported | Property does not exist for that control type | Remove it or confirm control metadata with `describe_control` |
 | Formula parse error | Missing leading `=` or invalid Power Fx | Add `=` and check separators, quotes, and function names |
 | Component not found | Component definition missing from sync directory | Restore component definition or edit component in Studio |
 | Data source not found | Formula references guessed source name | Run `list_data_sources` and use the exact name |
 | Changes disappear after sync | Used `sync_canvas` after local edits | Remember: sync pulls from Studio; compile pushes to Studio |
 | Layout compiles but clips | Over-fixed layout | Replace width/height math with flexible containers and `AlignInContainer.Stretch` |
+| Accessibility check fails | `AccessibleLabel: =""` or `TabIndex: =-1` | Use real label string; use `=0` for TabIndex |
 
 ---
 
@@ -287,9 +354,10 @@ Use this order when building or editing:
 2. Copy a known-valid screen/container/control shape from the synced YAML.
 3. Modify names, formulas, and children carefully.
 4. Add only properties supported by that control type.
-5. Run the validity preflight checklist.
-6. Run `compile_canvas`.
-7. Fix only the reported errors, then compile again.
+5. Check the **Confirmed YAML Gotchas** section above before writing any property value.
+6. Run the validity preflight checklist.
+7. Run `compile_canvas`.
+8. Fix only the reported errors, then compile again.
 
 Do not generate a large screen from scratch without first anchoring the structure in a synced valid example. The schema is strict enough that small structural mistakes can block the whole compile.
 
