@@ -36,3 +36,17 @@ Or reference them inline in your prompt:
 | [canvas-authoring-mcp.md](./canvas-authoring-mcp.md) | Editing a live canvas app via MCP — how to connect, sync, edit, and compile YAML |
 | [sharepoint-list-design.md](./sharepoint-list-design.md) | Designing SharePoint lists for Power Apps — safe internal names, optional columns, Title column policy, draft-friendly saves |
 | [delegation.md](./delegation.md) | Fixing delegation warnings — filtering large SharePoint lists, Dataverse tables, or SQL tables correctly |
+
+---
+
+## Setup guides (in `/setup/`)
+
+Setup guides cover environment provisioning tasks that run *before* the Canvas App is built.
+
+| File | Use it when... |
+|---|---|
+| [setup/provision.md](../setup/provision.md) | Creating a Power Platform environment, solution, or blank canvas app |
+| [setup/sharepoint.md](../setup/sharepoint.md) | Creating SharePoint site and lists with correct internal names |
+| [setup/environment-variables.md](../setup/environment-variables.md) | Creating Dataverse environment variables — Text, DataSource (SharePoint site + list), setting Export=No, and the RemoveSolutionComponent API quirk |
+| [setup/devops.md](../setup/devops.md) | Setting up Azure DevOps project hierarchy (Epics → Features → Stories → Tasks) |
+| [setup/cli-auth.md](../setup/cli-auth.md) | Authenticating pac, m365, az CLIs for Power Platform automation |
