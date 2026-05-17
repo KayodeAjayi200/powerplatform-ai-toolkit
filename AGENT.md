@@ -613,20 +613,15 @@ State the design extraction result before generating YAML:
 If no reference was provided, confirm before defaulting:
 > _`No design reference. I'll use Fluent defaults (neutral grey, blue accent, 4px radius). OK?`_
 
-**Critical: keep the image in context — do not extract once and discard**
+**Re-consult the image only when necessary — not at every step**
 
-The extraction table captures named tokens, but the reference image contains far more:
-visual hierarchy, proportions, spacing relationships, icon style, control density,
-border weights, and micro-details that no table can fully represent.
+Only go back to the image when:
 
-- Re-consult the image at every design phase, not just at the start
-- **Screen planning:** does your screen structure match the reference layout?
-- **YAML per screen:** do control sizes, grouping, and visual weight match?
-- **Gallery/card templates:** how are items laid out and spaced in the reference?
-- **Before compile:** compare YAML output against the reference; call out any visual gaps
-- **User asks `does this look right?`:** compare live screenshot against the reference directly
+- You are unsure how a specific control, card, or layout should look
+- The user asks `does this look right?` — compare the screenshot against the reference
+- Something in your YAML feels inconsistent with what you extracted
 
-> Think of the reference image as a standing brief that every design decision must be checked against.
+> Do not keep the image in context continuously. Load it on demand to avoid unnecessary token use.
 
 ---
 
