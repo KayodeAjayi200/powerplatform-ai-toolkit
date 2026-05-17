@@ -21,6 +21,9 @@ To start your Power Apps project efficiently, I need a few details upfront:
 6. **Azure DevOps** — Do you want ADO work item tracking?
    - If yes: org URL + project name (I'll create epics and stories)
 7. **Existing app** — Is there an existing app I should connect to, or should I create a new one in Studio?
+8. **Design reference** — Do you have a reference image, mockup, or style description?
+   - Paste an image, share a URL, or describe the aesthetic (e.g. `dark sidebar, teal accent, rounded corners`)
+   - If nothing, I will use Microsoft Fluent defaults
 ```
 
 ---
@@ -46,6 +49,36 @@ Key checks:
 | `skills/powerapps-delegation.md` | Before writing any `Filter()`, `Search()`, or `Sort()` — covers delegation limits per data source |
 | `skills/canvas-design.md` (if present) | For responsive layout, container patterns, colour palettes |
 | `mcp-tools/azure-devops.md` | If ADO tracking is requested — prefer ADO MCP over REST API |
+
+---
+
+## Step 3.5 — Extract Design Direction from Reference Image
+
+If the user provided a reference image, URL, or style description, **do this before generating any YAML**.
+
+### What to extract
+
+| What to look for | What to produce in `App.pa.yaml` Formulas |
+|---|---|
+| Primary / brand colour | `ColorPrimary` constant |
+| Accent / highlight colour | `ColorAccent` constant |
+| Background colour | `ColorBackground` constant |
+| Card / surface colour | `ColorSurface` constant |
+| Text colour (primary + muted) | `ColorText` + `ColorTextSubtle` constants |
+| Border / divider colour | `ColorBorder` constant |
+| Corner radius (sharp / soft / pill) | `RadiusSmall`, `RadiusMedium` — 0=sharp, 4-8=soft, 20+=pill |
+| Spacing density (compact / airy) | `SpacingSmall`, `SpacingMedium`, `SpacingLarge` constants |
+| Navigation position (top / left / bottom) | Screen layout: top bar vs left nav vs bottom tab bar |
+| Card layout (list vs grid) | Gallery template choice |
+| Shadow style (flat / subtle / heavy) | `DropShadow.None` / `DropShadow.Light` / `DropShadow.Regular` |
+| Typography weight | `FontSizeHeading`, `FontSizeBody`, `FontSizeSmall` constants |
+
+### Rules
+
+1. Add all extracted constants to `App.pa.yaml` Formulas — never inline `RGBA()` or raw hex in screen files
+2. State extraction result before generating YAML, e.g.: _`primary #1B2A4A, accent #4FC3F7, surface #F5F7FA, radius=8, left nav`_
+3. If multiple references provided — merge and call out any conflicts
+4. No reference provided — confirm before defaulting: _`No design reference. I'll use Fluent defaults (neutral grey, blue accent, 4px radius). OK?`_
 
 ---
 
@@ -123,6 +156,7 @@ Screens: <list>
 Target devices: <mobile / desktop / both>
 Azure DevOps: <yes — org: https://dev.azure.com/YOUR_ORG, project: PROJECT_NAME / no>
 Existing app ID: <GUID if connecting to existing app, or "create new">
+Reference image: <paste an image / URL / style description — or leave blank for Fluent defaults>
 
 Please start with the configuration status check, then gather any missing information before designing anything.
 ```
@@ -140,3 +174,5 @@ Please start with the configuration status check, then gather any missing inform
 | Not reading canvas-yaml.md gotchas | Repeated compile failures | Read it at kickoff, keep it open |
 | Skipping ADO setup | No tracking, user has to catch up later | Set up ADO in Step 5, update continuously |
 | Not starting the dashboard | Missing live progress visibility | Start dashboard in Step 2 config check |
+| Skipping design reference | Generic styling; rework after first demo | Ask Q8 in Step 1, extract in Step 3.5 before YAML |
+| Extracting colours only | Palette matches but spacing and corners feel wrong | Extract all token types: colour + radius + spacing + nav + shadow |
