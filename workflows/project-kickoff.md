@@ -116,8 +116,32 @@ If the user provided a reference image, URL, or style description, **do this bef
 
 ### Rules
 
+**If the image is the requirement (not just a style reference)**
+
+A user may provide a screenshot, mockup, or wireframe as their entire spec. Extract both functional content and design from the same image.
+
+| Content / function to extract | What to produce |
+|---|---|
+| Screens visible or implied | App screen list |
+| Navigation between screens | `Navigate()`, back buttons, tab bars |
+| Data fields (labels, inputs, list columns) | SharePoint columns / Dataverse fields |
+| Field types (text, date, person, status, number) | Column types in data model |
+| Status / category values (e.g. To Do, In Progress, Done) | Choice column options |
+| Actions (add, edit, delete, filter, sort, share) | Button `OnSelect` logic |
+| Filters or search | `Filter()` / `Search()` formula requirements |
+| Exact text, labels, placeholder copy | Use verbatim in controls |
+
+**Read the image back to the user and confirm before building anything:**
+> _`I can see: 2 screens, fields: Title, Due Date, Priority (High/Medium/Low), Status. Actions: Add, Edit, Delete, filter by Status. Correct?`_
+
+Do not proceed until confirmed — a wrong read cascades into every screen, data model, and formula.
+
+---
+
+### Design extraction rules
+
 1. Add all extracted constants to `App.pa.yaml` Formulas — never inline `RGBA()` or raw hex in screen files
-2. State extraction result before generating YAML, e.g.: _`primary #1B2A4A, accent #4FC3F7, surface #F5F7FA, radius=8, left nav`_
+2. State design extraction before generating YAML, e.g.: _`primary #1B2A4A, accent #4FC3F7, surface #F5F7FA, radius=8, left nav`_
 3. If multiple references provided — merge and call out any conflicts
 4. No reference provided — confirm before defaulting: _`No design reference. I'll use Fluent defaults (neutral grey, blue accent, 4px radius). OK?`_
 
