@@ -618,7 +618,7 @@ If no reference was provided, confirm before defaulting:
 Only go back to the image when:
 
 - You are unsure how a specific control, card, or layout should look
-- The user asks `does this look right?` — compare the screenshot against the reference
+- The user asks for a visual check (e.g. "does this look right?", "how does it look?", "is this matching?", "compare with what I showed you") — load the image and compare
 - Something in your YAML feels inconsistent with what you extracted
 
 > Do not keep the image in context continuously. Load it on demand to avoid unnecessary token use.
