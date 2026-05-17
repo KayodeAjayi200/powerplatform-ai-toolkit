@@ -29,14 +29,13 @@ The toolkit is designed for real-world constraints: locked-down laptops, missing
 
 ## Quick start — what to say to your agent
 
-**New to a project?** First check [workflows/project-kickoff.md](./workflows/project-kickoff.md) for the kickoff prompt template and configuration health check.
-
 Copy and paste this into your AI coding agent (GitHub Copilot, Cursor, Claude, etc.):
 
 ```
 Set up my Power Apps development environment.
 Toolkit repo: https://github.com/KayodeAjayi200/powerplatform-ai-toolkit
 Read AGENT.md from that repo and follow the setup instructions automatically.
+Then read workflows/project-kickoff.md and run the project kickoff checklist.
 ```
 
 If you have already cloned the repo locally:
@@ -45,6 +44,7 @@ If you have already cloned the repo locally:
 Set up my Power Apps development environment.
 Read AGENT.md from: C:\Repositories\powerplatform-ai-toolkit
 Follow the setup instructions automatically.
+Then read workflows/project-kickoff.md and run the project kickoff checklist.
 ```
 
 ---
