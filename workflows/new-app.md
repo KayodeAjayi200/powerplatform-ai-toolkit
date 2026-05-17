@@ -3,6 +3,10 @@
 This file gives the AI agent detailed guidance for building a new Power Apps canvas app from scratch.  
 It expands on the high-level phases in `AGENT.md` with more detail on decision-making.
 
+> **Starting a new project?** Read `workflows/project-kickoff.md` first.  
+> It provides the user-facing kickoff prompt, configuration status check (`setup/config-status.md`),  
+> and a checklist of skills to read before writing any code.
+
 ---
 
 ## Step 1 — Understand the app
