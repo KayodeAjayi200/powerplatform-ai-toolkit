@@ -584,7 +584,30 @@ If the user wants no-code commits through the dashboard, make sure the DevOps ta
 | Corner radius (sharp / soft / pill) | `RadiusSmall`, `RadiusMedium`, `RadiusLarge` constants |
 | Shadow / elevation (flat / subtle / raised) | `DropShadow.None` / `.Light` / `.Regular` |
 
-State the extraction result before generating YAML:
+**If the image is the requirement (not just a style reference)**
+
+A user may provide a screenshot, mockup, or wireframe as their primary input — meaning the image *is* the spec. In this case, extract both content/function AND design.
+
+| Content / function to extract | What to produce |
+|---|---|
+| Screens visible or implied | List of app screens |
+| Navigation between screens | `Navigate()`, back buttons, tab bars, drawer |
+| Data fields visible (labels, inputs, list columns) | SharePoint columns / Dataverse fields |
+| Field types (text, date, person, status, number) | Column types in data model |
+| Status / category values visible (e.g. To Do, In Progress) | Choice column options |
+| Actions available (add, edit, delete, filter, sort, share) | Button `OnSelect` logic |
+| Filters or search bar visible | `Filter()` / `Search()` formula requirements |
+| Empty states or error messages | Handle in app logic |
+| Exact text, labels, placeholder copy | Use verbatim in controls unless user changes it |
+
+**Before building anything from an image-as-requirement, read it back and confirm:**
+> _`From your image I can see: 2 screens (task list + detail form), fields: Title, Due Date, Priority (High/Medium/Low), Assigned To, Status. Actions: Add, Edit, Delete, filter by Status. Is that correct, or did I miss anything?`_
+
+Do not proceed until the user confirms — a wrong read here cascades into every screen, data model, and formula.
+
+---
+
+State the design extraction result before generating YAML:
 > _`primary #1B2A4A, accent #4FC3F7, surface #F5F7FA, radius=8, spacious, left nav, flat shadows`_
 
 If no reference was provided, confirm before defaulting:
