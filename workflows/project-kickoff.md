@@ -145,20 +145,15 @@ Do not proceed until confirmed — a wrong read cascades into every screen, data
 3. If multiple references provided — merge and call out any conflicts
 4. No reference provided — confirm before defaulting: _`No design reference. I'll use Fluent defaults (neutral grey, blue accent, 4px radius). OK?`_
 
-### Keep the image in context — do not extract once and discard
+### Re-consult the image only when necessary — not at every step
 
-The extraction table captures named tokens. The image itself holds far more:
-visual hierarchy, control proportions, spacing relationships, icon style, density,
-border weights, and micro-details that no table can fully represent.
+Only go back to the image when:
 
-Re-consult the image at every design phase:
-- **Screen planning** — does your screen structure match the reference layout?
-- **Per-screen YAML** — do control sizes, grouping, and visual weight match?
-- **Gallery/card templates** — how are items laid out in the reference?
-- **Before compile** — compare output against the reference; call out any gaps
-- **User asks `does this look right?`** — compare live screenshot against the reference directly
+- You are unsure how a specific control, card, or layout should look
+- The user asks `does this look right?` — compare the screenshot against the reference
+- Something in your YAML feels inconsistent with what you extracted
 
-> The reference image is a standing brief. Every design decision must be checked against it.
+> Do not keep the image in context continuously. Load it on demand to avoid unnecessary token use.
 
 ---
 
