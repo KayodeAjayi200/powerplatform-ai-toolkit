@@ -517,13 +517,37 @@ If the user wants no-code commits through the dashboard, make sure the DevOps ta
 ### 3A — Collect design references
 
 **Ask the user:**
+
 > "Do you have any design references?
-> - Screenshots of apps you like the look of
+> - Reference images or screenshots of apps you like
 > - Wireframes or sketches
 > - Brand colours (hex codes) or a company logo
-> - A style in words (clean and minimal, bold and colourful, corporate, etc.)
+> - A style in words (e.g. dark sidebar, teal accent, rounded corners, minimal)
 >
-> Paste images, share URLs, or describe it. If you have nothing, I will use Microsoft Fluent design defaults."
+> Paste images here, share URLs, or describe the style. If nothing, I'll use Fluent defaults."
+
+**Once the user responds, extract these design tokens before writing any YAML:**
+
+| What to look for | Produces in `App.pa.yaml` Formulas |
+|---|---|
+| Primary / brand colour | `ColorPrimary` |
+| Accent / highlight colour | `ColorAccent` |
+| Background colour | `ColorBackground` |
+| Card / surface colour | `ColorSurface` |
+| Text colours (primary + muted) | `ColorText` + `ColorTextSubtle` |
+| Border colour | `ColorBorder` |
+| Corner radius style | `RadiusSmall`, `RadiusMedium` (0=sharp, 4-8=soft, 20+=pill) |
+| Spacing density | `SpacingSmall`, `SpacingMedium`, `SpacingLarge` |
+| Navigation position | Layout: top bar / left nav / bottom tabs |
+| Card layout | Gallery template: list vs grid |
+| Shadow style | `DropShadow.None` / `.Light` / `.Regular` |
+| Typography weight | `FontSizeHeading`, `FontSizeBody`, `FontSizeSmall` |
+
+State the extraction result before generating YAML:
+> _`primary #1B2A4A, accent #4FC3F7, surface #F5F7FA, radius=8, spacious, left nav, flat shadows`_
+
+If no reference was provided, confirm before defaulting:
+> _`No design reference. I'll use Fluent defaults (neutral grey, blue accent, 4px radius). OK?`_
 
 ---
 
