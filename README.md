@@ -29,6 +29,8 @@ The toolkit is designed for real-world constraints: locked-down laptops, missing
 
 ## Quick start — what to say to your agent
 
+**New to a project?** First check [workflows/project-kickoff.md](./workflows/project-kickoff.md) for the kickoff prompt template and configuration health check.
+
 Copy and paste this into your AI coding agent (GitHub Copilot, Cursor, Claude, etc.):
 
 ```
@@ -57,6 +59,7 @@ powerplatform-ai-toolkit/
 ├── setup/
 │   ├── prerequisites.md           <- Check-first install for Node, PAC CLI, .NET, git, gh
 │   ├── cli-auth.md                <- Sign-in scripts with account selection for each tool
+│   ├── config-status.md           <- ⭐ Session-start config health check — run before every project
 │   ├── agentic-mcp-clients.md     <- MCP setup differences for Codex, Copilot, Claude, Cursor, Windsurf, Zed
 │   ├── agent-skills-clients.md    <- Skills/rules setup differences for Codex, Copilot, Claude, Cursor, Windsurf, Zed
 │   ├── project-dashboard.md       <- Local dashboard server + JSON state workflow
@@ -74,6 +77,7 @@ powerplatform-ai-toolkit/
 │   ├── public/                    <- Interactive dashboard UI
 │   └── state/                     <- Agent-readable JSON state files
 ├── workflows/
+│   ├── project-kickoff.md         <- ⭐ Start here — kickoff prompt, config check, skills reading list
 │   └── new-app.md                 <- Detailed end-to-end new app build workflow
 ├── mcp-tools/                     <- Per-server reference docs
 └── skills/                        <- Deep domain knowledge for canvas app development, including valid Canvas YAML, QuickChart, and SVG Image control guidance
