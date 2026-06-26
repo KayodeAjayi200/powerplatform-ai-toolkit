@@ -1,0 +1,7 @@
+interface:
+  display_name: "Power Apps Canvas App"
+  short_description: "Build and debug Power Apps Canvas Apps with Power Fx."
+  default_prompt: "Read the powerapps-canvas-app skill and help me build this canvas app."
+
+policy:
+  allow_implicit_invocation: true
