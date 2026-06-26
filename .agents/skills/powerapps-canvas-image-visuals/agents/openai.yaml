@@ -1,0 +1,4 @@
+interface:
+  display_name: "Power Apps Canvas Image Visuals"
+  short_description: "Create charts and SVG visuals in Canvas Apps."
+  default_prompt: "Use powerapps-canvas-image-visuals to add a chart or SVG visual to my canvas app."
