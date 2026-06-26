@@ -16,20 +16,41 @@ Each skill uses [YAML frontmatter](../setup/agent-skills-clients.md) with a `nam
 
 ```bash
 # Preview a skill before installing
-gh skill preview KayodeAjayi200/powerplatform-ai-toolkit copilot-studio-agent-clone
+gh skill preview KayodeAjayi200/powerplatform-ai-toolkit <skill-name>
 
-# Install a skill to your user scope
+# Install individual skills
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-canvas-app
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-canvas-design
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-canvas-accessibility
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-canvas-yaml
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-canvas-image-visuals
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit canvas-authoring-mcp
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-sharepoint-list-design
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-delegation
 gh skill install KayodeAjayi200/powerplatform-ai-toolkit copilot-studio-agent-clone
 gh skill install KayodeAjayi200/powerplatform-ai-toolkit copilot-studio-child-agent-tools
 gh skill install KayodeAjayi200/powerplatform-ai-toolkit dataverse-solution-publisher
 
-# Update all installed skills
+# Update all installed skills at once
 gh skill update --all
 ```
 
 ---
 
-## Skills in this folder
+## Canvas App & Power Platform skills
+
+| Skill | Use it when... |
+|---|---|
+| [powerapps-canvas-app](./powerapps-canvas-app/SKILL.md) | Building canvas app controls, Power Fx formulas, galleries, forms, collections, or navigation |
+| [powerapps-canvas-design](./powerapps-canvas-design/SKILL.md) | Designing screens — containers, Fluent UI controls, responsive layouts, gallery designs, filter panels |
+| [powerapps-canvas-accessibility](./powerapps-canvas-accessibility/SKILL.md) | Making canvas apps WCAG 2.1 AA compliant — screen readers, keyboard navigation, accessible labelling |
+| [powerapps-canvas-yaml](./powerapps-canvas-yaml/SKILL.md) | Generating or validating `.pa.yaml` source files — schema, formula syntax, indentation, compile failures |
+| [powerapps-canvas-image-visuals](./powerapps-canvas-image-visuals/SKILL.md) | Creating charts, SVG visuals, KPI graphics, or sparklines using Image controls and QuickChart.io |
+| [canvas-authoring-mcp](./canvas-authoring-mcp/SKILL.md) | Connecting to and editing a live canvas app via the Canvas Authoring MCP server |
+| [powerapps-sharepoint-list-design](./powerapps-sharepoint-list-design/SKILL.md) | Planning or creating SharePoint lists with clean internal names for use as Power Apps data sources |
+| [powerapps-delegation](./powerapps-delegation/SKILL.md) | Fixing delegation warnings — safe filtering of large Dataverse, SharePoint, or SQL data sources |
+
+## Copilot Studio & Dataverse skills
 
 | Skill | Use it when... |
 |---|---|
@@ -41,18 +62,19 @@ gh skill update --all
 
 ## Adding a skill to other clients
 
-**Claude Code:**
+**Claude Code** (project scope):
 ```bash
 mkdir -p .claude/skills
-cp -r .agents/skills/copilot-studio-agent-clone .claude/skills/
+cp -r .agents/skills/powerapps-canvas-app .claude/skills/
+# repeat for other skills you want
 ```
 
-**Windsurf (if `.agents/skills` is not auto-detected):**
+**Windsurf** (if `.agents/skills` is not auto-detected):
 ```bash
 mkdir -p .windsurf/skills
-cp -r .agents/skills/copilot-studio-agent-clone .windsurf/skills/
+cp -r .agents/skills/powerapps-canvas-app .windsurf/skills/
 ```
 
-**Cursor:** Convert skill content to a `.cursor/rules/*.mdc` file.
+**Cursor:** Convert the skill content into a `.cursor/rules/*.mdc` file with a matching description and file glob.
 
 See [setup/agent-skills-clients.md](../setup/agent-skills-clients.md) for full per-client guidance.
