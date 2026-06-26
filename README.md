@@ -21,7 +21,6 @@ The toolkit is designed for real-world constraints: locked-down laptops, missing
 > - Provision a Power Platform environment, solution, and blank canvas app
 > - Set up GitHub source control with export/deploy workflows
 > - Optionally set up Azure DevOps project tracking with Epics, Features, and User Stories
-> - Start a local project dashboard for schema/design/backlog/change-request visibility
 > - Get design references
 > - Build the app using Canvas Authoring MCP
 
@@ -67,7 +66,6 @@ powerplatform-ai-toolkit/
 │   ├── config-status.md           <- ⭐ Session-start config health check — run before every project
 │   ├── agentic-mcp-clients.md     <- MCP setup differences for Codex, Copilot, Claude, Cursor, Windsurf, Zed
 │   ├── agent-skills-clients.md    <- Skills/rules setup differences for Codex, Copilot, Claude, Cursor, Windsurf, Zed
-│   ├── project-dashboard.md       <- Local dashboard server + JSON state workflow
 │   ├── mcp-config.md              <- Full MCP config with merge-safe write script
 │   ├── datasource-mcps.md         <- Dataverse vs SharePoint vs SQL — decision guide + commands
 │   ├── sharepoint.md              <- Sites, lists, columns, permissions, app reg for automation
@@ -76,11 +74,6 @@ powerplatform-ai-toolkit/
 │   ├── github-integration.md      <- GitHub repo + service principal + Actions workflows
 │   ├── devops.md                  <- Azure DevOps project, work item hierarchy, tracking queries, Azure Repos
 │   └── scripts/
-│       └── open-dashboard.ps1     <- Starts/reuses the local dashboard server
-├── dashboard/
-│   ├── server.js                  <- Localhost-only Node server for project state
-│   ├── public/                    <- Interactive dashboard UI
-│   └── state/                     <- Agent-readable JSON state files
 ├── workflows/
 │   ├── project-kickoff.md         <- ⭐ Start here — kickoff prompt, config check, skills reading list
 │   └── new-app.md                 <- Detailed end-to-end new app build workflow
@@ -118,39 +111,11 @@ See [`.agents/skills/README.md`](.agents/skills/README.md) for cross-client setu
 | `dataverse` | Read/write Dataverse tables | Connection URL, Tenant ID |
 | `copilot-studio` | Manage Copilot Studio agents | Agent MCP URL, Tenant ID |
 | `github` | Repos, issues, PRs | GitHub PAT |
-| `azure-devops` | Pipelines, work items | ADO org URL + PAT |
+| `azure-devops` | Pipelines, work items | ADO org name |
 | `filesystem` | Local file access | One or more folder paths |
 | `memory` | Persistent knowledge graph | None |
 | `sequential-thinking` | Structured reasoning | None |
 | `playwright` | Browser automation | None |
-
----
-
-## Local project dashboard
-
-For larger apps, agents should try to run:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\setup\scripts\open-dashboard.ps1
-```
-
-Then open [http://127.0.0.1:4817](http://127.0.0.1:4817).
-
-You can also tell the agent:
-
-```text
-open dashboard
-```
-
-The agent should start or reuse the local dashboard server and open the browser automatically.
-
-The dashboard gives the user a visual overview of the app, data model ERD, screen plan, design system, configuration/app registration metadata, DevOps plan, change requests, and audit history. It persists to `dashboard/state/*.json`, so the agent can read browser edits before applying Canvas MCP changes.
-
-The Config tab stores non-secret configuration and credential references: tenant IDs, client IDs, object IDs, redirect URIs, scopes, environment variables, Key Vault secret names, GitHub/Azure secret names, expiry dates, owners, and status. It must not store access token values, refresh token values, client secrets, passwords, PATs, or private keys.
-
-The DevOps tab can also configure an Azure Repos remote and let the user commit or commit+push the current local solution state without prompting an AI agent. The local solution files still need to be exported/synced from Power Platform before committing.
-
-If a local server is blocked, the agent should still use the JSON state files directly or keep equivalent Markdown/chat state. The dashboard improves visibility; it is not required to continue building.
 
 ---
 
@@ -181,3 +146,4 @@ powershell -ExecutionPolicy Bypass -File .\setup\scripts\update-canvas-mcp-from-
 Then reload the `powerapps-canvas` and `canvas-authoring` MCP servers, keep the app open in Studio with Coauthoring ON, and validate with `list_controls` before syncing or compiling.
 
 The helper updates the common client config formats, including Codex `~/.codex/config.toml` and project `.codex/config.toml`. On Windows it uses the absolute `CanvasAuthoringMcpServer.cmd` path so desktop agents do not depend on PATH inheritance.
+
