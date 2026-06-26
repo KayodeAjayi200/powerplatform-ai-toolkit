@@ -39,17 +39,42 @@ When something is blocked:
 - Use the least disruptive fallback that still moves the project forward.
 - Prefer read-only inspection, manual instructions, generated scripts, or documented handoff steps when direct automation is unavailable.
 - Record any skipped capability and its impact so the user understands what will need manual follow-up.
-- Do not abandon the project just because an optional helper, MCP server, CLI, or integration is unavailable.
+- Do not abandon the project just because an optional helper, dashboard, MCP server, CLI, or integration is unavailable.
 
 Recommended fallbacks include:
 
 | If this is blocked | Continue with |
 |---|---|
 | Local installs | Existing browser tools, portable tools, or manual setup instructions |
+| Local dashboard server | Direct edits to `dashboard/state/*.json`, Markdown notes, or chat-confirmed state |
 | Canvas MCP | Studio manual steps, exported YAML/source edits where available, or a clear change script/checklist |
 | GitHub CLI | Git commands, browser-based GitHub instructions, or local patch files |
 | Azure DevOps automation | A Markdown backlog, CSV import plan, or manual ADO work item instructions |
 | Dataverse/SharePoint creation | Schema plan plus exact commands/instructions for an admin to run |
+
+### User shortcut commands
+
+Treat these user phrases as direct operational commands:
+
+| User says | Agent should do |
+|---|---|
+| "open dashboard" | Find the current project/toolkit repo, start or reuse the local dashboard server, open the browser to the dashboard URL, and report the URL |
+| "show dashboard" | Same as "open dashboard" |
+| "start dashboard" | Start or reuse the dashboard server and report the URL, opening the browser when possible |
+
+For PowerShell environments, prefer:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\open-dashboard.ps1
+```
+
+If the script is unavailable or blocked, fall back to:
+
+```powershell
+node .\dashboard\server.js
+```
+
+Then open `http://127.0.0.1:4817`.
 
 ### 1A — Load your domain knowledge
 
@@ -63,11 +88,11 @@ Before doing anything else, read these files from this repository so you have fu
 | `skills/canvas-yaml.md` | Valid `.pa.yaml` schema, screen/control structure, formula value rules, and compile preflight checks |
 | `skills/canvas-accessibility.md` | WCAG 2.1 AA rules every canvas app must meet |
 | `skills/canvas-authoring-mcp.md` | How to connect and edit a live canvas app via MCP |
-| `skills/dataverse-environment-variables.md` | Dataverse environment variable types, DataSource bindings for SharePoint, SharePoint list GUIDs, Export=No configuration, and REST API patterns |
 | `skills/sharepoint-list-design.md` | SharePoint list creation rules — clean internal names, optional fields, Title column policy, draft-friendly saves |
 | `skills/delegation.md` | How to filter large data sources without hitting delegation limits |
 | `setup/agentic-mcp-clients.md` | How Codex, VS Code/Copilot, Claude Code, Cursor, Windsurf, and Zed each configure MCP differently |
 | `setup/agent-skills-clients.md` | How Codex, GitHub Copilot, Claude Code, Windsurf, Cursor, and Zed each load skills or skill-equivalent rules |
+| `setup/project-dashboard.md` | How to run the local project dashboard server and keep project state/change requests synced |
 
 Reading these now means you will not need to look anything up mid-build.
 
@@ -93,6 +118,8 @@ Rules:
 | **Git** | Track solution file changes and push to GitHub |
 
 If anything was newly installed, ask the user to **close and reopen their terminal** before continuing so the new commands are on their PATH.
+
+Also run the **VS Code extensions** install block from `setup/prerequisites.md` — this installs the Copilot Studio extension (`ms-CopilotStudio.vscode-copilotstudio`) so agents can be cloned and edited locally. See `setup/copilot-studio-vscode.md` for the full workflow.
 
 ---
 
@@ -376,6 +403,46 @@ Tell the user:
 
 Save the environment ID and app ID — you will need them when connecting the Canvas Authoring MCP.
 
+---
+
+## Phase 2F.1 — Start the local project dashboard
+
+Read `setup/project-dashboard.md`.
+
+For any non-trivial app (more than one screen, table, workflow, or backlog area), try to start the local dashboard automatically so the user and agent have a shared project view:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup\scripts\open-dashboard.ps1
+```
+
+If the launcher script is unavailable, use:
+
+```powershell
+node .\dashboard\server.js
+```
+
+Open or show the user the dashboard URL:
+
+```text
+http://127.0.0.1:4817
+```
+
+If the server cannot run because Node, localhost, ports, or policy are restricted, keep using the same state files directly and tell the user that the visual dashboard is unavailable in this environment.
+
+When dashboard state is available, populate the state files before continuing:
+
+- `dashboard/state/project-state.json` with environment, org URL, solution, canvas app, Studio URL, MCP status, and current phase
+- `dashboard/state/data-model.json` with confirmed Dataverse/SharePoint entities, fields, and relationships
+- `dashboard/state/screen-plan.json` with the confirmed screens, status, data sources, and planned controls
+- `dashboard/state/design-system.json` with theme, layout policy, and design notes
+- `dashboard/state/devops-plan.json` with Azure DevOps org/project, Epics, Features, User Stories, and shared queries if DevOps is enabled
+- `dashboard/state/audit-log.json` with a short event for each major agent action
+
+Use the dashboard Config tab for tenant IDs, app registration IDs, redirect URIs, scopes, environment variables, connection references, and credential references/status.
+
+Do not put access token values, refresh token values, client secret values, PATs, passwords, certificate private keys, service principal passwords, or tenant secrets in dashboard state. Store Key Vault references, environment variable names, GitHub/Azure secret names, owner, expiry, and status instead.
+
+Before later app edits, read `dashboard/state/change-requests.json` and the current state files when available, then update them after completing the change. This lets manual browser edits become agent-readable work. If dashboard state is unavailable, ask the user to describe any manual changes and preserve those changes by syncing/pulling from the live source before editing.
 
 ---
 
@@ -428,7 +495,7 @@ The file will guide you through:
 3. Creating the project if it does not exist (ask which process: Agile, Scrum, or CMMI)
 4. Creating Epics, Features, and User Stories based on what the user described in their app brief — derive real, relevant items from the app description, not generic placeholders
 5. Creating four shared tracking queries (active work, not-started stories, my items, full hierarchy)
-6. Offering to create or connect an Azure Repos Git repo so solution exports can be committed independently without an AI agent
+6. Offering to create or connect an Azure Repos Git repo so the dashboard can commit the current local solution state without an AI agent
 
 **Before creating any work items**, show the user the Epics you plan to create and ask:
 > "Here is how I plan to organise your backlog: [list Epics]. Does that look right, or would you like to adjust anything?"
@@ -441,7 +508,9 @@ Tell the user when done:
 
 If the user says **no**: continue to the next step.
 
+If the local project dashboard is running, update `dashboard/state/devops-plan.json` after DevOps setup. Include created Epics, Features, User Stories, Story Points where known, shared queries created or reused, and Azure Repos details when configured.
 
+If the user wants no-code commits through the dashboard, make sure the DevOps tab has `organizationUrl`, `project`, and `repository` populated, then confirm **Check Status**, **Set Up Repo**, **Commit**, and **Commit + Push** are available. Explain that these buttons commit local exported/synced solution files; they do not magically export unsynced Studio changes.
 
 ---
 
@@ -577,6 +646,7 @@ Based on the app purpose, user type, and data sources, plan:
 
 Present the screen plan and confirm with the user before building.
 
+If the local dashboard is running, update `dashboard/state/screen-plan.json` and `dashboard/state/design-system.json` with the confirmed screen plan and design direction before opening Studio. This gives the user a glanceable plan and gives future agent turns durable context.
 
 ---
 
@@ -649,16 +719,18 @@ Do not use Canvas MCP editing commands until `list_controls` succeeds. If the us
 
 Use the Canvas Authoring MCP tools to:
 
-1. Sync the current app state before every edit request (read what is live in Studio before making changes)
-2. Build each screen according to the confirmed screen plan — one screen at a time, following `skills/canvas-yaml.md` for valid `.pa.yaml` structure
-3. Connect data sources using the MCP data tools or the Add Data panel
-4. Write Power Fx formulas — follow `skills/canvas-app.md` for correct formula patterns, preferring `App.Formulas` over `App.OnStart`
-5. Apply the design — follow `skills/canvas-design.md` container rules at every level, using flexible container properties before formulas or fixed sizes
-6. Build charts/SVG/image visuals with `skills/canvas-image-visuals.md` when the screen needs dashboard charts, KPI visuals, icons, badges, sparklines, or custom SVG assets
-7. Check accessibility — follow `skills/canvas-accessibility.md`; set `AccessibleLabel` on every interactive control and every meaningful Image visual
+1. Read dashboard state and open change requests first if `dashboard/state/` exists
+2. Sync the current app state before every edit request (read what is live in Studio before making changes)
+3. Build each screen according to the confirmed screen plan — one screen at a time, following `skills/canvas-yaml.md` for valid `.pa.yaml` structure
+4. Connect data sources using the MCP data tools or the Add Data panel
+5. Write Power Fx formulas — follow `skills/canvas-app.md` for correct formula patterns, preferring `App.Formulas` over `App.OnStart`
+6. Apply the design — follow `skills/canvas-design.md` container rules at every level, using flexible container properties before formulas or fixed sizes
+7. Build charts/SVG/image visuals with `skills/canvas-image-visuals.md` when the screen needs dashboard charts, KPI visuals, icons, badges, sparklines, or custom SVG assets
+8. Check accessibility — follow `skills/canvas-accessibility.md`; set `AccessibleLabel` on every interactive control and every meaningful Image visual
 
 Before editing local YAML through Canvas MCP, run `powerapps-canvas-sync_canvas` to pull the current Studio state. Treat Studio as the source of truth at the start of each edit cycle because the user may have made manual updates since the previous agent turn. If sync is unavailable, use the best available source of truth (exported source, screenshots, user confirmation, or manual Studio inspection) and call out the risk before changing anything.
 
+If `dashboard/state/change-requests.json` contains requests with status `new`, mark each request `active` before working on it, then mark it `done` after compile/push succeeds or `blocked` with a clear note when access or missing information prevents completion.
 
 Before compiling, run the validity preflight from `skills/canvas-yaml.md`: top-level keys are valid, every control has `Control`, `Children` are arrays of single-key control objects, property formulas start with `=`, schema keywords like `Control` and `Variant` are not formulas, data source names match `list_data_sources`, and component instances include `ComponentName`.
 
@@ -674,6 +746,7 @@ Before compiling, review the generated YAML for layout smells from `skills/canva
 
 Compile and verify each screen before moving to the next. Fix any errors before continuing.
 
+After each screen or meaningful change compiles, update the local dashboard state files and append an audit event. Keep the dashboard aligned with the live app, not with stale plans.
 
 ---
 
@@ -703,13 +776,10 @@ After all screens are built and verified, give the user:
 | Provision environment, solution, canvas app | `setup/provision.md` |
 | GitHub source control + Actions workflows | `setup/github-integration.md` |
 | Azure DevOps project + work item hierarchy | `setup/devops.md` |
-| Dataverse environment variables | `skills/dataverse-environment-variables.md` |
-| Microsoft Learn MCP reference | `mcp-tools/microsoft-learn.md` |
+| Local project dashboard server + state files | `setup/project-dashboard.md` |
 | End-to-end new app workflow (detailed) | `workflows/new-app.md` |
 | Per-MCP-server reference | `mcp-tools/` |
 | Canvas App formulas and controls | `skills/canvas-app.md` |
-| Canvas image visuals + charts | `skills/canvas-image-visuals.md` |
-| Canvas YAML schema + preflight | `skills/canvas-yaml.md` |
 | Canvas App UI/UX design | `skills/canvas-design.md` |
 | Canvas App accessibility | `skills/canvas-accessibility.md` |
 | Canvas Authoring MCP workflow | `skills/canvas-authoring-mcp.md` |
