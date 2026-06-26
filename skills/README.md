@@ -32,7 +32,8 @@ The three Copilot Studio / Dataverse skills are bundled as proper Agent Skills u
 |---|---|
 | [copilot-studio-agent-clone](../.agents/skills/copilot-studio-agent-clone/SKILL.md) | Cloning/repairing a Copilot Studio agent from a URL, setting up Dataverse MCP tools, adding to solution, publishing |
 | [copilot-studio-child-agent-tools](../.agents/skills/copilot-studio-child-agent-tools/SKILL.md) | Adding Dataverse MCP Server tools to child agents, fixing connection-reference errors, new child agent creation |
-| [dataverse-solution-publisher](../.agents/skills/dataverse-solution-publisher/SKILL.md) | Fixing solution publisher prefix drift — ensuring Dataverse components use the intended `tm_` (or other) prefix |
+| [dataverse-solution-publisher](../.agents/skills/dataverse-solution-publisher/SKILL.md) | Fixing solution publisher prefix drift
+| [dataverse-environment-variables](../.agents/skills/dataverse-environment-variables/SKILL.md) | Creating Dataverse environment variables — types, DataSource bindings, SharePoint list GUIDs, Export=No configuration | — ensuring Dataverse components use the intended `tm_` (or other) prefix |
 
 Install any of them with:
 ```bash
@@ -52,7 +53,8 @@ gh skill install KayodeAjayi200/powerplatform-ai-toolkit <skill-name>
 | [canvas-accessibility.md](./canvas-accessibility.md) | Making canvas apps WCAG 2.1 AA compliant — screen readers, keyboard navigation, accessible labelling |
 | [canvas-authoring-mcp.md](./canvas-authoring-mcp.md) | Editing a live canvas app via MCP — how to connect, sync, edit, and compile YAML |
 | [sharepoint-list-design.md](./sharepoint-list-design.md) | Designing SharePoint lists for Power Apps — safe internal names, optional columns, Title column policy, draft-friendly saves |
-| [delegation.md](./delegation.md) | Fixing delegation warnings — filtering large SharePoint lists, Dataverse tables, or SQL tables correctly |
+| [delegation.md](./delegation.md) | Fixing delegation warnings
+| [dataverse-environment-variables.md](./dataverse-environment-variables.md) | Creating Dataverse environment variables in a solution — types, DataSource bindings, SharePoint list GUIDs, Export=No | — filtering large SharePoint lists, Dataverse tables, or SQL tables correctly |
 
 ---
 
@@ -64,6 +66,6 @@ Setup guides cover environment provisioning tasks that run *before* the Canvas A
 |---|---|
 | [setup/provision.md](../setup/provision.md) | Creating a Power Platform environment, solution, or blank canvas app |
 | [setup/sharepoint.md](../setup/sharepoint.md) | Creating SharePoint site and lists with correct internal names |
-| [setup/environment-variables.md](../setup/environment-variables.md) | Creating Dataverse environment variables — Text, DataSource (SharePoint site + list), setting Export=No, and the RemoveSolutionComponent API quirk |
+| [skills/dataverse-environment-variables.md](./dataverse-environment-variables.md) | Creating Dataverse environment variables — Text, DataSource (SharePoint site + list), SharePoint list GUIDs, Export=No, and the RemoveSolutionComponent API quirk |
 | [setup/devops.md](../setup/devops.md) | Setting up Azure DevOps project hierarchy (Epics → Features → Stories → Tasks) |
 | [setup/cli-auth.md](../setup/cli-auth.md) | Authenticating pac, m365, az CLIs for Power Platform automation |
