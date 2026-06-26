@@ -703,9 +703,13 @@ After all screens are built and verified, give the user:
 | Provision environment, solution, canvas app | `setup/provision.md` |
 | GitHub source control + Actions workflows | `setup/github-integration.md` |
 | Azure DevOps project + work item hierarchy | `setup/devops.md` |
+| Dataverse environment variables | `skills/dataverse-environment-variables.md` |
+| Microsoft Learn MCP reference | `mcp-tools/microsoft-learn.md` |
 | End-to-end new app workflow (detailed) | `workflows/new-app.md` |
 | Per-MCP-server reference | `mcp-tools/` |
 | Canvas App formulas and controls | `skills/canvas-app.md` |
+| Canvas image visuals + charts | `skills/canvas-image-visuals.md` |
+| Canvas YAML schema + preflight | `skills/canvas-yaml.md` |
 | Canvas App UI/UX design | `skills/canvas-design.md` |
 | Canvas App accessibility | `skills/canvas-accessibility.md` |
 | Canvas Authoring MCP workflow | `skills/canvas-authoring-mcp.md` |
