@@ -1,0 +1,7 @@
+interface:
+  display_name: "Power Apps Delegation"
+  short_description: "Assess and fix Power Apps delegation warnings."
+  default_prompt: "Use powerapps-delegation to assess and fix the delegation issue in this gallery formula."
+
+policy:
+  allow_implicit_invocation: true
