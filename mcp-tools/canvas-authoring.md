@@ -3,6 +3,12 @@
 **Server keys:** `powerapps-canvas` (stable), `canvas-authoring` (prerelease)  
 **What it does:** Connects your AI agent directly to a live canvas app open in Power Apps Studio. The agent can read the app's YAML, generate controls, edit properties, and push changes back — all without you manually copying and pasting YAML.
 
+> **⚠️ Prerelease — check for updates before installing.**  
+> The Canvas Authoring MCP is in active development. Package names, install methods, and config shape change frequently. Always verify against the latest sources before running the install command:  
+> - Official setup docs: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/create-canvas-external-tools  
+> - Microsoft skills reference (tools list, YAML patterns): https://github.com/microsoft/power-platform-skills/blob/main/plugins/canvas-apps/AGENTS.md  
+> - Live `.pa.yaml` schema (fetch this before authoring YAML): https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/refs/heads/master/schemas/pa-yaml/v3.0/pa.schema.yaml
+
 ---
 
 ## When to use

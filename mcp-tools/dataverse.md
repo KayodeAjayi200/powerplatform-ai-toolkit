@@ -3,6 +3,12 @@
 **Server key:** `dataverse`  
 **What it does:** Lets your AI agent read and write Microsoft Dataverse tables directly — query rows, create records, update data, and explore table schemas without leaving your coding tool.
 
+> **⚠️ Check for updates before installing.**  
+> The package name, args, and .NET version requirements may change.  
+> Always verify against the latest NuGet listing before running the install command:  
+> https://www.nuget.org/packages/Microsoft.PowerPlatform.Dataverse.MCP  
+> If the install command fails, the package name has likely changed — check the link above.
+
 ---
 
 ## When to use

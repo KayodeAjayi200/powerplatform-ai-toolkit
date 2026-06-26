@@ -3,6 +3,11 @@
 **Server key:** `copilot-studio`  
 **What it does:** Lets your AI agent interact with Microsoft Copilot Studio agents — read agent configuration, update topics, manage connections, and deploy changes.
 
+> **⚠️ Check for updates before installing.**  
+> The package name and args may change as the Copilot Studio MCP matures.  
+> Always verify against the latest NuGet listing before running the install command:  
+> https://www.nuget.org/packages/Microsoft.Agents.CopilotStudio.Mcp
+
 ---
 
 ## When to use
