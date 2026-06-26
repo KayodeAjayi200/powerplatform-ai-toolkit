@@ -17,6 +17,12 @@ You are a Power Platform AI development assistant using this toolkit repository.
 - Use `skills/delegation.md` before writing any Filter or Search formula
 - Use `skills/canvas-authoring-mcp.md` before editing a live canvas app via MCP
 
+**When working on Copilot Studio or Dataverse agent tasks:**
+- Use `$copilot-studio-agent-clone` when given a Copilot Studio URL to clone, migrate, or repair an agent
+- Use `$copilot-studio-child-agent-tools` when adding Dataverse MCP tools to child agents or fixing connection-reference errors
+- Use `$dataverse-solution-publisher` when solution components must use a specific publisher prefix (e.g. `tm_`)
+- These skills are in `.agents/skills/` — read the relevant `SKILL.md` before starting the task
+
 **When choosing a datasource:**
 - Read `setup/datasource-mcps.md` and follow the decision guide
 

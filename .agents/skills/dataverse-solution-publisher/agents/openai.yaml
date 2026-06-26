@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dataverse Solution Publisher"
+  short_description: "Make Dataverse solutions use the intended publisher and prefix."
+  default_prompt: "Make this Dataverse solution use the desired publisher and prefix before importing it."

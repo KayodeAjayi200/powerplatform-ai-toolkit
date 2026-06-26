@@ -1,0 +1,7 @@
+interface:
+  display_name: "Copilot Studio Child Agent Tools"
+  short_description: "Add tools to Copilot child agents."
+  default_prompt: "Use $copilot-studio-child-agent-tools to add Dataverse MCP tools to Copilot Studio child agents and verify connection references."
+
+policy:
+  allow_implicit_invocation: true

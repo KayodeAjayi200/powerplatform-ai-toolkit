@@ -24,7 +24,24 @@ Or reference them inline in your prompt:
 
 ---
 
-## Skills in this folder
+## Copilot Studio & Dataverse skills
+
+The three Copilot Studio / Dataverse skills are bundled as proper Agent Skills under [`.agents/skills/`](../.agents/skills/) and are installable via `gh skill install`.
+
+| Skill | Use it when... |
+|---|---|
+| [copilot-studio-agent-clone](../.agents/skills/copilot-studio-agent-clone/SKILL.md) | Cloning/repairing a Copilot Studio agent from a URL, setting up Dataverse MCP tools, adding to solution, publishing |
+| [copilot-studio-child-agent-tools](../.agents/skills/copilot-studio-child-agent-tools/SKILL.md) | Adding Dataverse MCP Server tools to child agents, fixing connection-reference errors, new child agent creation |
+| [dataverse-solution-publisher](../.agents/skills/dataverse-solution-publisher/SKILL.md) | Fixing solution publisher prefix drift — ensuring Dataverse components use the intended `tm_` (or other) prefix |
+
+Install any of them with:
+```bash
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit <skill-name>
+```
+
+---
+
+## Canvas App & Power Platform skills
 
 | File | Use it when... |
 |---|---|

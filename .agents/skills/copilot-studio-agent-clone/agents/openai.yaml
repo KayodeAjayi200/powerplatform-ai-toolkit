@@ -1,0 +1,4 @@
+interface:
+  display_name: "Copilot Studio Agent Clone"
+  short_description: "Clone and repair Copilot Studio agents with Dataverse MCP tools."
+  default_prompt: "Clone this Copilot Studio agent and make its Dataverse MCP tool work in the target solution."
