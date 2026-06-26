@@ -15,7 +15,7 @@ The toolkit is designed for real-world constraints: locked-down laptops, missing
 > `AGENT.md` contains the complete bootstrap sequence:
 > - Check and install prerequisites (without overwriting working installs)
 > - Check which accounts are already signed in, confirm with the user, then authenticate
-> - Configure MCP servers
+> - Configure MCP servers (Canvas Authoring, Dataverse, ADO, GitHub, Microsoft Learn — see [`mcp-tools/`](./mcp-tools/))
 > - Ask what the user wants to build
 > - Plan and create data sources (Dataverse, SharePoint, Azure SQL)
 > - Provision a Power Platform environment, solution, and blank canvas app
@@ -136,18 +136,21 @@ See [`.agents/skills/README.md`](.agents/skills/README.md) for cross-client setu
 
 ## MCP servers at a glance
 
-| Server | What it does | Needs |
-|---|---|---|
-| `powerapps-canvas` / `canvas-authoring` | Edit live canvas apps | App ID, Environment ID |
-| `dataverse` | Read/write Dataverse tables | Connection URL, Tenant ID |
-| `copilot-studio` | Manage Copilot Studio agents | Agent MCP URL, Tenant ID |
-| `github` | Repos, issues, PRs | GitHub PAT |
-| `azure-devops` | Pipelines, work items | ADO org name |
-| `microsoft-learn` | Live Microsoft docs, search, grounded answers | None |
-| `filesystem` | Local file access | One or more folder paths |
-| `memory` | Persistent knowledge graph | None |
-| `sequential-thinking` | Structured reasoning | None |
-| `playwright` | Browser automation | None |
+> Full config script: [`setup/mcp-config.md`](./setup/mcp-config.md)
+> Per-server reference docs: [`mcp-tools/`](./mcp-tools/)
+
+| Server | What it does | Needs | Docs |
+|---|---|---|---|
+| `powerapps-canvas` / `canvas-authoring` | Edit live canvas apps via AI | App ID, Environment ID | [canvas-authoring.md](./mcp-tools/canvas-authoring.md) |
+| `dataverse` | Read/write Dataverse tables | Connection URL, Tenant ID | [dataverse.md](./mcp-tools/dataverse.md) |
+| `copilot-studio` | Manage Copilot Studio agents | Agent MCP URL, Tenant ID | [copilot-studio.md](./mcp-tools/copilot-studio.md) |
+| `github` | Repos, issues, PRs | GitHub PAT | [github.md](./mcp-tools/github.md) |
+| `azure-devops` | Pipelines, boards, repos — remote HTTP, no PAT | ADO org name | [azure-devops.md](./mcp-tools/azure-devops.md) |
+| `microsoft-learn` | Live Microsoft docs, grounded answers | None | [microsoft-learn.md](./mcp-tools/microsoft-learn.md) |
+| `filesystem` | Local file access across your repos | One or more folder paths | [filesystem.md](./mcp-tools/filesystem.md) |
+| `memory` | Persistent knowledge graph across sessions | None | [memory.md](./mcp-tools/memory.md) |
+| `sequential-thinking` | Structured multi-step reasoning | None | [sequential-thinking.md](./mcp-tools/sequential-thinking.md) |
+| `playwright` | Browser automation | None | [playwright.md](./mcp-tools/playwright.md) |
 
 ---
 
