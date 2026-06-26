@@ -63,6 +63,7 @@ Before doing anything else, read these files from this repository so you have fu
 | `skills/canvas-yaml.md` | Valid `.pa.yaml` schema, screen/control structure, formula value rules, and compile preflight checks |
 | `skills/canvas-accessibility.md` | WCAG 2.1 AA rules every canvas app must meet |
 | `skills/canvas-authoring-mcp.md` | How to connect and edit a live canvas app via MCP |
+| `skills/dataverse-environment-variables.md` | Dataverse environment variable types, DataSource bindings for SharePoint, SharePoint list GUIDs, Export=No configuration, and REST API patterns |
 | `skills/sharepoint-list-design.md` | SharePoint list creation rules — clean internal names, optional fields, Title column policy, draft-friendly saves |
 | `skills/delegation.md` | How to filter large data sources without hitting delegation limits |
 | `setup/agentic-mcp-clients.md` | How Codex, VS Code/Copilot, Claude Code, Cursor, Windsurf, and Zed each configure MCP differently |
