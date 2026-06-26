@@ -4,6 +4,19 @@ All notable changes to the Power Platform AI Toolkit are recorded here.
 
 Format: `## [date] — summary`, with bullets for what was Added, Changed, Removed, or Fixed.
 
+## [2026-06-26] — Dataverse environment variables skill, config-status cleanup
+
+### Added
+- `skills/dataverse-environment-variables.md` — full reference for Text/Number/Boolean/DataSource/Secret env var creation, SharePoint list GUID lookup, Export=No removal, and Dataverse REST API patterns
+- `.agents/skills/dataverse-environment-variables/` — installable skill (`gh skill install KayodeAjayi200/powerplatform-ai-toolkit dataverse-environment-variables`)
+- `skills/dataverse-environment-variables.md` added to `AGENT.md` reading list
+
+### Changed
+- `setup/config-status.md` — removed dashboard rows, updated ADO row to reflect no-PAT remote MCP, added `mcp-tools/` links to each MCP row
+
+### Removed
+- `setup/environment-variables.md` — content promoted to proper installable skill (`dataverse-environment-variables`)
+
 ---
 
 ## [2026-06-26] — Dashboard removal, official MCP updates, fetch-live callouts
