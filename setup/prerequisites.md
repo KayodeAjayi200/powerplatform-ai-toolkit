@@ -5,6 +5,15 @@ This file is read by the AI agent during Phase 1B of setup.
 Run the blocks below — they check whether each tool is already installed before installing anything.
 After installing, the agent reads `setup/cli-auth.md` to authenticate each tool.
 
+> **⚠️ Versions and package IDs change — verify before running.**  
+> The `.NET` version requirement, `winget` package IDs, and PAC CLI install path update regularly.  
+> Always check these before running the install script:  
+> - Power Platform tools (canonical list): https://learn.microsoft.com/en-us/power-platform/developer/tools  
+> - PAC CLI docs: https://learn.microsoft.com/en-us/power-platform/developer/cli/introduction  
+> - .NET download: https://dotnet.microsoft.com/download/dotnet  
+> - Node.js download: https://nodejs.org/en/download  
+> - GitHub CLI: https://cli.github.com
+
 ---
 
 ## Core tools (always required)

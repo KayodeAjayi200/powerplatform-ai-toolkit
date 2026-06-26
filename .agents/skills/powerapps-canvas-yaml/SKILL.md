@@ -21,6 +21,12 @@ Official references:
 - Current static schema: https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/refs/heads/master/schemas/pa-yaml/v3.0/pa.schema.yaml
 - External tools workflow: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/create-canvas-external-tools
 
+> **⚠️ The `.pa.yaml` schema is in active development — fetch the live schema before every authoring session.**  
+> Property names, control types, and valid values in this guide may lag behind the actual schema.  
+> Always fetch fresh before authoring:  
+> `https://raw.githubusercontent.com/microsoft/PowerApps-Tooling/refs/heads/master/schemas/pa-yaml/v3.0/pa.schema.yaml`  
+> If that URL 404s, the schema path has moved — check: https://github.com/microsoft/PowerApps-Tooling/tree/master/schemas/pa-yaml
+
 ---
 
 ## ⚠️ Confirmed YAML Gotchas — Read Before Editing
