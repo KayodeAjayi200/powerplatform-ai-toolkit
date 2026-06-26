@@ -227,14 +227,6 @@ Collect the required credentials from the user, then write or update the active 
 **Key rule:** Detect the active coding client before writing MCP config. Codex, VS Code/Copilot, Claude Code, Cursor, Windsurf, and Zed use different config locations and schemas. If the config file already exists, read it first and merge — only add or update keys, never overwrite the whole file.
 
 When installing or creating agent skills, detect the active client before writing files. Codex, GitHub Copilot, Claude Code, and Windsurf support `SKILL.md` bundles directly; Cursor and Zed primarily use rules or `AGENTS.md`. Use `setup/agent-skills-clients.md` for exact locations and verification steps.
-
-Also add this toolkit's local path to the filesystem MCP so your skill files stay accessible:
-
-```powershell
-# Ask the user where they cloned this repo — then add it to the filesystem MCP paths
-$toolkitPath = "C:\Repositories\powerplatform-ai-toolkit"  # confirm with user
-```
-
 Tell the user: "Restart your AI coding tool (e.g. VS Code) after this step for the MCP config to take effect."
 
 For canvas app switching or 404 recovery, prefer the repo helper script so both canvas MCP entries stay in sync:
