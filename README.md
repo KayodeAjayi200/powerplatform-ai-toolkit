@@ -37,15 +37,7 @@ Read AGENT.md from that repo and follow the setup instructions automatically.
 Then read workflows/project-kickoff.md and run the project kickoff checklist.
 ```
 
-If you have already cloned the repo locally:
-
-```
-Set up my Power Apps development environment.
-Read AGENT.md from: C:\Repositories\powerplatform-ai-toolkit
-Follow the setup instructions automatically.
-Then read workflows/project-kickoff.md and run the project kickoff checklist.
-```
-
+That's it. No local clone required — the agent reads everything from GitHub.
 ---
 
 ## What is in this repo
