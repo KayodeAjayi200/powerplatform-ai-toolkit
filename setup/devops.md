@@ -357,7 +357,7 @@ Azure DevOps can also host the project's source repo. This is useful when the us
 
 Ask:
 
-> "Would you also like me to set up an Azure Repos Git repo for this solution, so you can save the current solution state to DevOps from the dashboard?"
+> "Would you also like me to set up an Azure Repos Git repo for this solution so solution exports can be version-controlled and pushed to Azure DevOps?"
 
 If yes, use an existing repo when possible. If it does not exist and the user has permission, create it:
 
@@ -408,8 +408,8 @@ If Azure CLI or permissions are blocked, give the user the manual path:
 1. Open `https://dev.azure.com/<org>/<project>/_git`.
 2. Create or choose a repo.
 3. Copy the clone URL.
-4. Paste it into the dashboard DevOps tab as **Remote URL**.
-5. Click **Set Up Repo**.
+4. Run `git remote add azure <clone-url>` in the project root.
+5. Run `git push azure main` to push.
 
 
 ---
