@@ -52,6 +52,24 @@ Recommended fallbacks include:
 | Azure DevOps automation | A Markdown backlog, CSV import plan, or manual ADO work item instructions |
 | Dataverse/SharePoint creation | Schema plan plus exact commands/instructions for an admin to run |
 
+### Running scripts without a local clone
+
+This toolkit does not need to be cloned locally. The GitHub MCP reads it from the URL. However, several steps reference PowerShell scripts using relative paths like .\setup\scripts\update-canvas-mcp-from-url.ps1.
+
+When no local clone is present, download and run scripts on demand using their raw GitHub URL:
+
+```powershell
+# Pattern: download a script to TEMP and run it
+$raw = "https://raw.githubusercontent.com/KayodeAjayi200/powerplatform-ai-toolkit/main"
+iwr "$raw/setup/scripts/update-canvas-mcp-from-url.ps1" -OutFile "$env:TEMP\update-canvas-mcp-from-url.ps1"
+powershell -ExecutionPolicy Bypass -File "$env:TEMP\update-canvas-mcp-from-url.ps1" -StudioUrl "<STUDIO_URL>"
+
+iwr "$raw/setup/scripts/open-dashboard.ps1" -OutFile "$env:TEMP\open-dashboard.ps1"
+powershell -ExecutionPolicy Bypass -File "$env:TEMP\open-dashboard.ps1"
+```
+
+Apply this pattern to any script in setup/scripts/ — replace the filename as needed. When a local clone *is* present, use the relative path (.\setup\scripts\...) instead.
+
 ### User shortcut commands
 
 Treat these user phrases as direct operational commands:
