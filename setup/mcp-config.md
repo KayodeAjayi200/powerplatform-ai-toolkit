@@ -72,8 +72,7 @@ Ask the user for each of these before writing the config. Items marked *(optiona
 | **GitHub PAT** | github.com → Settings → Developer settings → Fine-grained tokens → New token → give: Contents R/W, Pull requests R/W, Issues R/W, Workflows R/W, Metadata Read |
 | **Dataverse Connection URL** | Power Automate → My connections → Common Data Service → `⋯` → Details → copy the full URL |
 | **Tenant ID** | Azure Portal → Microsoft Entra ID → Overview → Tenant ID |
-| **ADO Org URL** *(optional)* | Your Azure DevOps URL, e.g. `https://dev.azure.com/myorg` |
-| **ADO PAT** *(optional)* | dev.azure.com → User settings → Personal access tokens |
+| **ADO Org name** *(optional)* | The organisation name from your ADO URL, e.g. `contoso` from `https://dev.azure.com/contoso` — no PAT needed |
 | **Copilot Studio MCP URL** *(optional)* | Copilot Studio → your agent → Settings → Channels → MCP Client |
 | **Canvas App ID** *(optional — set after app is open in Studio)* | Power Apps Studio URL → after `app-id=` |
 | **Canvas Environment ID** *(optional — set after app is open in Studio)* | Power Apps Studio URL → after `/e/` |
@@ -89,8 +88,7 @@ Ask the user for each of these before writing the config. Items marked *(optiona
 $githubPat      = "PASTE_GITHUB_PAT_HERE"
 $dataverseUrl   = "PASTE_DATAVERSE_CONNECTION_URL_HERE"
 $tenantId       = "PASTE_TENANT_ID_HERE"
-$adoOrgUrl      = "PASTE_ADO_ORG_URL_HERE"          # or "" to skip
-$adoPat         = "PASTE_ADO_PAT_HERE"               # or "" to skip
+$adoOrg         = "PASTE_ADO_ORG_NAME_HERE"          # e.g. "contoso", or "" to skip
 $copilotStudio  = "PASTE_COPILOT_STUDIO_MCP_URL"     # or "" to skip
 $canvasAppId    = "PASTE_CANVAS_APP_ID_HERE"          # or "" to set later
 $canvasEnvId    = "PASTE_CANVAS_ENV_ID_HERE"          # or "" to set later
@@ -119,7 +117,6 @@ if (Test-Path $mcpPath) {
 
 # ── Helper: add or update a single MCP server entry ──────────────────────────
 function Set-McpServer($config, $key, $value) {
-    # Add the server if it doesn't exist; update it if it does
     if ($config.mcpServers.PSObject.Properties[$key]) {
         $config.mcpServers.$key = $value
         Write-Host "  Updated MCP server: $key"
@@ -130,7 +127,7 @@ function Set-McpServer($config, $key, $value) {
 }
 
 # ── Canvas App Authoring MCP (primary — stable global tool) ──────────────────
-# Official docs: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/canvas-app-mcp-server
+# Official docs: https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/create-canvas-external-tools
 # Plugin repo: https://aka.ms/canvas-authoring-mcp
 Set-McpServer $mcp "powerapps-canvas" ([PSCustomObject]@{
     command = "CanvasAuthoringMcpServer"
@@ -159,7 +156,7 @@ Set-McpServer $mcp "canvas-authoring" ([PSCustomObject]@{
 })
 
 # ── Dataverse MCP ─────────────────────────────────────────────────────────────
-# Official docs: https://learn.microsoft.com/en-us/power-apps/developer/data-platform/dataverse-mcp
+# Official package: https://www.nuget.org/packages/Microsoft.PowerPlatform.Dataverse.MCP
 Set-McpServer $mcp "dataverse" ([PSCustomObject]@{
     type    = "local"
     command = "Microsoft.PowerPlatform.Dataverse.MCP"
@@ -172,6 +169,7 @@ Set-McpServer $mcp "dataverse" ([PSCustomObject]@{
 })
 
 # ── Copilot Studio MCP (skip if no URL provided) ─────────────────────────────
+# Official package: https://www.nuget.org/packages/Microsoft.Agents.CopilotStudio.Mcp
 if ($copilotStudio -ne "" -and $copilotStudio -ne "PASTE_COPILOT_STUDIO_MCP_URL") {
     Set-McpServer $mcp "copilot-studio" ([PSCustomObject]@{
         type    = "local"
@@ -192,29 +190,32 @@ Set-McpServer $mcp "github" ([PSCustomObject]@{
     env     = [PSCustomObject]@{ GITHUB_PERSONAL_ACCESS_TOKEN = $githubPat }
 })
 
-# ── Azure DevOps MCP (skip if no credentials provided) ───────────────────────
-if ($adoOrgUrl -ne "" -and $adoPat -ne "" -and $adoPat -ne "PASTE_ADO_PAT_HERE") {
+# ── Azure DevOps MCP (official Microsoft remote MCP — skip if no org provided) ─
+# GitHub: https://github.com/microsoft/azure-devops-mcp
+# Docs: https://learn.microsoft.com/en-us/azure/devops/mcp-server/remote-mcp-server
+# No PAT needed — authenticates via Microsoft account on first use
+if ($adoOrg -ne "" -and $adoOrg -ne "PASTE_ADO_ORG_NAME_HERE") {
     Set-McpServer $mcp "azure-devops" ([PSCustomObject]@{
-        type    = "local"
-        command = "npx"
-        args    = @("-y", "@tiberriver256/mcp-server-azure-devops")
-        env     = [PSCustomObject]@{
-            AZURE_DEVOPS_ORG_URL     = $adoOrgUrl
-            AZURE_DEVOPS_AUTH_METHOD = "pat"
-            AZURE_DEVOPS_PAT         = $adoPat
-        }
+        type = "http"
+        url  = "https://mcp.dev.azure.com/$adoOrg"
     })
 }
+
+# ── Microsoft Learn MCP ───────────────────────────────────────────────────────
+# Gives the agent live access to Microsoft docs — no credentials needed
+# Docs: https://learn.microsoft.com/en-us/training/support/mcp
+Set-McpServer $mcp "microsoft-learn" ([PSCustomObject]@{
+    type = "http"
+    url  = "https://learn.microsoft.com/api/mcp"
+})
 
 # ── Filesystem MCP ────────────────────────────────────────────────────────────
 # Merges new paths into existing list — never removes paths already configured
 $existingPaths = @()
 if ($mcp.mcpServers.PSObject.Properties["filesystem"]) {
-    # Extract existing paths (everything after "-y" and the package name)
     $existingArgs = $mcp.mcpServers.filesystem.args
     $existingPaths = $existingArgs | Where-Object { $_ -notmatch "^-" -and $_ -notmatch "^@" }
 }
-# Combine existing + new, deduplicate
 $allPaths = ($existingPaths + $filesystemPaths) | Sort-Object -Unique
 $fsArgs   = @("-y", "@modelcontextprotocol/server-filesystem") + $allPaths
 
