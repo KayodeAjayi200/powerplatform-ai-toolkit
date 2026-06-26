@@ -1,0 +1,4 @@
+interface:
+  display_name: "Power Apps Canvas Accessibility"
+  short_description: "Make Canvas Apps WCAG 2.1 AA compliant."
+  default_prompt: "Use powerapps-canvas-accessibility to audit and fix accessibility issues in my canvas app."
