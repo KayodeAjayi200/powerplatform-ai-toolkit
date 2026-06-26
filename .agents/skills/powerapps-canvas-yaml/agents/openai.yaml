@@ -1,0 +1,4 @@
+interface:
+  display_name: "Power Apps Canvas YAML"
+  short_description: "Generate and validate Power Apps .pa.yaml source files."
+  default_prompt: "Use the powerapps-canvas-yaml skill to generate valid .pa.yaml for this canvas app control."
