@@ -53,13 +53,23 @@ Then read workflows/project-kickoff.md and run the project kickoff checklist.
 ```
 powerplatform-ai-toolkit/
 ├── AGENT.md                       <- Agent bootstrap: read this to auto-setup + build
+├── CHANGELOG.md                   <- Notable changes
 ├── .github/
 │   └── copilot-instructions.md   <- Auto-loaded by GitHub Copilot
 ├── .agents/
-│   └── skills/                   <- Installable agent skills (Codex, Copilot, Claude, Windsurf)
-│       ├── copilot-studio-agent-clone/    <- Clone/repair Copilot Studio agents + Dataverse MCP
-│       ├── copilot-studio-child-agent-tools/ <- Add MCP tools to Copilot Studio child agents
-│       └── dataverse-solution-publisher/ <- Fix solution publisher prefix drift
+│   └── skills/                   <- 12 installable agent skills (Codex, Copilot, Claude, Windsurf)
+│       ├── copilot-studio-agent-clone/       <- Clone/repair Copilot Studio agents
+│       ├── copilot-studio-child-agent-tools/ <- Add MCP tools to child agents
+│       ├── dataverse-solution-publisher/     <- Fix solution publisher prefix drift
+│       ├── dataverse-environment-variables/  <- Create env vars + DataSource bindings
+│       ├── powerapps-canvas-app/             <- Canvas app formulas, galleries, forms
+│       ├── powerapps-canvas-design/          <- Containers, Fluent UI, responsive layout
+│       ├── powerapps-canvas-yaml/            <- Valid .pa.yaml schema + preflight checks
+│       ├── powerapps-canvas-accessibility/   <- WCAG 2.1 AA compliance
+│       ├── powerapps-canvas-image-visuals/   <- Charts, SVGs, QuickChart.io
+│       ├── canvas-authoring-mcp/             <- Canvas Authoring MCP workflow
+│       ├── powerapps-sharepoint-list-design/ <- SharePoint lists for Power Apps
+│       └── powerapps-delegation/             <- Safe large data source filtering
 ├── setup/
 │   ├── prerequisites.md           <- Check-first install for Node, PAC CLI, .NET, git, gh
 │   ├── cli-auth.md                <- Sign-in scripts with account selection for each tool
@@ -78,26 +88,47 @@ powerplatform-ai-toolkit/
 │   ├── project-kickoff.md         <- ⭐ Start here — kickoff prompt, config check, skills reading list
 │   └── new-app.md                 <- Detailed end-to-end new app build workflow
 ├── mcp-tools/                     <- Per-server reference docs
-└── skills/                        <- Deep domain knowledge for canvas app development, including valid Canvas YAML, QuickChart, and SVG Image control guidance
+└── skills/                        <- Deep domain knowledge: Canvas YAML, Power Fx, design, accessibility, image visuals, SharePoint, Dataverse env vars, delegation
 ```
 
 ---
 
 ## Agent skills — install with one command
 
-The three Copilot Studio skills are installable directly from this repo:
+All 12 skills are installable directly from this repo:
 
 ```bash
+# Copilot Studio & Dataverse
 gh skill install KayodeAjayi200/powerplatform-ai-toolkit copilot-studio-agent-clone
 gh skill install KayodeAjayi200/powerplatform-ai-toolkit copilot-studio-child-agent-tools
 gh skill install KayodeAjayi200/powerplatform-ai-toolkit dataverse-solution-publisher
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit dataverse-environment-variables
+
+# Canvas App
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-canvas-app
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-canvas-design
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-canvas-yaml
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-canvas-accessibility
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-canvas-image-visuals
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit canvas-authoring-mcp
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-sharepoint-list-design
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-delegation
 ```
 
-| Skill | Trigger |
+| Skill | Use when... |
 |---|---|
-| `copilot-studio-agent-clone` | Given a Copilot Studio URL to clone, migrate, or repair |
+| `copilot-studio-agent-clone` | Cloning or repairing a Copilot Studio agent from a URL |
 | `copilot-studio-child-agent-tools` | Adding/fixing Dataverse MCP tools on child agents |
 | `dataverse-solution-publisher` | Solution components must use a specific publisher prefix |
+| `dataverse-environment-variables` | Creating env vars with DataSource bindings for SharePoint |
+| `powerapps-canvas-app` | Power Fx formulas, galleries, forms, navigation, collections |
+| `powerapps-canvas-design` | Containers, Fluent UI, responsive layout, design system |
+| `powerapps-canvas-yaml` | Generating or validating `.pa.yaml` source files |
+| `powerapps-canvas-accessibility` | WCAG 2.1 AA compliance for canvas apps |
+| `powerapps-canvas-image-visuals` | Charts, KPI visuals, SVGs via QuickChart.io |
+| `canvas-authoring-mcp` | Connecting to and editing a live app via Canvas MCP |
+| `powerapps-sharepoint-list-design` | SharePoint lists with clean internal names for Power Apps |
+| `powerapps-delegation` | Safe filtering of large Dataverse, SharePoint, or SQL sources |
 
 See [`.agents/skills/README.md`](.agents/skills/README.md) for cross-client setup (Claude Code, Windsurf, Cursor).
 
@@ -112,6 +143,7 @@ See [`.agents/skills/README.md`](.agents/skills/README.md) for cross-client setu
 | `copilot-studio` | Manage Copilot Studio agents | Agent MCP URL, Tenant ID |
 | `github` | Repos, issues, PRs | GitHub PAT |
 | `azure-devops` | Pipelines, work items | ADO org name |
+| `microsoft-learn` | Live Microsoft docs, search, grounded answers | None |
 | `filesystem` | Local file access | One or more folder paths |
 | `memory` | Persistent knowledge graph | None |
 | `sequential-thinking` | Structured reasoning | None |
