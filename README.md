@@ -56,6 +56,11 @@ powerplatform-ai-toolkit/
 ├── AGENT.md                       <- Agent bootstrap: read this to auto-setup + build
 ├── .github/
 │   └── copilot-instructions.md   <- Auto-loaded by GitHub Copilot
+├── .agents/
+│   └── skills/                   <- Installable agent skills (Codex, Copilot, Claude, Windsurf)
+│       ├── copilot-studio-agent-clone/    <- Clone/repair Copilot Studio agents + Dataverse MCP
+│       ├── copilot-studio-child-agent-tools/ <- Add MCP tools to Copilot Studio child agents
+│       └── dataverse-solution-publisher/ <- Fix solution publisher prefix drift
 ├── setup/
 │   ├── prerequisites.md           <- Check-first install for Node, PAC CLI, .NET, git, gh
 │   ├── cli-auth.md                <- Sign-in scripts with account selection for each tool
@@ -82,6 +87,26 @@ powerplatform-ai-toolkit/
 ├── mcp-tools/                     <- Per-server reference docs
 └── skills/                        <- Deep domain knowledge for canvas app development, including valid Canvas YAML, QuickChart, and SVG Image control guidance
 ```
+
+---
+
+## Agent skills — install with one command
+
+The three Copilot Studio skills are installable directly from this repo:
+
+```bash
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit copilot-studio-agent-clone
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit copilot-studio-child-agent-tools
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit dataverse-solution-publisher
+```
+
+| Skill | Trigger |
+|---|---|
+| `copilot-studio-agent-clone` | Given a Copilot Studio URL to clone, migrate, or repair |
+| `copilot-studio-child-agent-tools` | Adding/fixing Dataverse MCP tools on child agents |
+| `dataverse-solution-publisher` | Solution components must use a specific publisher prefix |
+
+See [`.agents/skills/README.md`](.agents/skills/README.md) for cross-client setup (Claude Code, Windsurf, Cursor).
 
 ---
 
