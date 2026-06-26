@@ -76,7 +76,7 @@ Ask the user for each of these before writing the config. Items marked *(optiona
 | **Copilot Studio MCP URL** *(optional)* | Copilot Studio → your agent → Settings → Channels → MCP Client |
 | **Canvas App ID** *(optional — set after app is open in Studio)* | Power Apps Studio URL → after `app-id=` |
 | **Canvas Environment ID** *(optional — set after app is open in Studio)* | Power Apps Studio URL → after `/e/` |
-| **Filesystem paths** | All local repo folders the agent should access — at minimum: the path to this toolkit + any solution repos |
+| **Filesystem paths** *(optional)* | Any local solution/project repos the agent should access directly. The toolkit itself does not need to be cloned — the GitHub MCP reads it from the URL. |
 
 ---
 
@@ -93,11 +93,11 @@ $copilotStudio  = "PASTE_COPILOT_STUDIO_MCP_URL"     # or "" to skip
 $canvasAppId    = "PASTE_CANVAS_APP_ID_HERE"          # or "" to set later
 $canvasEnvId    = "PASTE_CANVAS_ENV_ID_HERE"          # or "" to set later
 
-# Filesystem paths — start with this toolkit, add solution repos as needed
-# The agent will prompt the user for solution repo paths in PART C
+# Filesystem paths — list local solution/project repos the agent should read/write
+# The toolkit repo does NOT need to be cloned — the GitHub MCP reads it from GitHub
+# Leave empty if you have no local repos yet; add them when you create/clone project repos
 $filesystemPaths = @(
-    "C:\Repositories\powerplatform-ai-toolkit"   # <-- update to actual clone path
-    # "C:\Repositories\my-hr-app"               # add solution repos here
+    # "C:\Repositories\my-hr-app"     # add your project repos here
 )
 
 # ── Ensure config folder exists ───────────────────────────────────────────────
@@ -209,21 +209,27 @@ Set-McpServer $mcp "microsoft-learn" ([PSCustomObject]@{
     url  = "https://learn.microsoft.com/api/mcp"
 })
 
-# ── Filesystem MCP ────────────────────────────────────────────────────────────
-# Merges new paths into existing list — never removes paths already configured
-$existingPaths = @()
-if ($mcp.mcpServers.PSObject.Properties["filesystem"]) {
-    $existingArgs = $mcp.mcpServers.filesystem.args
-    $existingPaths = $existingArgs | Where-Object { $_ -notmatch "^-" -and $_ -notmatch "^@" }
-}
-$allPaths = ($existingPaths + $filesystemPaths) | Sort-Object -Unique
-$fsArgs   = @("-y", "@modelcontextprotocol/server-filesystem") + $allPaths
+# ── Filesystem MCP (only needed for local project repos) ─────────────────────
+# The toolkit itself does NOT need to be in this list — use the GitHub MCP for that.
+# Only add paths here for repos you have cloned locally and need the agent to read/write.
+if ($filesystemPaths.Count -gt 0) {
+    $existingPaths = @()
+    if ($mcp.mcpServers.PSObject.Properties["filesystem"]) {
+        $existingArgs = $mcp.mcpServers.filesystem.args
+        $existingPaths = $existingArgs | Where-Object { $_ -notmatch "^-" -and $_ -notmatch "^@" }
+    }
+    $allPaths = ($existingPaths + $filesystemPaths) | Sort-Object -Unique
+    $fsArgs   = @("-y", "@modelcontextprotocol/server-filesystem") + $allPaths
 
-Set-McpServer $mcp "filesystem" ([PSCustomObject]@{
-    type    = "local"
-    command = "npx"
-    args    = $fsArgs
-})
+    Set-McpServer $mcp "filesystem" ([PSCustomObject]@{
+        type    = "local"
+        command = "npx"
+        args    = $fsArgs
+    })
+    Write-Host "Filesystem MCP covers: $($allPaths -join ', ')"
+} else {
+    Write-Host "No filesystem paths provided — skipping filesystem MCP (add project repos later)"
+}
 
 # ── Memory MCP ───────────────────────────────────────────────────────────────
 Set-McpServer $mcp "memory" ([PSCustomObject]@{
@@ -250,8 +256,26 @@ Set-McpServer $mcp "playwright" ([PSCustomObject]@{
 $mcp | ConvertTo-Json -Depth 10 | Set-Content $mcpPath -Encoding UTF8
 Write-Host ""
 Write-Host "MCP config written to: $mcpPath"
-Write-Host "Filesystem MCP covers: $($allPaths -join ', ')"
 Write-Host "Restart your AI coding tool for the changes to take effect."
+```
+
+---
+
+## Adding a project repo to the filesystem MCP later
+
+When you clone a new project repo, add its path to the filesystem MCP:
+
+```powershell
+$mcpPath  = Join-Path $env:USERPROFILE ".copilot\mcp-config.json"
+$mcp      = Get-Content $mcpPath -Raw | ConvertFrom-Json
+$newPath  = "C:\Repositories\my-new-project"
+
+$existingArgs = $mcp.mcpServers.filesystem.args
+$existingPaths = $existingArgs | Where-Object { $_ -notmatch "^-" -and $_ -notmatch "^@" }
+$allPaths = ($existingPaths + $newPath) | Sort-Object -Unique
+$mcp.mcpServers.filesystem.args = @("-y", "@modelcontextprotocol/server-filesystem") + $allPaths
+$mcp | ConvertTo-Json -Depth 10 | Set-Content $mcpPath -Encoding UTF8
+Write-Host "Added: $newPath"
 ```
 
 ---
@@ -285,18 +309,7 @@ powershell -ExecutionPolicy Bypass -File .\setup\scripts\update-canvas-mcp-from-
   -StudioUrl "https://make.powerapps.com/e/<ENV_ID>/canvas/?action=edit&app-id=%2Fproviders%2FMicrosoft.PowerApps%2Fapps%2F<APP_ID>"
 ```
 
-This avoids copy/paste mistakes and guarantees both `powerapps-canvas` and `canvas-authoring` stay aligned. By default it updates:
-
-- User-level Copilot JSON: `~/.copilot/mcp-config.json`
-- User-level Codex TOML: `~/.codex/config.toml`
-- Project-level Codex TOML: `.codex/config.toml`
-- Project-level VS Code/Copilot JSON: `.vscode/mcp.json`
-- Project-level Claude/Cursor/Zed MCP config files
-- Existing Cursor/Windsurf/Claude user configs when their config folders/files already exist
-
-Use `-ProjectPath "<PATH>"` when the target project is not the current directory. Use `-SkipUserConfigs` or `-SkipProjectConfigs` when you intentionally want only one scope.
-
-**GitHub Copilot CLI shortcut:** Instead of running the script above, just run `/configure-canvas-mcp` with your app open in Studio and paste the Studio URL. It handles the update automatically.
+**GitHub Copilot CLI shortcut:** Run `/configure-canvas-mcp` with your app open in Studio and paste the Studio URL. It handles the update automatically.
 
 ---
 
@@ -319,62 +332,18 @@ powershell -ExecutionPolicy Bypass -File .\setup\scripts\update-canvas-mcp-from-
    - Zed: `"context_servers"`
 4. Restart/reload both MCP servers (`powerapps-canvas`, `canvas-authoring`) where both are configured.
 5. Run `list_controls` as a hard validation gate.
-6. If `list_controls` fails, run one automated recovery cycle:
-   - re-run the URL script,
-   - re-check the active client's actual config file,
-   - restart the relevant MCP servers,
-   - ask user to refresh Studio and confirm coauthoring ON,
-   - wait 20-30 seconds,
-   - retry `list_controls`.
+6. If `list_controls` fails, run one automated recovery cycle.
 7. Do not continue to `sync_canvas` or `compile_canvas` until `list_controls` succeeds.
 
-Never assume all clients use `mcpServers`. Codex uses TOML under `[mcp_servers.<name>]`; VS Code uses `"servers"`; Zed uses `"context_servers"`.
-
-### Fast recovery checklist (the exact flow that fixed your MCP issues)
+### Fast recovery checklist
 
 When Canvas MCP is failing, run this sequence in order:
 
-1. Copy the full Studio edit URL for the app you want to edit:
-   `https://make.powerapps.com/e/<ENV_ID>/canvas/?action=edit&app-id=%2Fproviders%2FMicrosoft.PowerApps%2Fapps%2F<APP_ID>`
-2. Extract IDs from that URL:
-   - Environment ID = value after `/e/`
-   - App ID = final GUID after `apps%2F` (or `apps/`)
-3. Update **both** MCP entries in `~/.copilot/mcp-config.json`:
-   - `mcpServers.powerapps-canvas.env.CANVAS_APP_ID / CANVAS_ENVIRONMENT_ID`
-   - `mcpServers.canvas-authoring.env.CANVAS_APP_ID / CANVAS_ENVIRONMENT_ID`
-4. Restart MCP servers (or restart your coding tool) so config is reloaded.
-5. Confirm Power Apps Studio has coauthoring enabled and the app tab is still open.
-6. Pull current app state:
-   - `powerapps-canvas-sync_canvas` (this is pull-only and overwrites local YAML)
-7. Edit YAML locally.
-8. Push changes back:
-   - `powerapps-canvas-compile_canvas` (Validation PASSED = committed to Studio)
-
-Common confusion to avoid:
-- `sync_canvas` pulls only; it does not push edits.
-- `compile_canvas` is what pushes to Studio.
-- If one canvas MCP entry is updated and the other is stale, you may get inconsistent failures.
-- If Codex still does not show the server, check that the config uses `[mcp_servers.<name>.env]` nested env tables and that `powerapps-canvas` uses `cmd.exe` with the absolute `CanvasAuthoringMcpServer.cmd` path on Windows.
-
-### Changes are not showing up in Power Apps Studio
-
-1. Make sure **coauthoring is enabled**: Studio → Settings → Updates → Coauthoring (must be on)
-2. Ask the AI tool to list available controls — if it gets a response, the MCP connection is working
-3. Run `/configure-canvas-mcp` again with a fresh Studio URL to re-establish the session
-
-### The Canvas MCP server is not responding
-
-1. Check that .NET 10.0+ is installed: run `dotnet --version` — it must show `10.x` or higher
-2. Check that `CanvasAuthoringMcpServer` is installed: run `dotnet tool list -g`
-3. Make sure the Studio tab is still open and coauthoring is on — the server connects to the live session
-4. Run `/configure-canvas-mcp` again to re-register the connection
-
-### App was broken by recent changes — how to roll back
-
-Tell the AI tool: "The recent changes broke the app. Please revert to the last working version."
-
-The agent will:
-1. Sync the current state from the coauthoring session
-2. Identify which changes were made
-3. Restore the previous working code
-4. Validate and re-sync the stable version
+1. Copy the full Studio edit URL for the app you want to edit
+2. Extract IDs from that URL (Environment ID after `/e/`, App ID after `apps%2F`)
+3. Update **both** MCP entries (`powerapps-canvas` and `canvas-authoring`)
+4. Restart MCP servers so config is reloaded
+5. Confirm Power Apps Studio has coauthoring enabled and the app tab is still open
+6. Pull current app state: `powerapps-canvas-sync_canvas` (pull-only, overwrites local YAML)
+7. Edit YAML locally
+8. Push changes back: `powerapps-canvas-compile_canvas` (Validation PASSED = committed to Studio)
