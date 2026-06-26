@@ -87,7 +87,17 @@ powerplatform-ai-toolkit/
 ├── workflows/
 │   ├── project-kickoff.md         <- ⭐ Start here — kickoff prompt, config check, skills reading list
 │   └── new-app.md                 <- Detailed end-to-end new app build workflow
-├── mcp-tools/                     <- Per-server reference docs
+├── mcp-tools/                     <- Per-server MCP reference docs
+│   ├── canvas-authoring.md           <- Canvas Authoring MCP (edit live apps via AI)
+│   ├── dataverse.md                  <- Dataverse MCP (read/write tables)
+│   ├── copilot-studio.md             <- Copilot Studio MCP (manage agents)
+│   ├── azure-devops.md               <- ADO MCP (pipelines, boards, repos — no PAT)
+│   ├── microsoft-learn.md            <- Microsoft Learn MCP (live docs — no credentials)
+│   ├── github.md                     <- GitHub MCP (repos, issues, PRs)
+│   ├── filesystem.md                 <- Filesystem MCP (local file access)
+│   ├── memory.md                     <- Memory MCP (persistent knowledge graph)
+│   ├── sequential-thinking.md        <- Sequential Thinking MCP (structured reasoning)
+│   └── playwright.md                 <- Playwright MCP (browser automation)
 └── skills/                        <- Deep domain knowledge: Canvas YAML, Power Fx, design, accessibility, image visuals, SharePoint, Dataverse env vars, delegation
 ```
 
