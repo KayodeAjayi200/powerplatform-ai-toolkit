@@ -30,6 +30,7 @@ gh skill install KayodeAjayi200/powerplatform-ai-toolkit powerapps-delegation
 gh skill install KayodeAjayi200/powerplatform-ai-toolkit copilot-studio-agent-clone
 gh skill install KayodeAjayi200/powerplatform-ai-toolkit copilot-studio-child-agent-tools
 gh skill install KayodeAjayi200/powerplatform-ai-toolkit dataverse-solution-publisher
+gh skill install KayodeAjayi200/powerplatform-ai-toolkit dataverse-environment-variables
 
 # Update all installed skills at once
 gh skill update --all
@@ -57,6 +58,7 @@ gh skill update --all
 | [copilot-studio-agent-clone](./copilot-studio-agent-clone/SKILL.md) | Cloning or repairing a Copilot Studio agent from a maker URL — sets up Dataverse MCP tools, adds components to a solution, publishes, and verifies |
 | [copilot-studio-child-agent-tools](./copilot-studio-child-agent-tools/SKILL.md) | Adding Dataverse MCP Server actions to child agents, fixing connection-reference errors, or creating brand-new child agents |
 | [dataverse-solution-publisher](./dataverse-solution-publisher/SKILL.md) | Ensuring Dataverse/Power Platform solution components use the correct publisher prefix (e.g. `tm_`) instead of the environment default |
+| [dataverse-environment-variables](./dataverse-environment-variables/SKILL.md) | Creating Dataverse environment variables (Text, DataSource, Secret) in a solution — SharePoint bindings, Export=No, list GUIDs, REST API patterns |
 
 ---
 
