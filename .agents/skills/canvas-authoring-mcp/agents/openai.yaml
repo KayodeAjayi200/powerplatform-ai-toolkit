@@ -1,0 +1,7 @@
+interface:
+  display_name: "Canvas Authoring MCP"
+  short_description: "Connect and use the Canvas Authoring MCP server."
+  default_prompt: "Use canvas-authoring-mcp to connect to my canvas app and start editing via MCP."
+
+policy:
+  allow_implicit_invocation: true
