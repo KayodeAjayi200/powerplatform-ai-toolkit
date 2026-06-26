@@ -9,6 +9,12 @@ Power Platform development it gives the team:
 - **Pipelines** for automated solution deployment (as an alternative to GitHub Actions)
 - **Repos** for solution source files (as an alternative to GitHub)
 
+> **⚠️ Fetch-live check**
+> The Azure DevOps CLI extension and REST API versions evolve. Before running these commands, verify:
+> - CLI quick reference: https://learn.microsoft.com/en-us/azure/devops/cli/quick-reference
+> - REST API reference: https://learn.microsoft.com/en-us/rest/api/azure/devops/
+> - ADO MCP (preferred over CLI where available): see [`mcp-tools/azure-devops.md`](../mcp-tools/azure-devops.md)
+
 ---
 
 ## Before you start — ask the user these questions
@@ -397,20 +403,6 @@ git branch -M $branch
 git status --short
 ```
 
-Update `dashboard/state/devops-plan.json`:
-
-```json
-{
-  "repository": {
-    "name": "YOUR_REPO_NAME",
-    "remoteName": "azure",
-    "remoteUrl": "https://dev.azure.com/ORG/PROJECT/_git/REPO",
-    "defaultBranch": "main",
-    "localPath": "PROJECT_ROOT"
-  }
-}
-```
-
 If Azure CLI or permissions are blocked, give the user the manual path:
 
 1. Open `https://dev.azure.com/<org>/<project>/_git`.
@@ -419,26 +411,6 @@ If Azure CLI or permissions are blocked, give the user the manual path:
 4. Paste it into the dashboard DevOps tab as **Remote URL**.
 5. Click **Set Up Repo**.
 
----
-
-## No-code dashboard commits
-
-The local dashboard includes DevOps repo controls so a user can save progress without asking an AI agent:
-
-- **Check Status** — shows local Git branch, remotes, changed files, and whether Azure CLI tools are present.
-- **Set Up Repo** — configures the Azure Repos remote from the dashboard fields.
-- **Commit** — saves all dashboard state, stages current local files, and creates a Git commit.
-- **Commit + Push** — commits and pushes to the configured Azure Repos remote.
-
-Safety rules:
-
-- The dashboard server is localhost-only.
-- It runs fixed `git` and `az` commands only; it does not expose arbitrary shell command execution.
-- It operates only against the project root that contains the `dashboard/` folder.
-- It does not store PATs, passwords, or service principal secrets.
-- If there are no local changes, it reports "No changes to commit" rather than creating an empty commit.
-
-For this to capture the actual Power Platform solution, the current solution source must already be in the local repo. If the latest app changes only exist in Power Apps Studio/Dataverse, export or sync the solution first, then use **Commit** or **Commit + Push**.
 
 ---
 
