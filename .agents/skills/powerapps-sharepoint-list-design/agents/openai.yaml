@@ -1,0 +1,4 @@
+interface:
+  display_name: "Power Apps SharePoint List Design"
+  short_description: "Design SharePoint lists for Power Apps with clean internal names."
+  default_prompt: "Use powerapps-sharepoint-list-design to plan the SharePoint lists for my Power Apps project."
