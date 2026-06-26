@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dataverse Environment Variables"
+  short_description: "Create and configure Dataverse environment variables (Text, DataSource, Secret) inside a Power Platform solution, including SharePoint site/list bindings and Export=No configuration."
+  default_prompt: "Create the environment variables needed for this app's data sources in the solution, including Export=No configuration."
