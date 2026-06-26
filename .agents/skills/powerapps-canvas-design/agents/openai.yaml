@@ -1,0 +1,4 @@
+interface:
+  display_name: "Power Apps Canvas Design"
+  short_description: "Design responsive, accessible Canvas App screens with Fluent UI."
+  default_prompt: "Use the powerapps-canvas-design skill to design this canvas app screen."
