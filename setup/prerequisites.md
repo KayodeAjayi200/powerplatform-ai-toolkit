@@ -89,6 +89,50 @@ Write-Host "Core tools check complete. See setup/cli-auth.md to sign in to each 
 
 ---
 
+## VS Code extensions (install when using Visual Studio Code)
+
+Install these VS Code extensions for the best Power Platform development experience.
+
+| Extension | Purpose | ID |
+|---|---|---|
+| **Copilot Studio** | Clone, edit, and deploy Copilot Studio agents locally | `ms-CopilotStudio.vscode-copilotstudio` |
+| **Power Platform Tools** | PAC CLI integration, solution explorer, environment switcher | `microsoft-isvexptools.powerplatform-vscode` |
+
+```powershell
+# ── VS Code extensions ────────────────────────────────────────────────────────
+# Install silently — already-installed extensions are skipped automatically
+if (Get-Command code -ErrorAction SilentlyContinue) {
+    $installedExts = code --list-extensions 2>&1
+
+    # Copilot Studio extension — clone/edit/deploy agents as YAML (see setup/copilot-studio-vscode.md)
+    if ($installedExts -match "ms-copilotstudio.vscode-copilotstudio") {
+        Write-Host "Copilot Studio VS Code extension already installed — skipping"
+    } else {
+        Write-Host "Installing Copilot Studio VS Code extension..."
+        code --install-extension ms-CopilotStudio.vscode-copilotstudio
+        Write-Host "Copilot Studio extension installed"
+    }
+
+    # Power Platform Tools extension
+    if ($installedExts -match "microsoft-isvexptools.powerplatform-vscode") {
+        Write-Host "Power Platform Tools VS Code extension already installed — skipping"
+    } else {
+        Write-Host "Installing Power Platform Tools VS Code extension..."
+        code --install-extension microsoft-isvexptools.powerplatform-vscode
+        Write-Host "Power Platform Tools extension installed"
+    }
+} else {
+    Write-Host "VS Code not found in PATH — skipping extension install"
+    Write-Host "Install manually: https://code.visualstudio.com"
+    Write-Host "Then install: ms-CopilotStudio.vscode-copilotstudio"
+}
+```
+
+After installing, sign in to the Copilot Studio extension with your Microsoft account.
+See `setup/copilot-studio-vscode.md` for the full clone-edit-deploy workflow.
+
+---
+
 ## SharePoint tools (install when app uses SharePoint Lists)
 
 Only install these if the user's app will use SharePoint as a data source.
@@ -158,6 +202,7 @@ $checks = @{
     "dotnet"  = ".NET SDK"
     "gh"      = "GitHub CLI"
     "git"     = "Git"
+    "code"    = "VS Code"
     "m365"    = "m365 CLI (SharePoint)"   # only if installed
     "az"      = "Azure CLI (SQL/Azure)"   # only if installed
     "sqlcmd"  = "sqlcmd (SQL scripts)"    # only if installed
@@ -169,6 +214,13 @@ foreach ($cmd in $checks.Keys) {
     } else {
         Write-Host "  $($checks[$cmd]) — not installed (skip if not needed)"
     }
+}
+
+# Check VS Code extensions separately
+if (Get-Command code -ErrorAction SilentlyContinue) {
+    $exts = code --list-extensions 2>&1
+    if ($exts -match "ms-copilotstudio") { Write-Host "✓ Copilot Studio VS Code extension" }
+    else { Write-Host "  Copilot Studio VS Code extension — not installed" }
 }
 ```
 
